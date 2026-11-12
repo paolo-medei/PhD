@@ -13,40 +13,54 @@ grab <- function(stem, hint=NULL) {
 ##  that map onto our products.
 ###############################################################################
 LS <- list(
+  ## v21 (D5): every code and count below was checked against the value labels
+  ## and question text of each wave (checks/varmap2.R). v20 used one grouping
+  ## for all waves, which is wrong for Ethiopia 2011-2013 and 2015, and read
+  ## Tanzania's PAST holdings (lf02_02) instead of current ones.
+  ## Groups keep v20's meaning: cattle (milk), other meat animals, poultry (eggs).
   ETH = list(
     waves = c(w1="w1", w2="w2", w3="w3", w4="w4", w5="w5"),
-    ## waves 1-2 keep livestock in sect8a_ls_* with the code in ls_s8aq00 and
-    ## the counts split across AGE CLASSES (ls_s8aq02a ... ls_s8aq12a, the "a"
-    ## columns being the totals). Waves 3-5 use sect8_1_ls_* with a single
-    ## "how many does the holder keep" variable. Same concept, different shape.
     stem  = function(w) if (w %in% c("w1","w2")) paste0("sect8a_ls_", w)
                         else paste0("sect8_1_ls_", w),
     hint  = function(w) paste0("ETH_20", c(w1="11",w2="13",w3="15",w4="18",w5="21")[[w]]),
     id    = function(w) if (w %in% c("w2","w3")) "household_id2" else "household_id",
     code  = function(w) if (w %in% c("w1","w2")) "ls_s8aq00" else "ls_code",
-    count = function(w) if (w %in% c("w1","w2"))
-                          "^ls_s8aq(0[2-9]|1[0-2])a$" else "ls_s8_1q01",
-    ## verified: 1 bulls, 2 oxen, 3 cows, 4 steers, 5 heifers, 6 calves |
-    ## 7 goats, 8 sheep, 9 camels | 10-12 chicken/chicks
-    grp   = list(cattle=1:6, smallrum=7:9, poultry=10:12)),
+    ## w1-w2: ls_s8aq13a "grand total owned"; w3: ls_sec_8_1q01; w4-w5: ls_s8_1q01
+    count = function(w) c(w1="ls_s8aq13a", w2="ls_s8aq13a", w3="ls_sec_8_1q01",
+                          w4="ls_s8_1q01", w5="ls_s8_1q01")[[w]],
+    grp   = function(w) switch(w,
+      ## 1 cattle, 2 sheep, 3 goats, 4-6 equines, 7 camels, 8-13 chicken
+      w1 = , w2 = list(cattle=1, smallrum=c(2,3,7), poultry=8:13),
+      ## 1-6 cattle classes, 7-9 goats, 10-12 sheep, 13-15 camels, 16-19 chicken
+      w3 = list(cattle=1:6, smallrum=7:15, poultry=16:19),
+      ## 1-6 cattle classes, 7 goats, 8 sheep, 9 camels, 10-12 chicken
+      list(cattle=1:6, smallrum=7:9, poultry=10:12))),
   TZA = list(
     waves = c(w1="2008", w2="2010", w3="2012", w4="2014", w5="2020"),
-    stem  = function(w) "LF_SEC_02",
+    stem  = function(w) c(w1="SEC_10A", w2="AG_SEC10A", w3="LF_SEC_02",
+                          w4="LF_SEC_02", w5="LF_SEC_02")[[w]],
     hint  = function(w) paste0("TZA_", c(w1="2008",w2="2010",w3="2012",
                                          w4="2014",w5="2020")[[w]]),
     id    = function(w) c(w1="hhid",w2="y2_hhid",w3="y3_hhid",
                           w4="y4_hhid",w5="y5_hhid")[[w]],
-    ## verified: 1 bulls, 2 cows, 3 steers, 4 heifers, 5-6 calves | 7 goats,
-    ## 8 sheep, 9 pigs | 10 chickens, 11 ducks, 12 other poultry
-    code  = function(w) "lvstckid", count = function(w) "lf02_02",
-    grp   = list(cattle=1:6, smallrum=7:9, poultry=10:12))
+    code  = function(w) c(w1="animal", w2="lvstkcode", w3="lvstckid",
+                          w4="lvstckid", w5="lvstckid")[[w]],
+    ## CURRENT holdings, summed over breeds: "How many [ANIMAL] does this
+    ## household currently own?" (indigenous / improved ...)
+    count = function(w) c(w1="^s10aq4_[123]$", w2="^ag10a_05_[123]$",
+                          w3="^lf02_04_[12]$", w4="^lf02_04_[12]$", w5="^lf02_04_[12]$")[[w]],
+    ## 1-6 cattle, 7 goats, 8 sheep, 9 pigs | 2008-2010: 10 chickens, 11 turkeys;
+    ## 2012-2020: 10 chickens, 11 ducks, 12 other poultry
+    grp   = function(w) if (w %in% c("w1","w2"))
+              list(cattle=1:6, smallrum=7:9, poultry=10:11) else
+              list(cattle=1:6, smallrum=7:9, poultry=10:12))
 )
 
 livestock_flags <- function(cc) {
   C <- LS[[cc]]; if (is.null(C)) return(NULL)
   map_dfr(names(C$waves), function(w) {
     d <- grab(C$stem(w), C$hint(w)); if (is.null(d)) return(NULL)
-    idv <- C$id(w); codev <- C$code(w); cnt <- C$count(w)
+    idv <- C$id(w); codev <- C$code(w); cnt <- C$count(w); G <- C$grp(w)
     if (!(idv %in% names(d)) || !(codev %in% names(d))) return(NULL)
     ## the count is either one column or a set of age-class totals to be summed
     cols <- if (grepl("^\\^", cnt)) grep(cnt, names(d), value=TRUE) else
@@ -57,9 +71,9 @@ livestock_flags <- function(cc) {
                     .code = num(.data[[codev]]),
                     .n    = .n) %>%
       group_by(hhid) %>%
-      summarise(own_cattle   = as.integer(any(.code %in% C$grp$cattle   & .n > 0, na.rm=TRUE)),
-                own_smallrum = as.integer(any(.code %in% C$grp$smallrum & .n > 0, na.rm=TRUE)),
-                own_poultry  = as.integer(any(.code %in% C$grp$poultry  & .n > 0, na.rm=TRUE)),
+      summarise(own_cattle   = as.integer(any(.code %in% G$cattle   & .n > 0, na.rm=TRUE)),
+                own_smallrum = as.integer(any(.code %in% G$smallrum & .n > 0, na.rm=TRUE)),
+                own_poultry  = as.integer(any(.code %in% G$poultry  & .n > 0, na.rm=TRUE)),
                 n_tlu        = sum(.n, na.rm=TRUE), .groups="drop") %>%
       mutate(wave = w)
   })

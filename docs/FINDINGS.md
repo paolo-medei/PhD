@@ -9,6 +9,12 @@ etichette dei file `.dta` (`checks/varmap.R`, `checks/varmap2.R`) e ricostruendo
 standard differiscono di poco per la versione di `fixest` (0.14.2); nessuno dei 249 p-value
 controllati cambia soglia di significatività. Gli errori qui sotto sono quindi sistematici, non casuali.
 
+**Verifica indipendente (12/11/2026, dopo le correzioni D1-D5, D7).** `checks/independent_nga_tza.py`
+riconta da zero, in Python e senza riusare il codice della pipeline, la quota di famiglie che comprano
+carne nel quinto più povero e più ricco. Nigeria: 35,2% / 67,4% (pipeline 35,2% / 67,2%).
+Tanzania: 15,5% / 71,8% (pipeline 15,4% / 71,5%). Le piccole differenze vengono dalla definizione di
+acquisto (spesa > 0 invece di quantità convertita > 0).
+
 Stato: **aperto** · **corretto in v21** · **deciso**
 
 ## A. Errori nei dati (colonna sbagliata o dato perso)

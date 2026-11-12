@@ -52,8 +52,10 @@ PROT <- tibble::tribble(
   "cheese",      "kg",     200,
   "coffee",      "kg",     0        # a stimulant, not a protein source
 )
+## v21 (M5, decided 12 Nov 2026): fish OUT - the thesis is about livestock,
+## and only Nigeria had fish in the basket, so counts were not comparable.
 ANIMAL <- c("beef","goat_sheep","pork","poultry","eggs","milk",
-            "milk_processed","cheese","fish")
+            "milk_processed","cheese")
 
 deep_prep <- function(pf) {
   raw <- read.csv(pf, stringsAsFactors=FALSE)

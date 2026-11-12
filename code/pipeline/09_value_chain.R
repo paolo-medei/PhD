@@ -37,8 +37,9 @@ PROT_VC <- tibble::tribble(
   "beef",260, "goat_sheep",250, "pork",250, "poultry",270, "meat_agg",255,
   "fish",200, "eggs_kg",126, "eggs",6.9, "milk",33, "milk_processed",250,
   "cheese",200, "coffee",0)
+## v21 (M5): fish out, as in ANIMAL (07_deep.R)
 ANIM <- c("beef","goat_sheep","pork","poultry","eggs","milk","milk_processed",
-          "cheese","fish")
+          "cheese")
 
 vc_load <- function(pf) {
   raw <- read.csv(pf, stringsAsFactors=FALSE)

@@ -1,0 +1,20 @@
+# Raw survey data: World Bank terms forbid redistribution, and the files are large.
+data/
+*.zip
+*.dta
+*.sav
+_unzipped/
+
+# Household-level panels and run folders are microdata too.
+OUTPUT/
+panel_*.csv
+run_*/
+analisi_*/
+
+# R / OS clutter
+.Rhistory
+.RData
+.Rproj.user/
+.DS_Store
+Thumbs.db
+~$*

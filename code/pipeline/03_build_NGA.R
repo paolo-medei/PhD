@@ -34,14 +34,14 @@ if (exists("RUN_NGA") && !RUN_NGA) message("PART 2b skipped") else if (RUN_BUILD
 
 WAVES_NG <- list(
   w1 = list(year=2010, zipyr="2010", food="sect10b_harvestw1", pre="s10bq",
-            agg="cons_agg_wave1_visit2", welfare="totcons", pc=FALSE,
+            agg="cons_agg_wave1_visit2", welfare="totcons", pc=TRUE,
             weight="hhweight", own="5", gift="6", cvn=FALSE),
   w2 = list(year=2012, zipyr="2012", food="sect10b_harvestw2", pre="s10bq",
-            agg="cons_agg_wave2_visit2", welfare="totcons", pc=FALSE,
+            agg="cons_agg_wave2_visit2", welfare="totcons", pc=TRUE,
             weight="hhweight", own="6", gift="7", cvn=FALSE,
             conv="food_conv_w2ph"),
   w3 = list(year=2015, zipyr="2015", food="sect10b_harvestw3", pre="s10bq",
-            agg="cons_agg_wave3_visit2", welfare="totcons", pc=FALSE,
+            agg="cons_agg_wave3_visit2", welfare="totcons", pc=TRUE,
             weight="hhweight", own="6", gift="7", cvn=FALSE,
             conv="food_conv_w3")
   ## w4 (2018-19) EXCLUDED from v21 (12 Nov 2026): the World Bank no longer
@@ -225,7 +225,8 @@ build_wave_ng <- function(w) {
   names(a)[names(a) == C$weight]  <- "hhweight"
   if (!"hhweight" %in% names(a)) a$hhweight <- NA_real_
   a <- a %>% distinct(hhid, .keep_all=TRUE) %>%
-    ## 2018 already reports per capita; the others report the household total
+    ## v21 (D2): totcons is ALREADY per capita in 2010-2015 (label: "Total
+    ## consumption per capita"); v20 divided it by hhsize a second time.
     mutate(welfare = if (C$pc) num(welfare_raw)
                      else num(welfare_raw) / pmax(num(hhsize), 1)) %>%
     select(-welfare_raw)

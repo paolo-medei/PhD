@@ -63,7 +63,7 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
   if (inherits(pids,"try-error") || is.null(pids) || !nrow(pids)) {
     message("no panel link for ", cc, " — skipped"); next
   }
-  d <- d %>% left_join(pids, by=c("hhid","wave"), relationship="many-to-many") %>%
+  d <- d %>% left_join(pids, by=c("hhid","wave"), relationship="many-to-one") %>%
     filter(!is.na(pid))
 
   ## keep households seen in more than one wave

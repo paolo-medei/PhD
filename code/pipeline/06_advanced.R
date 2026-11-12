@@ -103,28 +103,47 @@ panel_ids <- function(cc) {
     return(bind_rows(out))
   }
   if (cc == "TZA") {
+    ## v21 (D9): one panel unit per household, one link per household.
+    ## The cover page (HH_SEC_A) gives each household its predecessor id and
+    ## says whether it is the ORIGINAL household or a SPLIT-OFF (2010 hh_a11:
+    ## 1-2 original, 3 split-off; 2012 and 2020 hh_a10: 1 original, 2 split-off).
+    ## The original continues its predecessor's unit; a split-off starts its own,
+    ## and so does every household of a lineage with more than one "original".
+    ## v20 linked 2012 and 2020 through the individual roster, so 56 households
+    ## got two ids (their rows were counted twice) and parent and split-off
+    ## households, in the same wave, were treated as one "household" in the
+    ## fixed-effects and permanent-income models.
+    link <- function(w, hhid, prev, orig, prev_pid = NULL) {
+      x <- tibble(hhid = as.character(hhid), prev = as.character(prev),
+                  orig = orig %in% TRUE)
+      x <- x %>% group_by(prev) %>% mutate(n_orig = sum(orig)) %>% ungroup()
+      if (!is.null(prev_pid)) x <- x %>% left_join(prev_pid, by = "prev")
+      else x$ppid <- x$prev
+      x %>% transmute(wave = w, hhid,
+        pid = ifelse(orig & n_orig == 1 & !is.na(prev) & nzchar(prev) & !is.na(ppid),
+                     ppid, paste0(w, "_", hhid)))
+    }
     out <- list()
     d1 <- grab("TZY1.HH.Consumption", "TZA_2008")
     if (!is.null(d1)) out$w1 <- tibble(wave="w1", hhid=as.character(d1$hhid),
                                        pid=as.character(d1$hhid))
-    d2 <- grab("TZY2.HH.Consumption", "TZA_2010")
-    if (!is.null(d2) && "hhid_2008" %in% names(d2))
-      out$w2 <- tibble(wave="w2", hhid=as.character(d2$y2_hhid),
-                       pid=as.character(d2$hhid_2008))
-    b3 <- grab("HH_SEC_B", "TZA_2012")
-    if (!is.null(b3) && all(c("y3_hhid","y2_hhid") %in% names(b3)) && !is.null(out$w2)) {
-      br <- b3 %>% distinct(y3_hhid, y2_hhid) %>%
-        transmute(hhid=as.character(y3_hhid), y2=as.character(y2_hhid)) %>%
-        left_join(out$w2 %>% select(y2=hhid, pid), by="y2")
-      out$w3 <- br %>% transmute(wave="w3", hhid, pid)
+    d2 <- grab("TZY2.HH.Consumption", "TZA_2010"); a2 <- grab("HH_SEC_A", "TZA_2010")
+    if (!is.null(d2) && !is.null(a2) && "hhid_2008" %in% names(d2)) {
+      x <- d2 %>% transmute(y2_hhid = as.character(y2_hhid), prev = as.character(hhid_2008)) %>%
+        left_join(a2 %>% transmute(y2_hhid = as.character(y2_hhid),
+                                   orig = as.numeric(hh_a11) %in% c(1, 2)), by = "y2_hhid")
+      out$w2 <- link("w2", x$y2_hhid, x$prev, x$orig)
     }
+    a3 <- grab("HH_SEC_A", "TZA_2012")
+    if (!is.null(a3) && !is.null(out$w2) && all(c("y3_hhid","hh_a09","hh_a10") %in% names(a3)))
+      out$w3 <- link("w3", a3$y3_hhid, a3$hh_a09, as.numeric(a3$hh_a10) == 1,
+                     prev_pid = out$w2 %>% select(prev = hhid, ppid = pid))
     d4 <- grab("consumptionNPS4", "TZA_2014")
     if (!is.null(d4)) out$w4 <- tibble(wave="w4", hhid=as.character(d4$y4_hhid),
                                        pid=as.character(d4$y4_hhid))
-    b5 <- grab("hh_sec_b", "TZA_2020")
-    if (!is.null(b5) && all(c("y5_hhid","y4_hhid") %in% names(b5)))
-      out$w5 <- b5 %>% distinct(y5_hhid, y4_hhid) %>%
-        transmute(wave="w5", hhid=as.character(y5_hhid), pid=as.character(y4_hhid))
+    a5 <- grab("hh_sec_a", "TZA_2020")
+    if (!is.null(a5) && all(c("y5_hhid","y4_hhid","hh_a10") %in% names(a5)))
+      out$w5 <- link("w5", a5$y5_hhid, a5$y4_hhid, as.numeric(a5$hh_a10) == 1)
     return(bind_rows(out) %>% filter(!is.na(pid)))
   }
   if (cc == "NGA") {
@@ -191,7 +210,7 @@ for (pf in panels) {
   ## ---- panel id --------------------------------------------------------- #
   pids <- panel_ids(cc)
   if (!is.null(pids) && nrow(pids)) {
-    d <- d %>% left_join(pids, by=c("hhid","wave"))
+    d <- d %>% left_join(pids, by=c("hhid","wave"), relationship="many-to-one")
     nrep <- d %>% filter(!is.na(pid)) %>% distinct(pid, wave) %>%
       count(pid) %>% filter(n > 1) %>% nrow()
     message("panel: ", nrep, " households observed in more than one wave")

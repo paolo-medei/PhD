@@ -172,7 +172,8 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
                     vcov="hetero"), silent=TRUE)
     ## robustness: weighted probit, average marginal effect of log welfare
     pb <- try(feglm(buys ~ l_x + l_ae | region^year, full, weights=~weight,
-                    family=binomial("probit"), vcov="hetero"), silent=TRUE)
+                    family=binomial("probit"), vcov="hetero",
+                    glm.iter = 100), silent=TRUE)   # v21: 25 was not enough for TZA
     ame <- if (inherits(pb, "try-error") || !("l_x" %in% names(coef(pb)))) c(NA, NA) else {
       used <- obs(pb); xb <- predict(pb, type = "link")[used]
       c(unname(coef(pb)["l_x"]) * weighted.mean(dnorm(xb), full$weight[used], na.rm = TRUE),

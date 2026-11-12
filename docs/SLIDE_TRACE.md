@@ -33,6 +33,6 @@ Dopo tutte le correzioni di `docs/FINDINGS.md`. Nigeria senza il 2018.
 | 10 | Etiopia: latticini, capre e pecore (quote senza pesce) | 32% → 11%; 24% → 41% | **18% → 10%; 17% → 38%** |
 | 10 | Nigeria: manzo, pollame | 61% → 45%; 5% → 23% | 58% → 50%; 3% → 18% |
 | 10 | Elasticità della varietà | 0,26 / 0,28 / 0,32 | 0,26 / 0,36 / 0,30 |
-| — | Moltiplicatore di filiera (spesa / quantità) | 2,21 / 1,21 / 0,99 (unità miste) | 1,28 / 1,04 / 0,88 (in proteine) |
+| — | Moltiplicatore di filiera (spesa / quantità) | 2,20 / 1,21 / 0,96 (unità miste) | 1,28 / 1,04 / 0,88 (in proteine) |
 
 Ordine dei paesi: Etiopia / Tanzania / Nigeria.

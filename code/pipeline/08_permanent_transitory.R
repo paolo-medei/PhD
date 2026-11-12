@@ -54,7 +54,15 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
            adulteq = pmax(num(adulteq), 1), uv = num(uv),
            unconv  = ifelse(is.na(num(unconv)), 0, num(unconv))) %>%
     mutate(weight = ifelse(is.na(weight) | weight <= 0, 1, weight),
-           l_ae = log(adulteq)) %>%
+           l_ae = log(adulteq))
+  ## v21 (M12): welfare is nominal (Ethiopia, Nigeria) or deflated only within
+  ## the wave (Tanzania). A household's mean over waves then mixed its income
+  ## with the inflation of the years it happened to be observed in. Log welfare
+  ## is therefore taken relative to its weighted mean in the year (one row per
+  ## household); with year effects in every model this changes nothing else.
+  ym <- d %>% filter(track == "A", welfare > 0) %>% distinct(hhid, year, .keep_all = TRUE) %>%
+    group_by(year) %>% summarise(lx_year = weighted.mean(log(welfare), weight), .groups = "drop")
+  d <- d %>% left_join(ym, by = "year") %>%
     filter(track == "A", product %in% c("meat_agg","milk","eggs","coffee"),
            welfare > 0, uv > 0, qty_pur > 0, unconv == 0)
 
@@ -73,7 +81,7 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
   ## split log welfare into a PERMANENT part (the household's own mean) and a
   ## TRANSITORY part (the deviation from it)
   d <- d %>% group_by(product, pid) %>%
-    mutate(l_x      = log(welfare),
+    mutate(l_x      = log(welfare) - lx_year,
            lx_perm  = mean(l_x, na.rm=TRUE),
            lx_trans = l_x - lx_perm) %>% ungroup()
 
@@ -110,6 +118,7 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
               d_lq  = last(log(qty_pur)) - first(log(qty_pur)),
               d_lae = last(l_ae)         - first(l_ae),
               yrs   = last(year) - first(year),
+              pair  = paste(first(year), last(year)),
               weight= first(weight), .groups="drop") %>%
     filter(is.finite(d_lx), is.finite(d_luv), is.finite(d_lq), yrs >= 2)
 
@@ -117,8 +126,11 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
     if (nrow(g) < 100) return(tibble())
     gv <- function(m) if (inherits(m,"try-error")) c(NA,NA) else
             c(coef(m)["d_lx"], pvalue(m)["d_lx"])
-    a <- gv(try(feols(d_luv ~ d_lx + d_lae, g, weights=~weight, vcov="hetero"), silent=TRUE))
-    b <- gv(try(feols(d_lq  ~ d_lx + d_lae, g, weights=~weight, vcov="hetero"), silent=TRUE))
+    ## v21 (M12): one effect per pair of years (first, last). Without it the
+    ## inflation between the two years sits in both d_lx and d_luv, and pairs
+    ## further apart look like "richer households buying dearer meat".
+    a <- gv(try(feols(d_luv ~ d_lx + d_lae | pair, g, weights=~weight, vcov="hetero"), silent=TRUE))
+    b <- gv(try(feols(d_lq  ~ d_lx + d_lae | pair, g, weights=~weight, vcov="hetero"), silent=TRUE))
     tibble(n_hh=nrow(g), median_years=median(g$yrs),
            quality_longdiff=a[1], p_qual=a[2],
            quantity_longdiff=b[1], p_qty=b[2],
@@ -159,7 +171,9 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
   if (file.exists(f22) && file.exists(d01)) {
     fm  <- read.csv(f22, stringsAsFactors=FALSE)
     dec <- read.csv(d01, stringsAsFactors=FALSE)
-    within <- dec %>% summarise(q = mean(e_quality, na.rm=TRUE),
+    ## v21 (M13): coffee is not an animal-source food (M9); it was in this mean
+    within <- dec %>% filter(product != "coffee") %>%
+      summarise(q = mean(e_quality, na.rm=TRUE),
                                 e = mean(e_expenditure, na.rm=TRUE))
     cst <- fm %>% filter(grepl("COST", product)) %>% pull(e_quantity_ae)
     prt <- fm %>% filter(grepl("PROTEIN", product)) %>% pull(e_quantity_ae)

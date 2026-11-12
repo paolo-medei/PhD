@@ -107,6 +107,14 @@ build_wave_ng <- function(w) {
   miss <- setdiff(need_cols, names(f))
   if (length(miss)) stop("NGA ", C$year, ": missing ", paste(miss, collapse=", "))
 
+  ## v21 (D1): every household that answered the food module, BEFORE keeping
+  ## only animal-food rows. In 2010 the roster lists only items consumed, so a
+  ## household that ate no animal food has no row after the filter below; the
+  ## grid must still contain it, with zeros (473 of 4,826 households in 2010).
+  hh_geo <- f %>% mutate(hhid = as.character(hhid)) %>%
+    select(hhid, any_of(c("zone","state","lga","ea","sector"))) %>%
+    distinct(hhid, .keep_all = TRUE)
+
   f <- f %>% mutate(item = num(item_cd), hhid = as.character(hhid)) %>%
     inner_join(ITEMS_NG, by="item")
 
@@ -200,10 +208,10 @@ build_wave_ng <- function(w) {
   ## ~97%. The grid is completed here - every household x product combination
   ## exists, with a zero where the household consumed nothing - so that
   ## participation means the same thing in Nigeria as in the other countries.
-  grid <- tidyr::crossing(hhid = unique(f$hhid),
+  grid <- tidyr::crossing(hhid = hh_geo$hhid,
                           tidyr::nesting(product = out$product, track = out$track,
                                          recall = out$recall) %>% distinct())
-  geo1 <- f %>% select(hhid, all_of(geo)) %>% distinct(hhid, .keep_all=TRUE)
+  geo1 <- hh_geo %>% select(hhid, all_of(geo))
   out <- grid %>% left_join(out, by=c("hhid","product","track","recall")) %>%
     select(-any_of(geo)) %>% left_join(geo1, by="hhid") %>%
     mutate(consumed = ifelse(is.na(consumed), 0, consumed),

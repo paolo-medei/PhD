@@ -38,7 +38,7 @@
 ###############################################################################
 
 ## ============================== CONFIG ==================================== #
-DATA_ROOT <- ""      # "" -> auto-detect the folder holding ETH_*.zip / TZA_*.zip
+DATA_ROOT <- Sys.getenv("ASF_DATA_ROOT", "")  # "" -> auto-detect the folder holding ETH_*.zip / TZA_*.zip
 OUT_DIR   <- ""      # "" -> OUTPUT next to the archives
 RUN_BUILD <- TRUE    # FALSE to reuse existing panel_XXX.csv and skip the build
 RUN_ADV   <- TRUE    # FALSE to skip the advanced layer

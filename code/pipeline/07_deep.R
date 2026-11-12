@@ -151,23 +151,35 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
   ## participation | quantity per AE | quality (unit value) | VARIETY
   cat("\n--- 6.3 the four margins of the income response ---\n")
   marg_prod <- function(g) {
-    b <- g %>% filter(q_ae > 0, uv > 0, welfare > 0, unconv == 0)
+    ## v21 (M1-M2, decided 12 Nov 2026): every margin is about PURCHASES -
+    ## entry = bought in the last 7 days, quantity = kg bought per adult eq.
+    ## v20 used consumption (incl. own production and gifts) for both.
+    b <- g %>% filter(qp_ae > 0, uv > 0, welfare > 0, unconv == 0)
     if (nrow(b) < 80) return(tibble())
     M <- function(f, dat) try(feols(f, dat, weights=~weight, vcov="hetero"), silent=TRUE)
     gv <- function(m,k="l_x") if (inherits(m,"try-error") ||
             !(k %in% names(coef(m)))) c(NA,NA) else c(coef(m)[k], pvalue(m)[k])
     full <- g %>% filter(welfare > 0) %>%
-      mutate(buys = as.integer(coalesce(qty_tot > 0, FALSE)))
+      mutate(buys = as.integer(coalesce(qty_pur > 0, FALSE)))
+    ## main: linear probability model, weighted, region x year effects
     mp <- try(feols(buys ~ l_x + l_ae | region^year, full, weights=~weight,
                     vcov="hetero"), silent=TRUE)
+    ## robustness: weighted probit, average marginal effect of log welfare
+    pb <- try(feglm(buys ~ l_x + l_ae | region^year, full, weights=~weight,
+                    family=binomial("probit"), vcov="hetero"), silent=TRUE)
+    ame <- if (inherits(pb, "try-error") || !("l_x" %in% names(coef(pb)))) c(NA, NA) else {
+      used <- obs(pb); xb <- predict(pb, type = "link")[used]
+      c(unname(coef(pb)["l_x"]) * weighted.mean(dnorm(xb), full$weight[used], na.rm = TRUE),
+        unname(pvalue(pb)["l_x"])) }
     ## region^year absorbs inflation AND local price level. Without a year
     ## effect, pooling 2011-2021 makes l_x pick up inflation: beef "quality"
     ## came out at 0.636 against 0.131 when estimated year by year.
-    cq <- gv(M(as.formula("log(q_ae) ~ l_x + l_ae | region^year"), b))
+    cq <- gv(M(as.formula("log(qp_ae) ~ l_x + l_ae | region^year"), b))
     cu <- gv(M(as.formula("log(uv)   ~ l_x + l_ae | region^year"), b))
     cp <- gv(mp)
     tibble(n_obs=nrow(b), participation=round(100*mean(full$buys),1),
            e_participation=cp[1], p_part=cp[2],
+           e_part_probit_ame=ame[1], p_part_probit=ame[2],
            e_quantity_ae=cq[1],  p_qty=cq[2],
            e_quality=cu[1],      p_qual=cu[2])
   }

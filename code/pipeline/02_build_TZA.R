@@ -199,11 +199,16 @@ build_wave_tz <- function(w) {
     ## 2008 names the primary sampling unit ea_id, later waves clusterid
     if (!"clusterid" %in% names(cl) && "ea_id" %in% names(cl))
       cl$clusterid <- cl$ea_id
-    kc  <- intersect(c("clusterid","strataid"), names(cl))
+    ## v21 (D4): 2012 keeps its weight (y3_weight) in the cover file only
+    kc  <- intersect(c("clusterid","strataid","y3_weight"), names(cl))
     if (!is.na(idc) && length(kc)) {
       cl <- cl %>% mutate(hhid = as.character(.data[[idc]])) %>%
         select(hhid, all_of(kc)) %>% distinct(hhid, .keep_all=TRUE)
       a <- a %>% left_join(cl, by="hhid")
+      if ("y3_weight" %in% names(a)) {
+        a$hhweight <- ifelse(is.na(a$hhweight), num(a$y3_weight), a$hhweight)
+        a$y3_weight <- NULL
+      }
     }
   }
   if (!"clusterid" %in% names(a)) a$clusterid <- NA

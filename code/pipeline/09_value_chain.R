@@ -105,10 +105,12 @@ g1 <- ggplot(mk, aes(factor(qt), pct, fill=source)) +
 ggsave(file.path(VCFIG,"VC_01_marketisation_by_quintile.png"), g1, width=13, height=7, dpi=200)
 
 ## ============ 2. THE BASKET CHANGES SHAPE ================================ #
+## v21 (M10): within year, weighted, then averaged over waves (see 07_deep.R)
 bk <- vc %>% filter(!is.na(qt), coalesce(exp,0) > 0) %>%
-  group_by(country, qt) %>% mutate(tot = sum(exp, na.rm=TRUE)) %>%
-  group_by(country, qt, lab) %>%
-  summarise(share = 100*sum(exp, na.rm=TRUE)/first(tot), .groups="drop")
+  group_by(country, year, qt) %>% mutate(tot = sum(exp * weight, na.rm=TRUE)) %>%
+  group_by(country, year, qt, lab) %>%
+  summarise(s = 100*sum(exp * weight, na.rm=TRUE)/first(tot), .groups="drop") %>%
+  group_by(country, qt, lab) %>% summarise(share = mean(s, na.rm=TRUE), .groups="drop")
 g2 <- ggplot(bk, aes(factor(qt), share, fill=lab)) +
   geom_col(width=.85) + facet_wrap(~country, nrow=1) +
   scale_fill_manual(values=PAL7) +

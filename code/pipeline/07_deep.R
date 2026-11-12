@@ -116,11 +116,15 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
                                                       weight, na.rm=TRUE), 1),
               kg_per_ae_wk  = round(weighted.mean(coalesce(q_ae,0), weight, na.rm=TRUE), 3),
               share_of_asf_spend = NA_real_, .groups="drop")
+  ## v21 (M10): shares within each year (no adding up nominal spending across
+  ## years with different inflation), weighted to the population, then the
+  ## average over waves - every wave counts the same.
   shares <- d %>% filter(product %in% ANIMAL, !is.na(qt)) %>%
-    group_by(qt) %>% mutate(tot = sum(coalesce(exp,0))) %>%
+    group_by(year, qt) %>% mutate(tot = sum(coalesce(exp,0) * weight)) %>%
+    group_by(year, qt, product) %>%
+    summarise(s = 100*sum(coalesce(exp,0) * weight)/first(tot), .groups="drop") %>%
     group_by(qt, product) %>%
-    summarise(share_of_asf_spend = round(100*sum(coalesce(exp,0))/first(tot), 1),
-              .groups="drop")
+    summarise(share_of_asf_spend = round(mean(s, na.rm=TRUE), 1), .groups="drop")
   basket <- basket %>% select(-share_of_asf_spend) %>%
     left_join(shares, by=c("qt","product"))
   print(as.data.frame(basket %>%

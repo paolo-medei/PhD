@@ -66,11 +66,13 @@ fit_cell <- function(g, ctrl) {
   if (nrow(b) < 80) return(tibble())
   fq <- as.formula(paste("log(uv)  ~ l_x +", ctrl, "| region"))
   fn <- as.formula(paste("log(qty) ~ l_x +", ctrl, "| region"))
-  fs <- as.formula(paste("log(qty) ~ l_x + I(l_x^2) +", ctrl, "| region"))
+  ## v21 (D7): explicit square; fixest >= 0.14 renames I(l_x^2) to I(I(l_x^2))
+  b$l_x2 <- b$l_x^2
+  fs <- as.formula(paste("log(qty) ~ l_x + l_x2 +", ctrl, "| region"))
   M <- function(f) try(feols(f, data=b, weights=~weight, vcov="hetero"), silent=TRUE)
   gv <- function(m,k) if (inherits(m,"try-error") || !(k %in% names(coef(m)))) c(NA,NA,NA)
                       else c(coef(m)[k], se(m)[k], pvalue(m)[k])
-  a <- gv(M(fq),"l_x"); n <- gv(M(fn),"l_x"); s <- gv(M(fs),"I(l_x^2)")
+  a <- gv(M(fq),"l_x"); n <- gv(M(fn),"l_x"); s <- gv(M(fs),"l_x2")
   full <- g %>% filter(welfare > 0) %>%
     mutate(buys = as.integer(dplyr::coalesce(uv > 0 & qty > 0, FALSE)))
   tibble(n_buyers=nrow(b), participation=round(100*mean(full$buys),1),

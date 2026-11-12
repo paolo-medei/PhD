@@ -43,10 +43,15 @@ WAVES_NG <- list(
   w3 = list(year=2015, zipyr="2015", food="sect10b_harvestw3", pre="s10bq",
             agg="cons_agg_wave3_visit2", welfare="totcons", pc=FALSE,
             weight="hhweight", own="6", gift="7", cvn=FALSE,
-            conv="food_conv_w3"),
-  w4 = list(year=2018, zipyr="2018", food="sect10b_harvestw4", pre="s10bq",
-            agg="totcons_final", welfare="totcons_pc", pc=TRUE,
-            weight="wt_wave4", own="6", gift="7", cvn=TRUE)
+            conv="food_conv_w3")
+  ## w4 (2018-19) EXCLUDED from v21 (12 Nov 2026): the World Bank no longer
+  ## serves it ("Data Access Not Available") and the copy on Drive lacks the
+  ## household modules. It is also the wave whose spend question changes
+  ## (TRAP N2), so it would need separate treatment anyway. To restore it,
+  ## put this entry back:
+  ##   w4 = list(year=2018, zipyr="2018", food="sect10b_harvestw4", pre="s10bq",
+  ##             agg="totcons_final", welfare="totcons_pc", pc=TRUE,
+  ##             weight="wt_wave4", own="6", gift="7", cvn=TRUE)
 )
 
 ## item codes are STABLE across every Nigerian wave - no crosswalk needed

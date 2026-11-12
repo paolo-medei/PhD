@@ -182,12 +182,13 @@ if (nrow(tp)) {
 elas <- function(d, dep) {
   d <- d %>% filter(is.finite(.data[[dep]]), .data[[dep]] > 0, welfare > 0)
   if (nrow(d) < 200) return(NA_real_)
-  m <- try(feols(as.formula(paste0("log(", dep, ") ~ log(welfare) + log(adulteq) | year")),
+  ## v21 (M6): region x year effects, like every other model (slide 7)
+  m <- try(feols(as.formula(paste0("log(", dep, ") ~ log(welfare) + log(adulteq) | region^year")),
                  d, weights=~weight, vcov="hetero"), silent=TRUE)
   if (inherits(m,"try-error")) return(NA_real_)
   unname(coef(m)["log(welfare)"])
 }
-hh <- vc %>% group_by(country, year, hhid, welfare, adulteq, weight) %>%
+hh <- vc %>% group_by(country, year, region, hhid, welfare, adulteq, weight) %>%
   summarise(q_all = sum(coalesce(qtot,0)),
             v_mkt = sum(coalesce(exp,0)),
             n_prod= sum(coalesce(qtot,0) > 0),

@@ -84,7 +84,7 @@ deep_prep <- function(pf) {
 ## ---- household-level aggregates: basket, variety, protein ---------------- #
 hh_level <- function(d) {
   d %>% filter(product %in% ANIMAL) %>%
-    group_by(country, year, hhid, welfare, adulteq, weight, l_x) %>%
+    group_by(country, year, region, hhid, welfare, adulteq, weight, l_x) %>%
     summarise(
       n_products  = sum(coalesce(qty_tot,0) > 0),          # VARIETY, count
       asf_exp     = sum(coalesce(exp,0)),
@@ -191,7 +191,8 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
 
   ## the fourth margin, estimated at household level
   vfit <- function(dat, dep) {
-    m <- try(feols(as.formula(paste(dep, "~ l_x + log(adulteq) | year")),
+    ## v21 (M6): region x year effects, like every other model (slide 7)
+    m <- try(feols(as.formula(paste(dep, "~ l_x + log(adulteq) | region^year")),
                    dat, weights=~weight, vcov="hetero"), silent=TRUE)
     ## year effects are essential here for the same reason: nominal welfare
     if (inherits(m,"try-error")) return(c(NA,NA))

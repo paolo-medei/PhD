@@ -127,6 +127,16 @@ panel_ids <- function(cc) {
         transmute(wave="w5", hhid=as.character(y5_hhid), pid=as.character(y4_hhid))
     return(bind_rows(out) %>% filter(!is.na(pid)))
   }
+  if (cc == "NGA") {
+    ## v21 (M7): the GHS-Panel keeps ONE hhid across waves (HHTrack.dta records
+    ## each household's status wave by wave); 4,387 households are in all three.
+    yrs <- c(w1 = "2010", w2 = "2012", w3 = "2015")
+    out <- lapply(names(yrs), function(w) {
+      d <- grab(paste0("cons_agg_wave", substr(w, 2, 2), "_visit2"), paste0("NGA_", yrs[[w]]))
+      if (is.null(d)) NULL else tibble(wave = w, hhid = as.character(d$hhid), pid = as.character(d$hhid))
+    })
+    return(bind_rows(out))
+  }
   NULL
 }
 

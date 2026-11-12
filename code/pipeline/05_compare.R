@@ -17,12 +17,16 @@ if (!nrow(dec)) stop("nothing to compare")
 
 ## GDP per capita, current USD, World Bank — used ONLY to order the countries
 ## on the income axis. Update as more countries are added.
+## v21 (M8): GDP per capita, PPP, constant 2021 international $ (WDI
+## NY.GDP.PCAP.PP.KD, file docs/external/wdi_gdp_pc_ppp.csv), MEAN OVER EACH
+## COUNTRY'S SURVEY YEARS. v20 had recent single-year values in current USD
+## (1,020 / 1,220 / 1,600), which put Nigeria barely above Ethiopia.
+##   ETH 2011-2021: 1,493 -> 2,588   TZA 2008-2020: 2,493 -> 3,450
+##   NGA 2010-2015: 7,963 -> 8,892
 INCOME <- tribble(~country, ~gdp_pc,
-                  "ETH",  1020,
-                  "TZA",  1220,
-                  "UGA",   980,
-                  "MWI",   580,
-                  "NGA",  1600)
+                  "ETH",  2009,
+                  "TZA",  2890,
+                  "NGA",  8374)
 
 CORE  <- c("meat_agg","milk","eggs","coffee")
 LABEL <- c(meat_agg="Meat", milk="Fresh milk",

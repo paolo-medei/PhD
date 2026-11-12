@@ -86,6 +86,10 @@ conv_tz <- function(unit, std) {
     std == "piece" & u == 5 ~ 1,               # already pieces
     std == "piece" & u == 2 ~ 1/GRAMS_PER_EGG, # grams -> pieces
     std == "piece" & u == 1 ~ 1000/GRAMS_PER_EGG,
+    ## v21 (D6, decided 12 Nov 2026): in 2020, 34 egg purchases carry unit 20
+    ## "OTHER (SPECIFY)" at a median 350 TSh per unit - exactly the price per
+    ## egg bought in pieces - so they are read as pieces. Only eggs, 2020.
+    std == "piece" & u == 20 ~ 1,
     TRUE ~ NA_real_)
 }
 

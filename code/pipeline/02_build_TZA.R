@@ -166,6 +166,10 @@ build_wave_tz <- function(w) {
   keep <- intersect(c("adulteq","hhsize","urban","region","hhweight",
                       C$welfare), names(a))
   a <- a %>% select(hhid, all_of(keep)) %>% rename(welfare = !!C$welfare)
+  ## v21 (D3): expmR is the HOUSEHOLD total ("Total consumption, annual, real");
+  ## only 2020's expmR_pae is per adult equivalent. Put 2008-2014 on the same
+  ## footing, as in Ethiopia (nom_totcons_aeq).
+  if (C$welfare == "expmR") a <- a %>% mutate(welfare = welfare / pmax(adulteq, 1))
   if (!"hhweight" %in% names(a)) a$hhweight <- NA_real_
 
   ## demographics — the SAME controls the Ethiopia build supplies, so the two

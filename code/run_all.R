@@ -32,6 +32,10 @@ message("data: ", if (nzchar(Sys.getenv("ASF_DATA_ROOT"))) Sys.getenv("ASF_DATA_
 
 mods <- sort(list.files(file.path(CODE_DIR, "pipeline"), pattern = "^[0-9]{2}_.*[.]R$",
                         full.names = TRUE))
+if (!length(mods)) stop("Cannot find the pipeline modules in ", file.path(CODE_DIR, "pipeline"),
+  ".\nRun this file with source(), giving its full path, e.g.\n",
+  '  source("C:/Users/<you>/Desktop/PhD_v21/code/run_all.R")')
+message("code: ", CODE_DIR, " (", length(mods), " modules)")
 for (m in mods) {
   message("\n>>> ", basename(m))
   sys.source(m, envir = globalenv())

@@ -12,8 +12,7 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
   grezzi il 12 novembre, riproduce la run del 30 settembre.
 - Ogni commit successivo "v21: …" corregge un errore, con i numeri prima e dopo nel messaggio.
   Registro completo: `docs/FINDINGS.md`. Numeri delle slide, v20 e v21: `docs/SLIDE_TRACE.md`.
-- Aperti: D6 (uova "altro", Tanzania 2020), M8 (PIL in PPP: servono i dati WDI), M11 (strumento per la
-  spesa totale, da discutere).
+- Aperto: M11 (strumento per la spesa totale, da discutere con il Professore).
 - Informazioni su produzione zootecnica e caffè, per dopo: `docs/PRODUZIONE_E_CAFFE.md`.
 
 ## Struttura
@@ -45,6 +44,9 @@ Nigeria 2018 (catalogo 3557) è esclusa: oggi non è scaricabile.
 ```
 Rscript code/run_all.R
 ```
+
+In RStudio: aprire `code/run_all.R` e premere **Source**. Se accanto a `code/` c'è una cartella `data/`
+con i 13 archivi, viene usata quella e i risultati vanno in `data/OUTPUT/`.
 
 Verifica indipendente del numero principale: `python3 checks/independent_nga_tza.py data/_unzipped`.
 

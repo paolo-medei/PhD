@@ -122,21 +122,23 @@ ggsave(file.path(VCFIG,"VC_02_basket_composition.png"), g2, width=11, height=5, 
 ## ============ 3. MARKET VALUE vs FARM QUANTITY =========================== #
 vq <- vc %>% filter(!is.na(qt)) %>%
   group_by(country, qt) %>%
-  summarise(qty = sum(coalesce(qtot,0)) / sum(weight),
-            val = sum(coalesce(exp,0))  / sum(weight), .groups="drop") %>%
+  ## v21 (M4): quantity in grams of PROTEIN (kg, litres and egg pieces cannot
+  ## be added), and both series weighted to the population
+  summarise(qty = sum(coalesce(qtot,0) * coalesce(prot,0) * weight) / sum(weight),
+            val = sum(coalesce(exp,0) * weight) / sum(weight), .groups="drop") %>%
   group_by(country) %>%
-  mutate(`Quantity consumed` = 100*qty/qty[which.min(qt)],
-         `Value through the market` = 100*val/val[which.min(qt)]) %>%
+  mutate(`Protein consumed` = 100*qty/qty[which.min(qt)],
+         `Purchase spending` = 100*val/val[which.min(qt)]) %>%
   ungroup() %>%
-  select(country, qt, `Quantity consumed`, `Value through the market`) %>%
+  select(country, qt, `Protein consumed`, `Purchase spending`) %>%
   pivot_longer(-c(country,qt), names_to="series", values_to="idx")
 g3 <- ggplot(vq, aes(qt, idx, colour=series)) +
   geom_line(linewidth=1) + geom_point(size=2) + facet_wrap(~country, nrow=1) +
-  scale_colour_manual(values=c(`Quantity consumed`="#4E79A7",
-                               `Value through the market`="#E15759")) +
+  scale_colour_manual(values=c(`Protein consumed`="#4E79A7",
+                               `Purchase spending`="#E15759")) +
   scale_x_continuous(breaks=1:5) +
-  labs(title="Market value outruns farm quantity",
-       subtitle="Index, poorest quintile = 100. The gap between the two lines is what the chain captures.",
+  labs(title="Spending on purchases vs protein consumed, by income",
+       subtitle="Index, poorest quintile = 100. Spending is at retail prices, not value added.",
        x="Welfare quintile", y="Index (Q1 = 100)", colour=NULL) + THV
 ggsave(file.path(VCFIG,"VC_03_value_vs_quantity.png"), g3, width=11, height=4.5, dpi=200)
 
@@ -191,7 +193,8 @@ elas <- function(d, dep) {
   unname(coef(m)["log(welfare)"])
 }
 hh <- vc %>% group_by(country, year, region, hhid, welfare, adulteq, weight) %>%
-  summarise(q_all = sum(coalesce(qtot,0)),
+  ## v21 (M4): protein, not a sum of kg + litres + egg pieces
+  summarise(q_all = sum(coalesce(qtot,0) * coalesce(prot,0)),
             v_mkt = sum(coalesce(exp,0)),
             n_prod= sum(coalesce(qtot,0) > 0),
             share_pur = sum(coalesce(qpur,0)) /
@@ -201,25 +204,29 @@ mult <- hh %>% group_by(country) %>% group_modify(function(g, ...) {
   eq <- elas(g, "q_all"); ev <- elas(g, "v_mkt")
   ep <- elas(g %>% filter(share_pur > 0), "share_pur")
   en <- elas(g %>% filter(n_prod > 0), "n_prod")
-  tibble(`Farm quantity`=eq, `Market value`=ev,
+  ## v21 (M4): what the two numbers really are - consumption (incl. own
+  ## production), in protein; spending on purchases at retail prices, which
+  ## is NOT value added along the chain
+  tibble(`Protein consumed`=eq, `Purchase spending`=ev,
          `Marketisation`=ep, `Variety`=en,
          multiplier = ev/eq)
 }) %>% ungroup()
 cat("\n--- THE VALUE-CHAIN MULTIPLIER ---\n")
 print(as.data.frame(mult %>% mutate(across(where(is.numeric), ~round(.x,3)))))
-cat("\n   multiplier > 1 means the value passing through the market grows\n",
-    "  FASTER than the quantity produced. That is the policy claim, in one number.\n")
+cat("\n   multiplier = elasticity of purchase spending / elasticity of protein consumed.\n",
+    "  Above 1: spending on purchases grows faster than consumption. Spending is at\n",
+    "  retail prices, so this is NOT value added along the chain (v21, M4).\n")
 write.csv(mult, file.path(TMPCSV, "VC_01_multiplier.csv"), row.names=FALSE)
 
-g6 <- mult %>% select(country, `Farm quantity`, `Market value`) %>%
+g6 <- mult %>% select(country, `Protein consumed`, `Purchase spending`) %>%
   pivot_longer(-country, names_to="k", values_to="e") %>%
   ggplot(aes(country, e, fill=k)) +
   geom_col(position=position_dodge(.8), width=.7) +
   geom_text(aes(label=sprintf("%.2f", e)), position=position_dodge(.8),
             vjust=-.4, size=3) +
-  scale_fill_manual(values=c(`Farm quantity`="#4E79A7", `Market value`="#E15759")) +
-  labs(title="For every 1% of income growth, the market grows faster than the farm",
-       subtitle="Elasticity of total quantity consumed against value passing through the market",
+  scale_fill_manual(values=c(`Protein consumed`="#4E79A7", `Purchase spending`="#E15759")) +
+  labs(title="Income elasticity: protein consumed vs spending on purchases",
+       subtitle="Animal-source food. Spending is at retail prices: it is not value added along the chain",
        x=NULL, y="Elasticity", fill=NULL) + THV
 ggsave(file.path(VCFIG,"VC_06_multiplier.png"), g6, width=8, height=4.5, dpi=200)
 

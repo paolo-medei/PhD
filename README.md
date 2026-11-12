@@ -7,12 +7,14 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 
 ## Stato
 
-- `code/pipeline/` è la v20 del 30 settembre 2026, tagliata nei suoi blocchi (PART) senza cambiare
-  una riga: concatenati, i file sono identici byte per byte a `code/legacy/ASF_ALL_IN_ONE_v20.R`.
-- La v20 è stata rifatta girare dai dati grezzi il 12 novembre 2026 e riproduce la run del 30
-  settembre (vedi `docs/FINDINGS.md`).
-- Gli errori trovati sono in `docs/FINDINGS.md`; da dove viene ogni numero delle slide è in
-  `docs/SLIDE_TRACE.md`. La v21 li corregge uno per commit, con i numeri prima e dopo.
+- `code/pipeline/` parte dalla v20 del 30 settembre 2026, tagliata nei suoi blocchi (PART). Il primo
+  commit è identico byte per byte a `code/legacy/ASF_ALL_IN_ONE_v20.R`; la v20, rifatta girare dai dati
+  grezzi il 12 novembre, riproduce la run del 30 settembre.
+- Ogni commit successivo "v21: …" corregge un errore, con i numeri prima e dopo nel messaggio.
+  Registro completo: `docs/FINDINGS.md`. Numeri delle slide, v20 e v21: `docs/SLIDE_TRACE.md`.
+- Aperti: D6 (uova "altro", Tanzania 2020), M8 (PIL in PPP: servono i dati WDI), M11 (strumento per la
+  spesa totale, da discutere).
+- Informazioni su produzione zootecnica e caffè, per dopo: `docs/PRODUZIONE_E_CAFFE.md`.
 
 ## Struttura
 
@@ -43,6 +45,8 @@ Nigeria 2018 (catalogo 3557) è esclusa: oggi non è scaricabile.
 ```
 Rscript code/run_all.R
 ```
+
+Verifica indipendente del numero principale: `python3 checks/independent_nga_tza.py data/_unzipped`.
 
 Lo script cerca da solo la cartella con gli archivi (`ETH_*.zip`, `TZA_*.zip`, `NGA_*.zip`) in
 Desktop, Documents o OneDrive; altrimenti si imposta `DATA_ROOT` in `code/pipeline/00_setup.R`.

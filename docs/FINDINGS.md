@@ -37,11 +37,11 @@ Stato: **aperto** · **corretto in v21** · **deciso**
 | M1 | **"Probit" della slide 8** = modello lineare di probabilità sul *consumo* (Parte 6.3, `e_participation`), non un probit sugli acquisti. Il probit di `ANALISI_semplice.R` è senza pesi e riporta il coefficiente, non l'effetto marginale. | **corretto in v21**: modello lineare pesato sugli acquisti come principale, probit con effetto marginale medio come controllo (coincidono) |
 | M2 | **Partecipazione definita in due modi**: acquisto (Parti 3 e 5, quintili) e consumo (Parte 6, Nigeria). | **corretto in v21**: tutto sugli acquisti (decisione del 12/11) |
 | M3 | **Nigeria 2018**: spesa = valore dell'ultimo acquisto, quantità acquistata a 30 giorni, ma usata insieme alle altre wave nelle Parti 6 e 8. Superato da D8. | superato |
-| M4 | **"Moltiplicatore di filiera"**: somma kg, litri e uova a pezzi (`q_all`); "Market value" è spesa al dettaglio, non valore aggiunto; "Farm quantity" è quantità consumata. | aperto |
+| M4 | **"Moltiplicatore di filiera"**: somma kg, litri e uova a pezzi (`q_all`); "Market value" è spesa al dettaglio, non valore aggiunto; "Farm quantity" è quantità consumata. | **corretto in v21** (commit 31a5a32): quantità in proteine, etichette corrette; moltiplicatore ETH 2,21 → 1,28, TZA 1,21 → 1,04, NGA 0,99 → 0,88. Resta: il valore aggiunto lungo la filiera richiede i margini tra prezzo alla stalla e al consumo |
 | M5 | **Pesce nel paniere solo per la Nigeria**: numero di prodotti non confrontabile tra paesi. | **corretto in v21**: pesce escluso ovunque (decisione del 12/11) |
-| M6 | **Varietà e moltiplicatore** stimati con soli effetti fissi di anno; la slide 7 dichiara effetti fissi regionali per tutti i modelli. | aperto |
-| M7 | **Nessun effetto fisso familiare per la Nigeria** (`panel_ids()` non ha il ramo NGA). | aperto |
-| M8 | **PIL pro capite** (`INCOME`): valori recenti di un solo anno, non degli anni d'indagine; Tanzania e Nigeria sono lower-middle income. | aperto |
+| M6 | **Varietà e moltiplicatore** stimati con soli effetti fissi di anno; la slide 7 dichiara effetti fissi regionali per tutti i modelli. | **corretto in v21** (commit ef54158) |
+| M7 | **Nessun effetto fisso familiare per la Nigeria** (`panel_ids()` non ha il ramo NGA). | **corretto in v21** (commit df0d446): 4.387 famiglie nigeriane presenti in tutte e tre le wave |
+| M8 | **PIL pro capite** (`INCOME`): valori recenti di un solo anno, non degli anni d'indagine; Tanzania e Nigeria sono lower-middle income. | **in sospeso**: servono i valori WDI (NY.GDP.PCAP.PP.KD) per i tre paesi; le fonti trovate online usano unità diverse |
 | M9 | **Caffè** incluso nelle stime principali: non è un alimento di origine animale. | **deciso**: il caffè resta come prodotto a sé, fuori dagli aggregati di origine animale (12/11) |
-| M10 | **Quote del paniere**: somme di spesa nominale su anni diversi; gli anni con più inflazione pesano di più. | aperto |
-| M11 | **Endogeneità della spesa totale** come misura di reddito: non trattata (servirebbe uno strumento: reddito o indice di beni). | aperto |
+| M10 | **Quote del paniere**: somme di spesa nominale su anni diversi; gli anni con più inflazione pesano di più. | **corretto in v21** (commit ba06ae9): quote anno per anno, pesate, media delle wave |
+| M11 | **Endogeneità della spesa totale** come misura di reddito: non trattata (servirebbe uno strumento: reddito o indice di beni). | **aperto**: da discutere con il Professore (strumento: reddito o indice di beni) |

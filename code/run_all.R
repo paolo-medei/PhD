@@ -24,7 +24,18 @@ here <- function() {
   }
   getwd()
 }
-CODE_DIR <- here()
+## If the file was run line by line (Run / Ctrl+Enter) instead of sourced,
+## here() only sees the working directory; look in the usual places too.
+has_mods <- function(d) length(list.files(file.path(d, "pipeline"),
+                                          pattern = "^[0-9]{2}_.*[.]R$")) > 0
+home <- unique(c(Sys.getenv("USERPROFILE"), path.expand("~"), dirname(path.expand("~"))))
+home <- home[nzchar(home)]
+cands <- c(here(), file.path(getwd(), "code"),
+           if (nzchar(Sys.getenv("ASF_DATA_ROOT")))
+             file.path(dirname(Sys.getenv("ASF_DATA_ROOT")), "code"),
+           file.path(home, "Desktop", "PhD_v21", "code"),
+           Sys.glob(file.path(home, "OneDrive*", "Desktop", "PhD_v21", "code")))
+CODE_DIR <- Find(has_mods, cands, nomatch = cands[1])
 data_dir <- file.path(dirname(CODE_DIR), "data")
 if (!nzchar(Sys.getenv("ASF_DATA_ROOT")) && dir.exists(data_dir))
   Sys.setenv(ASF_DATA_ROOT = normalizePath(data_dir))

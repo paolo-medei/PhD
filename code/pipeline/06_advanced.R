@@ -270,11 +270,11 @@ for (pf in panels) {
       mn <- try(feols(log(qty_pur) ~ l_x + l_ae | pid + year, g, weights=~weight,
                       cluster=~pid), silent=TRUE)
       gv <- function(m,k="l_x") if (inherits(m,"try-error") ||
-              !(k %in% names(coef(m)))) c(NA,NA) else c(coef(m)[k], pvalue(m)[k])
+              !(k %in% names(coef(m)))) c(NA,NA,NA) else c(coef(m)[k], se(m)[k], pvalue(m)[k])
       cq <- gv(mq); cn <- gv(mn)     # NOT `a`/`n`: tibble() would mask `n`
       tibble(n_obs=nrow(g), n_hh=n_distinct(g$pid),
-             e_quality_FE=cq[1], p_quality=cq[2],
-             e_quantity_FE=cn[1], p_quantity=cn[2],
+             e_quality_FE=cq[1], se_quality=cq[2], p_quality=cq[3],
+             e_quantity_FE=cn[1], se_quantity=cn[2], p_quantity=cn[3],
              quality_share_FE=cq[1]/(cq[1]+cn[1]))
     }
     feres <- fe %>% group_by(product) %>% group_modify(~fefit(.x)) %>% ungroup()

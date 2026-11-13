@@ -16,14 +16,19 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
   i suoi warning hanno fatto trovare D9 e D10.
 - 13 novembre: verifica indipendente colonna per colonna dei tre pannelli e delle stime principali
   (`checks/audit/`); gli errori trovati (D11-D19, M12-M13) sono corretti.
+- 13 novembre, v22: in R anche le analisi aggiunte per l'articolo (tre margini con bootstrap,
+  intervalli di confidenza dei disegni panel, caffè in Etiopia: `code/pipeline/10_margins.R`); alla fine
+  della run il nuovo workbook viene confrontato da solo con quello di `results_reference/`.
 - Aperto: M11 (strumento per la spesa totale, da discutere con il Professore).
 - Informazioni su produzione zootecnica e caffè, per dopo: `docs/PRODUZIONE_E_CAFFE.md`.
 
 ## Struttura
 
 ```
-code/run_all.R          esegue i moduli in ordine
-code/pipeline/          00_setup … 10_workbook (la pipeline)
+code/run_all.R          esegue i moduli in ordine e confronta il risultato con results_reference/
+code/compare_results.R  il confronto cella per cella (usato da run_all.R e da checks/compare_runs.R)
+code/pipeline/          00_setup … 09_value_chain, 10_margins, 11_workbook (la pipeline)
+results_reference/      RESULTS_*.xlsx della run di riferimento (stesso codice, stessi archivi)
 code/legacy/            v20 originale e ANALISI_semplice.R (5 ottobre), per riferimento
 checks/                 varmap.R, varmap2.R: ogni colonna usata, con l'etichetta del file
                         compare_runs.R: confronto cella per cella tra due RESULTS_*.xlsx
@@ -49,8 +54,12 @@ Nigeria 2018 (catalogo 3557) è esclusa: oggi non è scaricabile.
 Rscript code/run_all.R
 ```
 
-In RStudio: aprire `code/run_all.R` e premere **Source**. Se accanto a `code/` c'è una cartella `data/`
-con i 13 archivi, viene usata quella e i risultati vanno in `data/OUTPUT/`.
+In RStudio: *Session → Restart R*, poi nella Console
+`source("C:/Users/<nome>/Desktop/PhD_v21/code/run_all.R")` (oppure aprire il file e premere **Source**,
+non *Run*). Se accanto a `code/` c'è una cartella `data/` con i 13 archivi, viene usata quella e i
+risultati vanno in `data/OUTPUT/run_<data>/`. Alla fine la run stampa `=== CHECK against … ===`: "OK"
+se ogni tabella coincide con `results_reference/`, altrimenti l'elenco delle tabelle diverse
+(`COMPARISON_with_reference.csv` nella cartella della run).
 
 Verifica indipendente del numero principale: `python3 checks/independent_nga_tza.py data/_unzipped`.
 

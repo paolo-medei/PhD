@@ -83,3 +83,18 @@ Convenzioni rimaste, documentate e non errori:
   solo capra (non esiste un codice per la pecora).
 - Nigeria: `year` è l'etichetta del round (raccolta dati 2011, 2013, 2016); il 42% degli acquisti di uova
   2012 non ha unità e resta non convertito; anatra, latte in polvere per bambini e formaggio esclusi.
+
+## D. v22 (13 novembre 2026): tutto in R
+
+- `code/pipeline/10_margins.R` (nuovo): tre margini della risposta al reddito (entrata, quantità, qualità)
+  con bootstrap su famiglia-round (100 replicazioni, seme fisso), tabella degli intervalli di confidenza dei
+  quattro disegni panel, caffè in Etiopia. Prima esistevano solo come script Python di prova per l'articolo:
+  le stime puntuali R coincidono con quelle Python fino alla precisione di macchina; gli errori standard del
+  bootstrap differiscono un po' perché le estrazioni casuali sono diverse (fanno fede quelli R).
+- Errori standard aggiunti alle tabelle `_12_household_FE`, `_30_permanent_transitory`, `_31_long_differences`;
+  le colonne esistenti non cambiano.
+- `10_workbook.R` diventa `11_workbook.R`; `run_all.R` confronta da solo il nuovo workbook con
+  `results_reference/` e stampa il verdetto.
+- Avvisi silenziati, solo i due noti e innocui: 40 "non-integer #successes" del probit pesato (con pesi
+  campionari è atteso) e 8 etichette di zona/stato diverse tra le wave nigeriane. Pannelli identici
+  (md5) e 53 tabelle identiche prima e dopo.

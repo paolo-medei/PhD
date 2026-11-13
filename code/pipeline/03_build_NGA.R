@@ -250,7 +250,9 @@ build_wave_ng <- function(w) {
            across(c(hhid, region, urban, clusterid), as.character))
 }
 
-panel_NG <- map_dfr(names(WAVES_NG), build_wave_ng)
+## v22: zone/state/lga/sector keep their Stata value labels, which differ
+## between waves; stacking them warned 8 times. Only the codes are used.
+panel_NG <- map_dfr(names(WAVES_NG), ~ zap_labels(build_wave_ng(.x)))
 write.csv(panel_NG, file.path(OUT_DIR, "panel_NGA.csv"), row.names=FALSE)
 
 ###############################################################################

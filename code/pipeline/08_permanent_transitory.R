@@ -89,7 +89,7 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
   pt <- function(g) {
     if (nrow(g) < 120 || n_distinct(g$pid) < 60) return(tibble())
     gv <- function(m,k) if (inherits(m,"try-error") || !(k %in% names(coef(m))))
-            c(NA,NA) else c(coef(m)[k], pvalue(m)[k])
+            c(NA,NA,NA) else c(coef(m)[k], se(m)[k], pvalue(m)[k])
     ## no household FE here: the permanent term IS the between-household part
     mq <- try(feols(log(uv)      ~ lx_perm + lx_trans + l_ae | year,
                     g, weights=~weight, cluster=~pid), silent=TRUE)
@@ -98,10 +98,10 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
     qp <- gv(mq,"lx_perm"); qt <- gv(mq,"lx_trans")
     np <- gv(mn,"lx_perm"); nt <- gv(mn,"lx_trans")
     tibble(n_obs=nrow(g), n_hh=n_distinct(g$pid),
-           qual_permanent=qp[1], p_qual_perm=qp[2],
-           qual_transitory=qt[1], p_qual_trans=qt[2],
-           qty_permanent=np[1],  p_qty_perm=np[2],
-           qty_transitory=nt[1], p_qty_trans=nt[2])
+           qual_permanent=qp[1], se_qual_perm=qp[2], p_qual_perm=qp[3],
+           qual_transitory=qt[1], se_qual_trans=qt[2], p_qual_trans=qt[3],
+           qty_permanent=np[1],  se_qty_perm=np[2],  p_qty_perm=np[3],
+           qty_transitory=nt[1], se_qty_trans=nt[2], p_qty_trans=nt[3])
   }
   r1 <- d %>% group_by(product) %>% group_modify(~pt(.x)) %>% ungroup()
   cat("\n--- 7.1 permanent vs transitory income ---\n")
@@ -124,16 +124,16 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
 
   ldfit <- function(g) {
     if (nrow(g) < 100) return(tibble())
-    gv <- function(m) if (inherits(m,"try-error")) c(NA,NA) else
-            c(coef(m)["d_lx"], pvalue(m)["d_lx"])
+    gv <- function(m) if (inherits(m,"try-error")) c(NA,NA,NA) else
+            c(coef(m)["d_lx"], se(m)["d_lx"], pvalue(m)["d_lx"])
     ## v21 (M12): one effect per pair of years (first, last). Without it the
     ## inflation between the two years sits in both d_lx and d_luv, and pairs
     ## further apart look like "richer households buying dearer meat".
     a <- gv(try(feols(d_luv ~ d_lx + d_lae | pair, g, weights=~weight, vcov="hetero"), silent=TRUE))
     b <- gv(try(feols(d_lq  ~ d_lx + d_lae | pair, g, weights=~weight, vcov="hetero"), silent=TRUE))
     tibble(n_hh=nrow(g), median_years=median(g$yrs),
-           quality_longdiff=a[1], p_qual=a[2],
-           quantity_longdiff=b[1], p_qty=b[2],
+           quality_longdiff=a[1], se_qual=a[2], p_qual=a[3],
+           quantity_longdiff=b[1], se_qty=b[2], p_qty=b[3],
            quality_share=a[1]/(a[1]+b[1]))
   }
   r2 <- ld %>% group_by(product) %>% group_modify(~ldfit(.x)) %>% ungroup()

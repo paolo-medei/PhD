@@ -46,6 +46,8 @@ RUN_DEEP  <- TRUE    # FALSE to skip the deep descriptive/analytical layer
 RUN_PERM  <- TRUE    # FALSE to skip the permanent-vs-transitory tests
 RUN_NGA   <- TRUE    # FALSE to skip Nigeria
 RUN_VC    <- TRUE    # FALSE to skip the value-chain module
+RUN_MARGINS <- TRUE  # FALSE to skip the three margins, panel intervals and coffee (PART 9)
+MARGINS_B <- 100     # bootstrap replications for the three margins (100 takes a few minutes)
 
 ## ============================== PACKAGES ================================== #
 need <- c("haven","dplyr","tidyr","stringr","purrr","labelled","ggplot2","fixest",

@@ -23,8 +23,14 @@ if (!nrow(dec)) stop("nothing to compare")
 ## (1,020 / 1,220 / 1,600), which put Nigeria barely above Ethiopia.
 ##   ETH 2011-2021: 1,493 -> 2,588   TZA 2008-2020: 2,493 -> 3,450
 ##   NGA 2010-2015: 7,963 -> 8,892
+## v22: UGA 2010-2019 (survey years 2010, 2011, 2013, 2015, 2018, 2019):
+##   2,245 -> 2,689, mean 2,479. Same WDI series, read through Our World in
+##   Data's copy (its Tanzania values equal the WDI extract to the dollar).
+##   MWI 2010-2024 (survey years 2010, 2016, 2019, 2024): 1,504 -> 1,634, mean 1,605.
 INCOME <- tribble(~country, ~gdp_pc,
+                  "MWI",  1605,
                   "ETH",  2009,
+                  "UGA",  2479,
                   "TZA",  2890,
                   "NGA",  8374)
 

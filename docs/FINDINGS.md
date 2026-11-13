@@ -98,3 +98,35 @@ Convenzioni rimaste, documentate e non errori:
 - Avvisi silenziati, solo i due noti e innocui: 40 "non-integer #successes" del probit pesato (con pesi
   campionari è atteso) e 8 etichette di zona/stato diverse tra le wave nigeriane. Pannelli identici
   (md5) e 53 tabelle identiche prima e dopo.
+
+## E. v23 (13 novembre 2026): Uganda e Malawi
+
+Aggiunti su indicazione del 13/11: sono, con Etiopia e Tanzania, i paesi del programma ACT dell'UNIDO.
+Le scelte sono state fatte leggendo etichette e domande di ogni wave; le trappole sono descritte in testa a
+`03_build_UGA.R` (U1-U10) e `03_build_MWI.R` (M1-M6). Verifica indipendente colonna per colonna: in corso.
+
+**Uganda** (UNPS 2010/11 - 2019/20, sei wave; manca 2009/10, catalogo 1001). Panel: `panel_ids()` collega
+le wave con gli identificativi che ogni wave dà della precedente; dal 2013 due famiglie che rivendicano
+lo stesso predecessore iniziano entrambe una nuova unità. 1.258 famiglie sono in tutte e sei le wave.
+- Il pollo non è mai pesato (pezzi, polli interi): le sue quantità non sono convertite.
+- Il caffè ha "confezioni da 100 g" vendute al prezzo di una bustina: quantità non usate.
+- Il latte in "Nice cup" (5-16% degli acquirenti) non è convertito: il prezzo per tazza fa pensare a
+  0,5 l. **Da decidere con Paolo**, come D6.
+- 2015: 25 acquisti di uova registrati come "1 uovo" a 8.000-9.300 UGX (un vassoio da 30). Regola
+  per Uganda e Malawi: un acquisto a più di 10 volte o meno di un decimo del prezzo mediano della
+  wave per quel prodotto ha le quantità segnalate (`flag_price_outliers()`, `00_setup.R`). Leggerli
+  come 30 uova: **da decidere con Paolo**.
+- PIL pro capite PPP (dollari internazionali 2021), media degli anni d'indagine: 2.479.
+
+**Malawi** (IHS3 2010, IHS4 2016, IHS5 2019, IHS6 2024; circa 49.000 famiglie). Il panel IHPS
+(2010-13-16 e 2024) arrivato senza aggregato di consumo non è utilizzabile: il Malawi entra nelle analisi
+trasversali, non negli effetti fissi familiari né nel reddito permanente. IHS2 2004 escluso (questionario
+diverso).
+- Conversioni: unità metriche, tabella ufficiale 2020 per pollo, latte e latte in polvere; "pezzo" di
+  manzo, capra e maiale non convertito (la tabella dà 0,036 kg al Nord e 0,25 kg altrove).
+- Benessere = consumo reale annuo per persona (l'IHS6 non ha la scala di adulti equivalenti);
+  "regione" = distretto (le regioni sono solo tre).
+- PIL pro capite PPP, media degli anni d'indagine: 1.605 (il più povero dei cinque).
+
+I numeri PPP vengono dalla serie WDI NY.GDP.PCAP.PP.KD letta tramite la copia di Our World in Data (i
+valori di Tanzania e Nigeria coincidono con l'estratto WDI già usato).

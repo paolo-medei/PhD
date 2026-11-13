@@ -45,6 +45,8 @@ RUN_ADV   <- TRUE    # FALSE to skip the advanced layer
 RUN_DEEP  <- TRUE    # FALSE to skip the deep descriptive/analytical layer
 RUN_PERM  <- TRUE    # FALSE to skip the permanent-vs-transitory tests
 RUN_NGA   <- TRUE    # FALSE to skip Nigeria
+RUN_UGA   <- TRUE    # FALSE to skip Uganda (skipped anyway if its archives are not there)
+RUN_MWI   <- TRUE    # FALSE to skip Malawi (skipped anyway if its archives are not there)
 RUN_VC    <- TRUE    # FALSE to skip the value-chain module
 RUN_MARGINS <- TRUE  # FALSE to skip the three margins, panel intervals and coffee (PART 9)
 MARGINS_B <- 100     # bootstrap replications for the three margins (100 takes a few minutes)
@@ -69,7 +71,7 @@ if (!nzchar(DATA_ROOT) || !dir.exists(DATA_ROOT)) {
   hit <- NULL
   for (r in c(cands, home)) {
     if (!dir.exists(r)) next
-    z <- list.files(r, pattern = "^(ETH|TZA|NGA)_.*\\.zip$", recursive = TRUE, full.names = TRUE)
+    z <- list.files(r, pattern = "^(ETH|TZA|NGA|UGA|MWI)_.*\\.zip$", recursive = TRUE, full.names = TRUE)
     if (length(z)) { hit <- dirname(z[1]); break }
     f <- list.files(r, pattern = "^(sect6a_hh_w5|hh_sec_ja1)\\.dta$",
                     recursive = TRUE, full.names = TRUE, ignore.case = TRUE)
@@ -84,7 +86,7 @@ if (!nzchar(DATA_ROOT) || !dir.exists(DATA_ROOT)) {
 }
 
 ARCH_ROOT <- DATA_ROOT
-zips <- list.files(DATA_ROOT, pattern = "^(ETH|TZA|NGA)_.*\\.zip$",
+zips <- list.files(DATA_ROOT, pattern = "^(ETH|TZA|NGA|UGA|MWI)_.*\\.zip$",
                    recursive = TRUE, full.names = TRUE)
 if (length(zips)) {
   UNZ <- file.path(DATA_ROOT, "_unzipped"); dir.create(UNZ, showWarnings = FALSE)
@@ -158,5 +160,18 @@ rd_tz <- function(yr, stem) {
   haven::read_dta(p)
 }
 val_labels <- labelled::val_labels
+
+## v22: used by the Uganda and Malawi builds (TRAP U10, M6). The price of each
+## purchase row (spending / converted quantity); above 10 times or below a
+## tenth of the wave's median for the product it is a unit error (a tray
+## recorded as one egg, grams typed as kilos): the row's quantities are
+## emptied, so the purchase counts as bought but not as a unit value.
+flag_price_outliers <- function(f) {
+  pe  <- ifelse(f$purch_std > 0 & f$exp > 0, f$exp / f$purch_std, NA)
+  med <- ave(pe, f$product, FUN = function(x) median(x, na.rm = TRUE))
+  bad <- !is.na(pe) & (pe > 10 * med | pe < med / 10)
+  f[bad, c("qty_std", "purch_std", "own_std", "gift_std")] <- NA
+  f
+}
 
 

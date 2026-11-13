@@ -24,6 +24,8 @@
 ###############################################################################
 if (exists("RUN_MARGINS") && !RUN_MARGINS) message("PART 9 skipped") else {
 if (!exists("MARGINS_B")) MARGINS_B <- 100
+## countries in order of GDP per capita (05_compare.R), whichever were built
+CC_ORDER <- c("MWI", "ETH", "UGA", "TZA", "NGA")
 TH <- theme_minimal(base_size=10) +
   theme(plot.title=element_text(face="bold"), panel.grid.minor=element_blank(),
         strip.text=element_text(face="bold"))
@@ -96,7 +98,7 @@ if (length(marg)) {
     select(country, product, Entry = sh_entry, Quantity = sh_qty, Quality = sh_qual) %>%
     pivot_longer(c(Entry, Quantity, Quality), names_to = "margin", values_to = "share") %>%
     mutate(margin = factor(margin, c("Quality", "Quantity", "Entry")),
-           country = factor(country, c("ETH", "TZA", "NGA")))
+           country = factor(country, intersect(CC_ORDER, unique(country))))
   gm <- ggplot(pl, aes(product, 100 * share, fill = margin)) + geom_col(width = .7) +
     coord_flip() + facet_wrap(~country) +
     scale_fill_manual(values = c(Entry = "#4E79A7", Quantity = "#F28E2B", Quality = "#59A14F"),
@@ -110,7 +112,7 @@ if (length(marg)) {
 ## ---------------- 9.2 panel intervals ------------------------------------- #
 rd <- function(f) { f <- file.path(TMPCSV, f); if (file.exists(f)) read.csv(f, stringsAsFactors = FALSE) else NULL }
 ci <- list()
-for (cc in c("ETH", "TZA", "NGA")) {
+for (cc in CC_ORDER) {
   pt <- rd(paste0(cc, "_30_permanent_transitory.csv"))
   fe <- rd(paste0(cc, "_12_household_FE.csv"))
   ld <- rd(paste0(cc, "_31_long_differences.csv"))
@@ -129,7 +131,7 @@ if (nrow(ci)) {
   cp <- ci %>% filter(product == "meat_agg") %>%
     mutate(design = factor(design, rev(c("Permanent income", "Transitory income",
                                          "Household fixed effects", "Long differences"))),
-           country = factor(country, c("ETH", "TZA", "NGA")))
+           country = factor(country, intersect(CC_ORDER, unique(country))))
   gc <- ggplot(cp, aes(b, design)) + geom_vline(xintercept = 0, colour = "grey60") +
     geom_errorbar(aes(xmin = lo, xmax = hi), width = .2, orientation = "y") + geom_point(size = 2) +
     facet_wrap(~country) +

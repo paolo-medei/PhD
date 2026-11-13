@@ -156,6 +156,54 @@ panel_ids <- function(cc) {
     })
     return(bind_rows(out))
   }
+  if (cc == "UGA") {
+    ## v22: one panel unit per household, as for Tanzania (D9). Each wave says
+    ## which earlier household a household continues: the 10-digit HHID is
+    ## kept in 2010-2011; 2013 gives HHID_old; 2015 renumbers 2013's
+    ## "H00101-04-01" as "H00101-05-01"; 2018 gives t0_hhid (2015's "H0010101")
+    ## and 2019 hhidold (2018's key). Only the 2010-11 files say which household
+    ## is the original and which a split-off, so from 2013 on, when two
+    ## households claim the same predecessor, BOTH start new units (5 cases in
+    ## 2018, 68 in 2019). A third of the sample was replaced in 2013 (rotated
+    ## in): those households start new units too.
+    ids <- function(x) if (is.numeric(x)) sprintf("%.0f", x) else trimws(as.character(x))
+    chain <- function(w, hhid, prev, prev_pid) {
+      x <- tibble(hhid = ids(hhid), prev = ids(prev)) %>%
+        mutate(prev = ifelse(prev %in% c("", "NA"), NA, prev)) %>%
+        group_by(prev) %>% mutate(n_claim = n()) %>% ungroup() %>%
+        left_join(prev_pid, by = "prev")
+      x %>% transmute(wave = w, hhid,
+                      pid = ifelse(!is.na(prev) & n_claim == 1 & !is.na(ppid), ppid,
+                                   paste0(w, "_", hhid)))
+    }
+    out <- list()
+    g1 <- grab("GSEC1", "UGA_2010"); g2 <- grab("GSEC1", "UGA_2011")
+    if (!is.null(g1)) out$w1 <- tibble(wave = "w1", hhid = ids(g1$HHID), pid = ids(g1$HHID))
+    if (!is.null(g2)) out$w2 <- tibble(wave = "w2", hhid = ids(g2$HHID), pid = ids(g2$HHID))
+    earlier <- bind_rows(out) %>% distinct(prev = hhid, ppid = pid)
+    g3 <- grab("GSEC1", "UGA_2013")
+    if (!is.null(g3)) {
+      ## a 2013 household whose predecessor is not in 2010-11 keeps that id as
+      ## its unit, so it links if 2009/10 is added later
+      out$w3 <- chain("w3", g3$hhid, g3$HHID_old,
+                      bind_rows(earlier, tibble(prev = ids(g3$HHID_old), ppid = ids(g3$HHID_old))) %>%
+                        filter(!is.na(prev), prev != "NA") %>% distinct(prev, .keep_all = TRUE))
+    }
+    g4 <- grab("gsec1", "UGA_2015")
+    if (!is.null(g4) && !is.null(out$w3))
+      out$w4 <- chain("w4", g4$hh, sub("-05-", "-04-", ids(g4$hh)),
+                      out$w3 %>% select(prev = hhid, ppid = pid))
+    g5 <- grab("GSEC1", "UGA_2018")
+    if (!is.null(g5) && !is.null(out$w4)) {
+      k4 <- tibble(prev = ids(g4$hhid), hh = ids(g4$hh)) %>%
+        inner_join(out$w4 %>% select(hh = hhid, ppid = pid), by = "hh") %>% select(prev, ppid)
+      out$w5 <- chain("w5", g5$hhid, g5$t0_hhid, k4)
+    }
+    g6 <- grab("gsec1", "UGA_2019")
+    if (!is.null(g6) && !is.null(out$w5))
+      out$w6 <- chain("w6", g6$hhid, g6$hhidold, out$w5 %>% select(prev = hhid, ppid = pid))
+    return(bind_rows(out) %>% filter(!is.na(pid)))
+  }
   NULL
 }
 

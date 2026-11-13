@@ -1,7 +1,7 @@
 # Animal-source food demand in sub-Saharan Africa — PhD, Step I
 
-Domanda di alimenti di origine animale (carne, latte, uova) al crescere del reddito, da panel familiari
-LSMS-ISA della Banca Mondiale: Etiopia, Tanzania, Nigeria.
+Domanda di alimenti di origine animale (carne, latte, uova) al crescere del reddito, da indagini familiari
+LSMS-ISA della Banca Mondiale: Etiopia, Tanzania, Nigeria, Uganda (panel) e Malawi (indagini trasversali).
 
 Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuore.
 
@@ -19,6 +19,10 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 - 13 novembre, v22: in R anche le analisi aggiunte per l'articolo (tre margini con bootstrap,
   intervalli di confidenza dei disegni panel, caffè in Etiopia: `code/pipeline/10_margins.R`); alla fine
   della run il nuovo workbook viene confrontato da solo con quello di `results_reference/`.
+- 13 novembre, v23: Uganda (UNPS 2010/11-2019/20, sei wave, panel) e Malawi (IHS 2010, 2016, 2019, 2024,
+  quattro indagini trasversali: il panel IHPS è distribuito senza aggregato di consumo) in
+  `03_build_UGA.R` e `03_build_MWI.R`; trappole e scelte in `docs/FINDINGS.md`, sezione E.
+  I due paesi si saltano da soli se i loro archivi non ci sono.
 - Aperto: M11 (strumento per la spesa totale, da discutere con il Professore).
 - Informazioni su produzione zootecnica e caffè, per dopo: `docs/PRODUZIONE_E_CAFFE.md`.
 
@@ -38,13 +42,15 @@ docs/                   registro degli errori, tracciamento delle slide, mappe d
 ## Dati
 
 I dati grezzi **non** vanno nel repository: le condizioni d'uso della Banca Mondiale non ne permettono
-la ridistribuzione (`.gitignore` li esclude). Servono 13 archivi in formato Stata, nella stessa cartella:
+la ridistribuzione (`.gitignore` li esclude). Servono gli archivi in formato Stata, tutti nella stessa cartella (Uganda e Malawi sono facoltativi):
 
 | Paese | Wave | Catalogo Microdata Library |
 |---|---|---|
 | Etiopia | 2011, 2013, 2015, 2018, 2021 | 2053, 2247, 2783, 3823, 6161 |
 | Tanzania | 2008, 2010, 2012, 2014, 2020 | 76 (v02), 1050, 2252, 2862, 5639 |
 | Nigeria | 2010, 2012, 2015 | 1002, 1952, 2734 |
+| Uganda | 2010/11, 2011/12, 2013/14, 2015/16, 2018/19, 2019/20 | 2166, 2059, 2663, 3460, 3795, 3902 |
+| Malawi | IHS3 2010, IHS4 2016, IHS5 2019, IHS6 2024 | archivi `MWI_2010_IHS-III`, `MWI_2016_IHS-IV`, `MWI_2019_IHS-V`, `MWI_2024-2025_IHS-VI` |
 
 Nigeria 2018 (catalogo 3557) è esclusa: oggi non è scaricabile.
 
@@ -56,7 +62,7 @@ Rscript code/run_all.R
 
 In RStudio: *Session → Restart R*, poi nella Console
 `source("C:/Users/<nome>/Desktop/PhD_v21/code/run_all.R")` (oppure aprire il file e premere **Source**,
-non *Run*). Se accanto a `code/` c'è una cartella `data/` con i 13 archivi, viene usata quella e i
+non *Run*). Se accanto a `code/` c'è una cartella `data/` con gli archivi, viene usata quella e i
 risultati vanno in `data/OUTPUT/run_<data>/`. Alla fine la run stampa `=== CHECK against … ===`: "OK"
 se ogni tabella coincide con `results_reference/`, altrimenti l'elenco delle tabelle diverse
 (`COMPARISON_with_reference.csv` nella cartella della run).

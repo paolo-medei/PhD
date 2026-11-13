@@ -169,8 +169,10 @@ val_labels <- labelled::val_labels
 ## Then, any product: a purchase still above 10 times or below a tenth of the
 ## wave's median for the product is a unit error and its quantities are
 ## emptied, so it counts as bought but not as a unit value.
-flag_price_outliers <- function(f) {
-  q4  <- c("qty_std", "purch_std", "own_std", "gift_std")
+flag_price_outliers <- function(f, all_sources = TRUE) {
+  ## all_sources = FALSE where each source has its own unit (Malawi): only the
+  ## purchased quantity is rescaled or emptied
+  q4  <- if (all_sources) c("qty_std", "purch_std", "own_std", "gift_std") else "purch_std"
   pe  <- ifelse(f$purch_std > 0 & f$exp > 0, f$exp / f$purch_std, NA)
   med <- ave(pe, f$product, FUN = function(x) median(x, na.rm = TRUE))
   near <- function(p) !is.na(p) & p > med / 3 & p < 3 * med

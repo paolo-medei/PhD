@@ -133,6 +133,16 @@ diverso).
 - Benessere = consumo reale annuo per persona (l'IHS6 non ha la scala di adulti equivalenti);
   "regione" = distretto (le regioni sono solo tre).
 - PIL pro capite PPP, media degli anni d'indagine: 1.605 (il più povero dei cinque).
+- Verifica indipendente (`checks/audit/MWI/REPORT.md`): al secondo giro 27 colonne su 28 identiche in
+  ogni riga, l'ultima diversa in una sola famiglia. Corretti dopo il primo giro: escluso il campo
+  profughi di Dzaleka (2024, 386 famiglie senza aggregato); lette le unità metriche scritte male e con la
+  virgola; non usati i valori della tabella ufficiale che i prezzi smentiscono ("altro pollame" pesato
+  come un pollo, cucchiaino di latte in polvere più pesante del cucchiaio); latte fresco "in grammi"
+  non convertito; i pacchetti di latte fresco costano quanto le bustine e valgono come bustine (per
+  analogia con la "Nice cup" dell'Uganda: **da confermare con Paolo**); un acquisto con prezzo anomalo
+  svuota solo la quantità acquistata, e la quantità totale solo se registrata nella stessa unità.
+- I risultati: acquirenti di carne dal 5,6% (quinto più povero) al 61% (più ricco); tre margini della
+  carne entrata 63%, quantità 33%, qualità 4%.
 
 I numeri PPP vengono dalla serie WDI NY.GDP.PCAP.PP.KD letta tramite la copia di Our World in Data (i
 valori di Tanzania e Nigeria coincidono con l'estratto WDI già usato).

@@ -15,18 +15,20 @@
 ##           is read; the path hint says so.
 ##  TRAP M2  Every source (total, purchased, own, gift) has its OWN unit. 2010
 ##           adds a size letter to some codes ("9A", "9B", "9C" = small, medium,
-##           large piece): the letter is dropped for eggs, where a piece is an
-##           egg, and the code is otherwise kept as is.
+##           large piece; "22A/B" sachets): priced like the plain code, the
+##           letter is dropped.
 ##  TRAP M3  Units are converted by their metric meaning (kg, gram, litre,
 ##           millilitre) and, for chicken pieces and milk sachets and spoons,
 ##           by the World Bank's 2020 conversion table (kg per unit, by region;
 ##           a whole chicken weighs 1.27-1.48 kg). "Piece" of beef, goat or
 ##           pork is NOT converted: the table gives 0.036 kg in the North and
 ##           0.25 kg in the Centre and South for the same item, which is not a
-##           measurement. "Other (specify)" is converted only when its text
-##           states a metric amount ("GRAMS", "500 GRAM", "MILLILITRES"), a
-##           tray (30) or dozen of eggs, a WHOLE chicken (1.26 kg, the table's
-##           value) or a milk sachet (the table's 0.25 l).
+##           measurement. Nor are the table's "other poultry" (509) pieces and
+##           powdered-milk teaspoons, which the prices contradict, nor fresh
+##           milk "in grams". "Other (specify)" is converted when its text
+##           states a metric amount, a tray/crate (30) or dozen of eggs, a whole
+##           (1.26 kg) or half chicken, or a milk sachet; fresh-milk packets
+##           cost what sachets cost and are read as sachets (see oth_mw()).
 ##  TRAP M4  The 2010 aggregate has neither household size nor weight; they
 ##           come from the roster and the cover page. The 2024 aggregate has
 ##           no adult-equivalent scale, so Malawi uses household size
@@ -77,53 +79,81 @@ ITEMS_MW <- tibble::tribble(
 )   # 503-515 fish, 705 chambiko, 706 yoghurt, 707 cheese, 82x vendor food: not used
 MEAT_MW <- c("beef","goat_sheep","pork","poultry")
 
-## the World Bank's 2020 food conversion table (kg per unit), if present
+## the World Bank's 2020 food conversion table (kg per unit), if present.
+## v23 (independent check): 509 "other poultry" is left out - a piece costs a
+## tenth to a third of a chicken (doves, pigeons), yet the table gives it a
+## chicken's weight; so is the powdered-milk TEASPOON (code 20), which the
+## table makes heavier than the tablespoon (0.06-0.14 kg against 0.01).
 cf_path <- find_dta("ihs_foodconversion_factor_2020", "MWI_2019")
 CF_MW <- if (is.na(cf_path)) NULL else haven::read_dta(cf_path) %>%
   transmute(region3 = num(region), item = num(item_code), unit = trimws(as.character(unit_code)),
             factor = num(factor)) %>%
-  filter(unit != "23", item %in% c(508, 509, 701, 702), !is.na(factor)) %>%
+  filter(unit != "23", item %in% c(508, 701, 702), !(item == 702 & unit == "20"), !is.na(factor)) %>%
   group_by(region3, item, unit) %>% summarise(cf = mean(factor), .groups = "drop")
 
-## "Other (specify)" (code 23): only texts that state a metric amount, a tray
-## or dozen of eggs, a whole chicken, or a milk sachet (table value)
-oth_mw <- function(o, item, std) {
+## "Other (specify)" (code 23). Converted only when the text states a metric
+## amount (spelling variants and decimal commas included: "MILLITER", "GRAMM",
+## "0,3 KILOGRAMMES"), a tray / crate (30) or dozen of eggs, a piece of egg,
+## a whole or half chicken, or a sachet of milk (the table's value for the
+## item). v23: fresh-milk PACKETS cost what sachets cost in every wave, so they
+## are read as sachets - by analogy with Paolo's "Nice cup" decision (Uganda).
+oth_mw <- function(o, item, std, sachet) {
   o  <- toupper(trimws(ifelse(is.na(o), "", as.character(o))))
-  nm <- function(re) suppressWarnings(as.numeric(sub(paste0("^.*?([0-9]+[.]?[0-9]*) ?", re, ".*$"), "\\1", o, perl = TRUE)))
-  kg <- ifelse(grepl("[0-9] ?(KG|KILOGRAM)", o), nm("(KG|KILOGRAM)"), NA)
-  g  <- ifelse(grepl("[0-9] ?(G|GRAM|GRAMS)\\b", o), nm("(G|GRAM)") / 1000, NA)
-  ml <- ifelse(grepl("[0-9] ?(ML|MILLILITRE)", o), nm("(ML|MILLILITRE)") / 1000, NA)
+  o  <- sub("[.]+$", "", gsub("([0-9]),([0-9])", "\\1.\\2", o))
+  KG <- "(KGS?|KILOS?|KILOGRAMM?E?S?)"
+  G  <- "(GS?|GRMS?|GRAMM?E?S?|GARAMS?)"
+  ML <- "(MLS?|MIL|MILL?I?LIT(RE|ER)S?|MILL?IT(RE|ER)S?|MILITRES?|MILLIMETRES?|MILLIGRAMS?)"
+  amt <- function(re) {
+    x <- rep(NA_real_, length(o)); pat <- paste0("([0-9]+[.]?[0-9]*) ?", re, "\\b")
+    hit <- grepl(pat, o, perl = TRUE)
+    x[hit] <- suppressWarnings(as.numeric(sub(paste0("^.*?", pat, ".*$"), "\\1", o[hit], perl = TRUE)))
+    x
+  }
+  kg <- amt(KG); g <- amt(G) / 1000; ml <- amt(ML) / 1000
   dplyr::case_when(
-    std == "piece" & grepl("^(TRAY|TREY)$", o)                     ~ 30,
-    std == "piece" & o == "DOZEN"                                  ~ 12,
-    std == "piece" & o == "PIECE"                                  ~ 1,
-    item %in% c(508, 509) & grepl("WHOLE|FULL|^CHICKEN$", o)       ~ 1.26,
-    std %in% c("kg","litre") & !is.na(kg)                          ~ kg,
-    std %in% c("kg","litre") & !is.na(g)                           ~ g,
-    std == "litre" & !is.na(ml)                                    ~ ml,
-    std %in% c("kg","litre") & grepl("^(KG|KILOGRAMS?)$", o)       ~ 1,
-    std %in% c("kg","litre") & grepl("^(G|GRAMS?|GRAMMES?)$", o)   ~ 1/1000,
-    std == "litre" & grepl("^(ML|MILLILITRES?)$", o)               ~ 1/1000,
+    std == "piece" & grepl("^(TRAY|TREY|TRY|CRATE|CRETE)S?$", o)              ~ 30,
+    std == "piece" & o == "DOZEN"                                             ~ 12,
+    std == "piece" & grepl("^(PIECE|PEACE|PEICE)S?( ?[(].*[)])?$", o)        ~ 1,
+    item == 508 & grepl("^HALF", o) & grepl("CHICKEN|WHOLE", o)               ~ 0.63,
+    item == 508 & grepl("WHOLE|FULL|^([0-9]+ )?CHICKENS?$", o) &
+      !grepl("HALF|PIECES? OF", o)                                            ~ 1.26,
+    std %in% c("kg","litre") & !is.na(kg)                                     ~ kg,
+    std %in% c("kg","litre") & !is.na(g)                                      ~ g,
+    std == "litre" & !is.na(ml)                                               ~ ml,
+    std %in% c("kg","litre") & grepl(paste0("^HALF ", KG, "$"), o)            ~ 0.5,
+    std %in% c("kg","litre") & grepl(paste0("^", KG, "$"), o)                 ~ 1,
+    std == "kg" & grepl(paste0("^", G, "$"), o)                               ~ 1/1000,
+    std == "kg" & grepl("^GARAM", o)                                          ~ 1/1000,  # "GARAMSACHET"
+    std == "litre" & grepl(paste0("^", ML, "$"), o)                           ~ 1/1000,
+    item %in% c(701, 702) & grepl("SA?T?CHET|SACHET", o)                      ~ sachet,
+    item == 701 & grepl("^(SMALL )?PACKETS?( [(]SMALL[)]| UNSPECIFIED)?$", o) ~ sachet,
     TRUE ~ NA_real_)
 }
 
-conv_mw <- function(item, std, unit, oth, region3) {
-  u <- trimws(as.character(unit))
-  u <- ifelse(item == 501, sub("[A-Za-z]+$", "", u), u)                 # TRAP M2
+conv_mw <- function(item, std, unit, oth, region3, ulab = NA) {
+  ## TRAP M2: 2010 size letters ("9A", "22B") are priced like the plain code
+  u <- sub("[A-Za-z]+$", "", trimws(as.character(unit)))
   tab <- function(uu) if (is.null(CF_MW)) rep(NA_real_, length(uu)) else
     CF_MW$cf[match(paste(region3, item, uu), paste(CF_MW$region3, CF_MW$item, CF_MW$unit))]
   t_u <- tab(u); t_sachet <- tab(rep("22", length(u)))
-  o <- toupper(trimws(ifelse(is.na(oth), "", as.character(oth))))
+  ot <- oth_mw(oth, item, std, t_sachet)
+  ## v23: 2016 tins coded 71-73 say their weight in the label ("TIN 100G")
+  la <- toupper(ifelse(is.na(ulab), "", as.character(ulab)))
+  la_g <- suppressWarnings(as.numeric(ifelse(grepl("[0-9] ?G\\b", la),
+            sub("^.*?([0-9]+) ?G\\b.*$", "\\1", la, perl = TRUE), NA))) / 1000
   dplyr::case_when(
     is.na(u) | u == ""                                  ~ NA_real_,
     std == "piece" & u == "9"                           ~ 1,
     std %in% c("kg","litre") & u == "1"                 ~ 1,      # milk: kg = litre
-    std %in% c("kg","litre") & u == "18"                ~ 1/1000,
+    ## fresh milk "in grams" costs 4.9 times the litre price (2010): not converted
+    std == "kg" & u == "18"                             ~ 1/1000,
     std == "litre" & u == "15"                          ~ 1,
     std == "litre" & u == "19"                          ~ 1/1000,
-    u == "23" & !is.na(oth_mw(oth, item, std))          ~ oth_mw(oth, item, std),
-    u == "23" & item == 701 & grepl("^(SA?T?CHET|SACHET)S?$", o) ~ t_sachet,
-    item %in% c(508, 509, 701, 702) & u != "23" & !is.na(t_u) ~ t_u,   # TRAP M3
+    u == "23"                                           ~ ot,
+    std %in% c("kg","litre") & grepl("^TIN", la) & !is.na(la_g) ~ la_g,
+    ## fresh-milk packets (codes 51, 60) cost what a sachet costs
+    item == 701 & u %in% c("51", "60")                  ~ t_sachet,
+    item %in% c(508, 701, 702) & !is.na(t_u)            ~ t_u,       # TRAP M3
     TRUE ~ NA_real_)
 }
 
@@ -132,6 +162,9 @@ build_wave_mw <- function(w) {
   f  <- rd_mw(C, "hh_mod_g1")
   cv <- rd_mw(C, "hh_mod_a_filt")
   ## cover: district as "region" (TRAP M5), three regions for the table
+  ## v23: 2024 adds the Dzaleka refugee camp (camp = 1, 386 households): a
+  ## separate sample with no consumption aggregate - dropped
+  camp_hh <- if ("camp" %in% names(cv)) trimws(as.character(cv$case_id[num(cv$camp) %in% 1])) else character(0)
   dist <- num(if ("district" %in% names(cv)) cv$district else cv$hh_a01)
   cv <- tibble(hhid      = trimws(as.character(cv$case_id)),
                region    = as.character(dist),
@@ -140,14 +173,17 @@ build_wave_mw <- function(w) {
                clusterid = trimws(as.character(cv$ea_id)),
                hhweight  = num(cv$hh_wgt)) %>% distinct(hhid, .keep_all = TRUE)
 
-  f <- f %>% mutate(hhid = trimws(as.character(case_id)), item = num(hh_g02))
+  f <- f %>% mutate(hhid = trimws(as.character(case_id)), item = num(hh_g02)) %>%
+    filter(!hhid %in% camp_hh)
   hh_all <- unique(f$hhid)
   f <- f %>% inner_join(ITEMS_MW, by = "item") %>%
     left_join(cv %>% select(hhid, region3), by = "hhid")
   src <- function(q, u) {
     ov  <- intersect(paste0(u, c("_oth", "_os")), names(f))           # 2010: _os
     oth <- if (length(ov)) as.character(f[[ov[1]]]) else NA
-    num(f[[q]]) * conv_mw(f$item, f$std, haven::zap_labels(f[[u]]), oth, f$region3)
+    lv  <- paste0(u, "_label")
+    ulab <- if (lv %in% names(f)) as.character(haven::as_factor(f[[lv]])) else NA
+    num(f[[q]]) * conv_mw(f$item, f$std, haven::zap_labels(f[[u]]), oth, f$region3, ulab)
   }
   f$qty_std   <- src("hh_g03a", "hh_g03b")
   f$purch_std <- src("hh_g04a", "hh_g04b")
@@ -158,7 +194,22 @@ build_wave_mw <- function(w) {
   f$consumed  <- as.numeric(num(f$hh_g01) == 1 |
                             rowSums(cbind(num(f$hh_g03a), num(f$hh_g04a), num(f$hh_g06a),
                                           num(f$hh_g07a), f$exp) > 0, na.rm = TRUE) > 0)
-  f <- flag_price_outliers(f)                                      # TRAP M6
+  ## TRAP M6. Each source has its own unit here, so a mispriced PURCHASE
+  ## empties the purchased quantity only (Uganda: one unit for all sources)
+  p0 <- f$purch_std
+  f <- flag_price_outliers(f, all_sources = FALSE)
+  ## ... and to any other source recorded in the SAME unit and text as the
+  ## purchase (270 of 279 trimmed rows: the total repeats the purchase's unit)
+  key <- function(b) { ov <- intersect(paste0(b, c("_oth", "_os")), names(f))
+    paste(trimws(as.character(haven::zap_labels(f[[b]]))), if (length(ov)) toupper(trimws(f[[ov[1]]])) else "") }
+  kp  <- key("hh_g04b")
+  cut <- !is.na(p0) & is.na(f$purch_std)
+  fac <- ifelse(!is.na(p0) & !is.na(f$purch_std) & p0 > 0, f$purch_std / p0, 1)
+  for (s in list(c("qty_std", "hh_g03b"), c("own_std", "hh_g06b"), c("gift_std", "hh_g07b"))) {
+    same <- key(s[2]) == kp
+    f[[s[1]]][same & cut] <- NA
+    f[[s[1]]][same & !cut] <- f[[s[1]]][same & !cut] * fac[same & !cut]
+  }
   f <- f %>% select(hhid, product, std, consumed, qty_std, purch_std, own_std, gift_std, exp)
 
   agg_by <- function(df, prod_col) {

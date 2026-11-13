@@ -32,7 +32,7 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 code/run_all.R          esegue i moduli in ordine e confronta il risultato con results_reference/
 code/compare_results.R  il confronto cella per cella (usato da run_all.R e da checks/compare_runs.R)
 code/pipeline/          00_setup … 09_value_chain, 10_margins, 11_workbook (la pipeline)
-results_reference/      RESULTS_*.xlsx della run di riferimento (stesso codice, stessi archivi)
+results_reference/      RESULTS_*.xlsx della run di riferimento (stesso codice, stessi archivi; v23 = cinque paesi)
 code/legacy/            v20 originale e ANALISI_semplice.R (5 ottobre), per riferimento
 checks/                 varmap.R, varmap2.R: ogni colonna usata, con l'etichetta del file
                         compare_runs.R: confronto cella per cella tra due RESULTS_*.xlsx

@@ -116,7 +116,8 @@ CMAP <- tibble::tribble(~pitem, ~product,  19,"milk",  20,"eggs",  23,"coffee")
 unit_ok <- function(product, lab) {
   lab <- tolower(ifelse(is.na(lab), "", lab))
   dplyr::case_when(
-    product == "milk"   ~ (str_detect(lab,"litt|litre") & !str_detect(lab,"mili|milli")),
+    ## v21: 2013 spells it "Liter" - "litt|litre" lost every milk price that year
+    product == "milk"   ~ (str_detect(lab,"lit") & !str_detect(lab,"mil")),
     product == "eggs"   ~ str_detect(lab,"pice|piece|number"),
     product == "coffee" ~ str_detect(lab,"kilogram") | str_trim(lab) == "kg",
     TRUE ~ FALSE)
@@ -156,8 +157,8 @@ build_food_et <- function(w) {
 
   ## Track B: disaggregated (waves 3-5 only)
   B <- f %>% mutate(track = "B",
-                    exp_conv = ifelse(is.na(purch_kg), NA_real_, exp),
-                    unconv   = as.integer(exp > 0 & is.na(purch_kg)))
+                    exp_conv = ifelse(is.na(purch_kg) | purch_kg <= 0, NA_real_, exp),
+                    unconv   = as.integer(exp > 0 & (is.na(purch_kg) | purch_kg <= 0)))
   ## Track A: meat summed so the five waves line up.
   ## TRAP 5  Summing treats a missing kilo as zero, so spend would be counted
   ##         while quantity is not, inflating the unit value. Flag it instead.
@@ -172,8 +173,8 @@ build_food_et <- function(w) {
   A <- f %>%
     mutate(product = ifelse(product %in% MEAT_ET, "meat_agg", product)) %>%
     filter(product != "fish") %>%
-    mutate(.unconv  = as.integer(exp > 0 & is.na(purch_kg)),
-           .exp_conv = ifelse(is.na(purch_kg), NA_real_, exp)) %>%
+    mutate(.unconv  = as.integer(exp > 0 & (is.na(purch_kg) | purch_kg <= 0)),
+           .exp_conv = ifelse(is.na(purch_kg) | purch_kg <= 0, NA_real_, exp)) %>%
     group_by(hhid, product) %>%
     summarise(consumed = suppressWarnings(max(consumed, na.rm=TRUE)),
               qty_kg   = sum(qty_kg,   na.rm=TRUE),
@@ -194,10 +195,20 @@ build_food_et <- function(w) {
 
 build_demog_et <- function(w) {
   C <- WAVES_ET[[w]]
-  r <- rd_et(C$roster) %>%
+  ## v21 (D15): from wave 2 the roster also lists people who have LEFT the
+  ## household ("Is [NAME] still a member?" = No): 2,373 / 4,597 / 784 / 2,568
+  ## rows in 2013-2021. They were counted in the shares and could be the head.
+  ## Waves 2-3 also record a corrected age and sex, used where given.
+  still <- c(w2 = "hh_s1q04c", w3 = "hh_s1q04c", w4 = "s1q05", w5 = "s1q05")[w]
+  r <- rd_et(C$roster)
+  if (!is.na(still) && still %in% names(r))
+    r <- r %>% filter(is.na(num(.data[[still]])) | num(.data[[still]]) != 2)
+  age_c <- if ("hh_s1q04h" %in% names(r)) num(r$hh_s1q04h) else NA_real_
+  sex_c <- if ("hh_s1q04e" %in% names(r)) num(r$hh_s1q04e) else NA_real_
+  r <- r %>%
     mutate(hhid   = as.character(.data[[C$hhid]]),
-           age    = num(.data[[C$age]]),
-           female = as.numeric(num(.data[[C$sex]]) == 2),
+           age    = dplyr::coalesce(age_c, num(.data[[C$age]])),
+           female = as.numeric(dplyr::coalesce(sex_c, num(.data[[C$sex]])) == 2),
            head   = as.numeric(num(.data[[C$rel]]) == 1))
   r %>% group_by(hhid) %>%
     summarise(n_members    = n(),
@@ -218,11 +229,19 @@ build_prices_et <- function(w) {
     lv <- val_labels(d[[C$p_unit]])
     if (is.null(lv)) rep(NA_character_, nrow(d)) else names(lv)[match(num(d[[C$p_unit]]), lv)]
   } else rep(NA_character_, nrow(d))
+  ## v21 (D16): the wave's own EA id (2013-2015: ea_id2; ea_id is the 2011 EA
+  ## and is missing for the new urban sample); the cents of 2011; and the
+  ## quantity the price is quoted for (30 birr for 5 eggs is 6 a piece).
+  ea   <- if (w %in% c("w2", "w3")) "ea_id2" else "ea_id"
+  cent <- if ("cs10b1q07_f2" %in% names(d)) dplyr::coalesce(num(d$cs10b1q07_f2), 0) / 100 else 0
+  amt  <- if (w == "w1") num(d$cs10b1q07_e1) + dplyr::coalesce(num(d$cs10b1q07_e2), 0) / 1000
+          else num(d[[sub("05$", "04", C$p_val)]])
+  amt  <- ifelse(is.na(amt) | amt <= 0, 1, amt)
   d %>% mutate(pitem = num(.data[[C$p_item]]), unit_lab = ulab,
-               mkt_price = num(.data[[C$p_val]]),
-               ea_id = as.character(ea_id)) %>%
+               mkt_price = (num(.data[[C$p_val]]) + cent) / amt, .amt = amt,
+               ea_id = as.character(.data[[ea]])) %>%
     inner_join(CMAP, by="pitem") %>%
-    filter(unit_ok(product, unit_lab), mkt_price > 0) %>%
+    filter(unit_ok(product, unit_lab), mkt_price > 0, .amt <= 50) %>%
     group_by(ea_id, product) %>%
     summarise(mkt_price = median(mkt_price, na.rm=TRUE), .groups="drop")
 }
@@ -249,10 +268,11 @@ build_wave_et <- function(w) {
   out <- build_food_et(w)
 
   agg <- rd_et(C$agg) %>% mutate(hhid = as.character(.data[[C$hhid]]))
+  ea <- if (w %in% c("w2", "w3")) "ea_id2" else "ea_id"     # v21 (D16)
   keep <- intersect(c("adulteq","hh_size","nom_totcons_aeq","total_cons_ann",
-                      "food_cons_ann","cons_quint","ea_id", C$weight), names(agg))
+                      "food_cons_ann","cons_quint", ea, C$weight), names(agg))
   agg <- agg %>% select(hhid, all_of(keep)) %>%
-    rename(weight = !!C$weight) %>% mutate(ea_id = as.character(ea_id))
+    rename(weight = !!C$weight, ea_id = !!ea) %>% mutate(ea_id = as.character(ea_id))
 
   cov <- rd_et(C$cover) %>% mutate(hhid = as.character(.data[[C$hhid]]))
   gk  <- intersect(c("saq01","saq02","saq03","rural","saq14"), names(cov))

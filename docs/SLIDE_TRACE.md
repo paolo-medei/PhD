@@ -34,7 +34,7 @@ Dopo tutte le correzioni di `docs/FINDINGS.md` (D1-D19, M1-M13) e le verifiche i
 | 10 | Etiopia: latticini, capre e pecore (quote senza pesce) | 32% → 11%; 24% → 41% | **18% → 10%; 17% → 38%** |
 | 10 | Nigeria: manzo, pollame | 61% → 45%; 5% → 23% | 58% → 50%; 3% → 18% |
 | 10 | Elasticità della varietà | 0,26 / 0,28 / 0,32 | 0,30 / 0,38 / 0,31 |
-| 11 | Costo per grammo di proteina (tra prodotti) | — | 0,28 / 0,05 / 0,03 |
+| 11 | Costo per grammo di proteina (tra prodotti) | — | 0,28 / 0,10 / 0,05 |
 | 11 | PIL pro capite | 1.000-1.600 USD | PPP 2021: 2.009 / 2.890 / 8.374 |
 | — | Moltiplicatore di filiera (spesa / quantità) | 2,20 / 1,21 / 0,96 (unità miste) | 1,28 / 1,00 / 1,04 (in proteine) |
 

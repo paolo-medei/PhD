@@ -90,12 +90,15 @@ hh_level <- function(d) {
       n_products  = sum(coalesce(qty_tot,0) > 0 | coalesce(consumed,0) == 1),  # VARIETY, count
       asf_exp     = sum(coalesce(exp,0)),
       asf_prot    = sum(coalesce(prot,0)*coalesce(qty_tot,0)),
+      ## v21 (M14): the cost of a gram is spending on purchases over the protein
+      ## PURCHASED; dividing by all protein consumed mixed in own production
+      asf_prot_pur = sum(coalesce(prot,0)*coalesce(qty_pur,0)),
       hhi         = { s <- coalesce(exp,0); s <- s/ifelse(sum(s)>0,sum(s),NA)
                       sum(s^2, na.rm=TRUE) },              # basket concentration
       .groups="drop") %>%
     mutate(prot_ae_day = asf_prot/adulteq/7,
            asf_exp_ae  = asf_exp/adulteq,
-           cost_per_g  = ifelse(asf_prot > 0, asf_exp/asf_prot, NA_real_))
+           cost_per_g  = ifelse(asf_prot_pur > 0, asf_exp/asf_prot_pur, NA_real_))
 }
 
 for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE)) {

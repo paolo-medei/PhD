@@ -1,0 +1,176 @@
+country,wave,column,n_compared,pct_equal,n_na_mismatch,n_value_mismatch,verdict,note
+ETH,w1,hhid_set,3969,100.0,0,0,OK,Same household set as the raw food module (W1 household_id; W2-W3 household_id2; W4-W5 household_id). n_na_mismatch=in panel not raw; n_value_mismatch=in raw not panel.
+ETH,w1,row_count,19845,100.0,0,0,OK,n_hh x 5 (track A) for W1-W2; n_hh x 13 (5 A + 8 B) for W3-W5.
+ETH,w1,consumed,19845,100.0,0,0,OK,"Q01 (1=Yes->1, 2=No->0, missing->NA; meat_agg=max over beef/goat/poultry ignoring NA). W4/W5 keep item non-response as NA."
+ETH,w1,qty_kg,19845,100.0,0,0,OK,"Q02 total qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w1,purch_kg,19845,100.0,0,0,OK,"Q03 purchases qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w1,own_kg,19845,100.0,0,0,OK,"Q05 own production qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w1,gift_kg,19845,100.0,0,0,OK,"Q06 gifts/other qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w1,exp,19845,100.0,0,0,OK,Q04 amount spent (birr). Track A zero->NA; track B keeps zeros.
+ETH,w1,exp_conv,19845,100.0,0,0,OK,exp where purch_kg is convertible; meat_agg = sum of components exp_conv. 2 W2 rows have exp>0 with purchased qty=0 (stored NA) but exp_conv kept.
+ETH,w1,unconv,19845,100.0,0,0,OK,1 if exp>0 and purch_kg not convertible. Track B: NA when exp is NA; track A: 0. meat_agg = any component (60/31/87 hh in W3/W4/W5 have unconv=1 AND exp_conv>0).
+ETH,w1,uv,19845,100.0,0,0,OK,"exp_conv/purch_kg, NA if <=0. No outlier trimming (e.g. beef 2015 max 140,000 birr/kg; milk 2011 p99 5,000 birr/l)."
+ETH,w1,adulteq,19845,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w1,hh_size,19845,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w1,nom_totcons_aeq,19845,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w1,total_cons_ann,19845,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w1,food_cons_ann,19845,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w1,cons_quint,19845,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w1,weight,19845,100.0,0,0,OK,pw / pw2 / pw_w3 / pw_w4 / pw_w5.
+ETH,w1,ea_id,3969,100.0,0,0,OK,Wave EA id.
+ETH,w1,region,19845,100.0,0,0,OK,"saq01. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w1,zone,19845,100.0,0,0,OK,"saq02. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w1,woreda,19845,100.0,0,0,OK,"saq03. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w1,urban_code,19845,100.0,0,0,CONVENTION,"Values equal the raw code, but its meaning changes: W1 rural (0=small town,1=rural); W2-W3 rural (1=rural,2=small town,3=medium/large town); W4-W5 saq14 (1=rural,2=urban). Must be recoded before pooling."
+ETH,w1,n_members,19845,100.0,0,0,OK,"All roster rows = official hh_size (no ""still member"" question in W1)."
+ETH,w1,share_child,19845,100.0,0,0,OK,"Thresholds reproduced exactly: child = age <=14, elderly = age >=60, female = sex==2; denominator = members with non-missing age/sex."
+ETH,w1,share_elderly,19845,100.0,0,0,OK,"Thresholds reproduced exactly: child = age <=14, elderly = age >=60, female = sex==2; denominator = members with non-missing age/sex."
+ETH,w1,share_female,19845,100.0,0,0,OK,"Thresholds reproduced exactly: child = age <=14, elderly = age >=60, female = sex==2; denominator = members with non-missing age/sex."
+ETH,w1,head_age,19845,100.0,0,0,OK,Roster member with relationship=1 (Head).
+ETH,w1,head_female,19845,100.0,0,0,OK,Roster member with relationship=1 (Head).
+ETH,w1,coffee_plots,19845,80.5493,3750,110,ERROR,"Counts coffee (crop 72) rows in post-harvest sect9_ph_w1, which in W1 covers only 1,910 hh / 7,750 field-crops (post-planting sect4_pp_w1: 2,828 hh / 29,317). Panel: 117 hh with coffee plots vs 863 in sect4_pp; 750 coffee-field hh get NA, 22 get a lower count."
+ETH,w1,coffee_sale_birr,19845,100.0,0,0,OK,"Sum of value of coffee sales: sect12_ph ph_s12q08 (W1-W3), sect11_ph s11q12 (W4-W5); 0 if coffee listed but not sold; NA if coffee not in the sales module."
+ETH,w1,coffee_grower,19845,97.6064,0,475,ERROR,Inherits the W1 coffee_plots problem: 95 hh with coffee fields in post-planting are coded non-growers (792 vs 887).
+ETH,w1,mkt_price,19845,100.0,0,0,ERROR,"pct_equal is vs a rebuild using the same rule (EA median of sect10b1 records with unit Litre/Number/Kg, price>0). ERRORS: (a) the cents field cs10b1q07_f2 is dropped: 119 of 507 records have cents, 1,434 hh-product cells wrong (1,410 eggs; median understatement 33%, e.g. 1.5 birr stored as 1.0; 12 cells NA because birr part = 0); (b) the weight/amount field is ignored, so a price quoted for N units is used as per-unit: 92 records amount!=1, 1,099 cells. No cheese/meat price in W1 community data."
+ETH,w1,year,19845,100.0,0,0,OK,
+ETH,w1,country,19845,100.0,0,0,OK,
+ETH,w2,hhid_set,5262,100.0,0,0,OK,Same household set as the raw food module (W1 household_id; W2-W3 household_id2; W4-W5 household_id). n_na_mismatch=in panel not raw; n_value_mismatch=in raw not panel.
+ETH,w2,row_count,26310,100.0,0,0,OK,n_hh x 5 (track A) for W1-W2; n_hh x 13 (5 A + 8 B) for W3-W5.
+ETH,w2,consumed,26310,100.0,0,0,OK,"Q01 (1=Yes->1, 2=No->0, missing->NA; meat_agg=max over beef/goat/poultry ignoring NA). W4/W5 keep item non-response as NA."
+ETH,w2,qty_kg,26310,100.0,0,0,OK,"Q02 total qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w2,purch_kg,26310,100.0,0,0,OK,"Q03 purchases qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w2,own_kg,26310,100.0,0,0,OK,"Q05 own production qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w2,gift_kg,26310,100.0,0,0,OK,"Q06 gifts/other qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w2,exp,26310,100.0,0,0,OK,Q04 amount spent (birr). Track A zero->NA; track B keeps zeros.
+ETH,w2,exp_conv,26310,100.0,0,0,OK,exp where purch_kg is convertible; meat_agg = sum of components exp_conv. 2 W2 rows have exp>0 with purchased qty=0 (stored NA) but exp_conv kept.
+ETH,w2,unconv,26310,100.0,0,0,OK,1 if exp>0 and purch_kg not convertible. Track B: NA when exp is NA; track A: 0. meat_agg = any component (60/31/87 hh in W3/W4/W5 have unconv=1 AND exp_conv>0).
+ETH,w2,uv,26310,100.0,0,0,OK,"exp_conv/purch_kg, NA if <=0. No outlier trimming (e.g. beef 2015 max 140,000 birr/kg; milk 2011 p99 5,000 birr/l)."
+ETH,w2,adulteq,26310,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w2,hh_size,26310,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w2,nom_totcons_aeq,26310,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w2,total_cons_ann,26310,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w2,food_cons_ann,26310,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w2,cons_quint,26310,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w2,weight,26310,100.0,0,0,OK,pw / pw2 / pw_w3 / pw_w4 / pw_w5.
+ETH,w2,ea_id,5262,71.3037,1456,54,ERROR,"Uses ea_id (""Unique EA identifier in wave 1"") instead of ea_id2 (wave-2 EA). 1,456 hh (all 3 = large town, the new W2 urban sample, 98 EAs) get NA; 54 hh sit in 2 W1-EAs that are 4 W2-EAs."
+ETH,w2,region,26310,100.0,0,0,OK,"saq01. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w2,zone,26310,100.0,0,0,OK,"saq02. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w2,woreda,26310,100.0,0,0,OK,"saq03. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w2,urban_code,26310,100.0,0,0,CONVENTION,"Values equal the raw code, but its meaning changes: W1 rural (0=small town,1=rural); W2-W3 rural (1=rural,2=small town,3=medium/large town); W4-W5 saq14 (1=rural,2=urban). Must be recoded before pooling."
+ETH,w2,n_members,26310,72.748,0,7170,ERROR,"Counts roster rows of people who LEFT the household (still-member question = No). Official hh_size equals current-member count in 100% of hh; panel n_members != hh_size in this many hh: W2 1,434; W3 2,401; W4 534; W5 1,533."
+ETH,w2,share_child,26310,83.3903,0,4370,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w2,share_elderly,26310,93.4626,0,1720,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w2,share_female,26310,77.6701,0,5875,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w2,head_age,26310,99.4679,140,0,ERROR,In 28-32 (W2) / 14-20 (W3) hh the only person coded Head is no longer a member; panel takes the departed head. Small.
+ETH,w2,head_female,26310,99.4109,155,0,ERROR,In 28-32 (W2) / 14-20 (W3) hh the only person coded Head is no longer a member; panel takes the departed head. Small.
+ETH,w2,coffee_plots,26310,99.5819,30,80,CONVENTION,"Count of coffee fields in post-harvest sect9_ph (harvested) vs post-planting sect4_pp (planted). Differences are small (hh): W2 22, W4 35, W5 31."
+ETH,w2,coffee_sale_birr,26310,100.0,0,0,OK,"Sum of value of coffee sales: sect12_ph ph_s12q08 (W1-W3), sect11_ph s11q12 (W4-W5); 0 if coffee listed but not sold; NA if coffee not in the sales module."
+ETH,w2,coffee_grower,26310,99.886,0,30,CONVENTION,"1 if coffee field in sect9_ph or coffee row in sales module; using sect4_pp adds W2 6, W4 22, W5 11 hh."
+ETH,w2,mkt_price,26310,83.3295,2125,2261,ERROR,"(a) Keyed on the wave-1 ea_id: all 1,456 new-sample hh (NA ea_id) receive one pooled national median (coffee 80, eggs 2.5) instead of their EA price (98 EAs); (b) milk is NA for every hh although 147 EAs report a per-litre price (unit 32) -> 1,918 hh lose it; (c) amount field ignored (101 of 793 records, 1,220 cells)."
+ETH,w2,year,26310,100.0,0,0,OK,
+ETH,w2,country,26310,100.0,0,0,OK,
+ETH,w3,hhid_set,4954,100.0,0,0,OK,Same household set as the raw food module (W1 household_id; W2-W3 household_id2; W4-W5 household_id). n_na_mismatch=in panel not raw; n_value_mismatch=in raw not panel.
+ETH,w3,row_count,64402,100.0,0,0,OK,n_hh x 5 (track A) for W1-W2; n_hh x 13 (5 A + 8 B) for W3-W5.
+ETH,w3,consumed,64402,100.0,0,0,OK,"Q01 (1=Yes->1, 2=No->0, missing->NA; meat_agg=max over beef/goat/poultry ignoring NA). W4/W5 keep item non-response as NA."
+ETH,w3,qty_kg,64402,100.0,0,0,OK,"Q02 total qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w3,purch_kg,64402,100.0,0,0,OK,"Q03 purchases qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w3,own_kg,64402,100.0,0,0,OK,"Q05 own production qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w3,gift_kg,64402,100.0,0,0,OK,"Q06 gifts/other qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w3,exp,64402,100.0,0,0,OK,Q04 amount spent (birr). Track A zero->NA; track B keeps zeros.
+ETH,w3,exp_conv,64402,100.0,0,0,OK,exp where purch_kg is convertible; meat_agg = sum of components exp_conv. 2 W2 rows have exp>0 with purchased qty=0 (stored NA) but exp_conv kept.
+ETH,w3,unconv,64402,100.0,0,0,OK,1 if exp>0 and purch_kg not convertible. Track B: NA when exp is NA; track A: 0. meat_agg = any component (60/31/87 hh in W3/W4/W5 have unconv=1 AND exp_conv>0).
+ETH,w3,uv,64402,100.0,0,0,OK,"exp_conv/purch_kg, NA if <=0. No outlier trimming (e.g. beef 2015 max 140,000 birr/kg; milk 2011 p99 5,000 birr/l)."
+ETH,w3,adulteq,64402,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w3,hh_size,64402,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w3,nom_totcons_aeq,64402,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w3,total_cons_ann,64402,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w3,food_cons_ann,64402,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w3,cons_quint,64402,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w3,weight,64402,100.0,0,0,OK,pw / pw2 / pw_w3 / pw_w4 / pw_w5.
+ETH,w3,ea_id,4954,98.9705,0,51,CONVENTION,"Uses 11-digit ea_id instead of 15-digit ea_id2; 1:1 except 2 ea_id that each cover 2 ea_id2 (51 hh). Not an error for most uses, but coarser than the wave EA."
+ETH,w3,region,64402,100.0,0,0,OK,"saq01. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w3,zone,64402,100.0,0,0,OK,"saq02. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w3,woreda,64402,100.0,0,0,OK,"saq03. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w3,urban_code,64402,100.0,0,0,CONVENTION,"Values equal the raw code, but its meaning changes: W1 rural (0=small town,1=rural); W2-W3 rural (1=rural,2=small town,3=medium/large town); W4-W5 saq14 (1=rural,2=urban). Must be recoded before pooling."
+ETH,w3,n_members,64402,51.5341,0,31213,ERROR,"Counts roster rows of people who LEFT the household (still-member question = No). Official hh_size equals current-member count in 100% of hh; panel n_members != hh_size in this many hh: W2 1,434; W3 2,401; W4 534; W5 1,533."
+ETH,w3,share_child,64402,93.7626,0,4017,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w3,share_elderly,64402,97.9612,0,1313,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w3,share_female,64402,67.8845,0,20683,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w3,head_age,64402,99.7174,182,0,ERROR,In 28-32 (W2) / 14-20 (W3) hh the only person coded Head is no longer a member; panel takes the departed head. Small.
+ETH,w3,head_female,64402,99.6165,247,0,ERROR,In 28-32 (W2) / 14-20 (W3) hh the only person coded Head is no longer a member; panel takes the departed head. Small.
+ETH,w3,coffee_plots,64402,100.0,0,0,OK,sect9_ph and sect4_pp coincide in W3.
+ETH,w3,coffee_sale_birr,64402,100.0,0,0,OK,"Sum of value of coffee sales: sect12_ph ph_s12q08 (W1-W3), sect11_ph s11q12 (W4-W5); 0 if coffee listed but not sold; NA if coffee not in the sales module."
+ETH,w3,coffee_grower,64402,100.0,0,0,OK,
+ETH,w3,mkt_price,64402,96.0374,2398,154,ERROR,"pct_equal vs rebuild with same per-unit rule but own EA key and cheese included. Amount field ignored (98 of 903 records, 1,160 cells); cheese price (item 200, per kg) exists in 102 EAs but is never used (1,187 hh NA); 11-digit ea_id averages 2 EA pairs (26 hh-product cells differ)."
+ETH,w3,year,64402,100.0,0,0,OK,
+ETH,w3,country,64402,100.0,0,0,OK,
+ETH,w4,hhid_set,6770,100.0,0,0,OK,Same household set as the raw food module (W1 household_id; W2-W3 household_id2; W4-W5 household_id). n_na_mismatch=in panel not raw; n_value_mismatch=in raw not panel.
+ETH,w4,row_count,88010,100.0,0,0,OK,n_hh x 5 (track A) for W1-W2; n_hh x 13 (5 A + 8 B) for W3-W5.
+ETH,w4,consumed,88010,100.0,0,0,OK,"Q01 (1=Yes->1, 2=No->0, missing->NA; meat_agg=max over beef/goat/poultry ignoring NA). W4/W5 keep item non-response as NA."
+ETH,w4,qty_kg,88010,100.0,0,0,OK,"Q02 total qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w4,purch_kg,88010,100.0,0,0,OK,"Q03 purchases qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w4,own_kg,88010,100.0,0,0,OK,"Q05 own production qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w4,gift_kg,88010,100.0,0,0,OK,"Q06 gifts/other qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w4,exp,88010,100.0,0,0,OK,Q04 amount spent (birr). Track A zero->NA; track B keeps zeros.
+ETH,w4,exp_conv,88010,100.0,0,0,OK,exp where purch_kg is convertible; meat_agg = sum of components exp_conv. 2 W2 rows have exp>0 with purchased qty=0 (stored NA) but exp_conv kept.
+ETH,w4,unconv,88010,100.0,0,0,OK,1 if exp>0 and purch_kg not convertible. Track B: NA when exp is NA; track A: 0. meat_agg = any component (60/31/87 hh in W3/W4/W5 have unconv=1 AND exp_conv>0).
+ETH,w4,uv,88010,100.0,0,0,OK,"exp_conv/purch_kg, NA if <=0. No outlier trimming (e.g. beef 2015 max 140,000 birr/kg; milk 2011 p99 5,000 birr/l)."
+ETH,w4,adulteq,88010,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w4,hh_size,88010,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w4,nom_totcons_aeq,88010,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w4,total_cons_ann,88010,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w4,food_cons_ann,88010,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w4,cons_quint,88010,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w4,weight,88010,100.0,0,0,OK,pw / pw2 / pw_w3 / pw_w4 / pw_w5.
+ETH,w4,ea_id,6770,100.0,0,0,OK,Wave EA id.
+ETH,w4,region,88010,100.0,0,0,OK,"saq01. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w4,zone,88010,100.0,0,0,OK,"saq02. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w4,woreda,88010,100.0,0,0,OK,"saq03. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w4,urban_code,88010,100.0,0,0,CONVENTION,"Values equal the raw code, but its meaning changes: W1 rural (0=small town,1=rural); W2-W3 rural (1=rural,2=small town,3=medium/large town); W4-W5 saq14 (1=rural,2=urban). Must be recoded before pooling."
+ETH,w4,n_members,88010,92.1123,0,6942,ERROR,"Counts roster rows of people who LEFT the household (still-member question = No). Official hh_size equals current-member count in 100% of hh; panel n_members != hh_size in this many hh: W2 1,434; W3 2,401; W4 534; W5 1,533."
+ETH,w4,share_child,88010,93.3383,0,5863,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w4,share_elderly,88010,97.7696,0,1963,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w4,share_female,88010,92.6588,0,6461,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w4,head_age,88010,100.0,0,0,OK,Roster member with relationship=1 (Head).
+ETH,w4,head_female,88010,100.0,0,0,OK,Roster member with relationship=1 (Head).
+ETH,w4,coffee_plots,88010,99.483,338,117,CONVENTION,"Count of coffee fields in post-harvest sect9_ph (harvested) vs post-planting sect4_pp (planted). Differences are small (hh): W2 22, W4 35, W5 31."
+ETH,w4,coffee_sale_birr,88010,100.0,0,0,OK,"Sum of value of coffee sales: sect12_ph ph_s12q08 (W1-W3), sect11_ph s11q12 (W4-W5); 0 if coffee listed but not sold; NA if coffee not in the sales module."
+ETH,w4,coffee_grower,88010,99.675,0,286,CONVENTION,"1 if coffee field in sect9_ph or coffee row in sales module; using sect4_pp adds W2 6, W4 22, W5 11 hh."
+ETH,w4,mkt_price,88010,96.8549,2768,0,ERROR,"Amount field ignored (W4 78 of 796 records, 1,017 cells; W5 67 of 742, 757 cells); cheese price (item 200, per kg) available but never used (W4 1,384 hh, W5 1,395 hh NA). Otherwise reproduced exactly."
+ETH,w4,year,88010,100.0,0,0,OK,
+ETH,w4,country,88010,100.0,0,0,OK,
+ETH,w5,hhid_set,4959,100.0,0,0,OK,Same household set as the raw food module (W1 household_id; W2-W3 household_id2; W4-W5 household_id). n_na_mismatch=in panel not raw; n_value_mismatch=in raw not panel.
+ETH,w5,row_count,64467,100.0,0,0,OK,n_hh x 5 (track A) for W1-W2; n_hh x 13 (5 A + 8 B) for W3-W5.
+ETH,w5,consumed,64467,100.0,0,0,OK,"Q01 (1=Yes->1, 2=No->0, missing->NA; meat_agg=max over beef/goat/poultry ignoring NA). W4/W5 keep item non-response as NA."
+ETH,w5,qty_kg,64467,100.0,0,0,OK,"Q02 total qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w5,purch_kg,64467,100.0,0,0,OK,"Q03 purchases qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w5,own_kg,64467,100.0,0,0,OK,"Q05 own production qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w5,gift_kg,64467,100.0,0,0,OK,"Q06 gifts/other qty x mean_cf_nat(item,unit). W2 joined on *_cf_unit; W4/W5 items mapped to ESS3 CF codes (701->180,702->181,703->182,704->183,705->19,706->20,709->21,801->24). Zeros->NA in track A; meat_agg = NA-ignoring sum."
+ETH,w5,exp,64467,100.0,0,0,OK,Q04 amount spent (birr). Track A zero->NA; track B keeps zeros.
+ETH,w5,exp_conv,64467,100.0,0,0,OK,exp where purch_kg is convertible; meat_agg = sum of components exp_conv. 2 W2 rows have exp>0 with purchased qty=0 (stored NA) but exp_conv kept.
+ETH,w5,unconv,64467,100.0,0,0,OK,1 if exp>0 and purch_kg not convertible. Track B: NA when exp is NA; track A: 0. meat_agg = any component (60/31/87 hh in W3/W4/W5 have unconv=1 AND exp_conv>0).
+ETH,w5,uv,64467,100.0,0,0,OK,"exp_conv/purch_kg, NA if <=0. No outlier trimming (e.g. beef 2015 max 140,000 birr/kg; milk 2011 p99 5,000 birr/l)."
+ETH,w5,adulteq,64467,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w5,hh_size,64467,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w5,nom_totcons_aeq,64467,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w5,total_cons_ann,64467,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w5,food_cons_ann,64467,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w5,cons_quint,64467,100.0,0,0,OK,Copied from cons_agg_wX (same name). NA in W1-W3 = official aggregate missing (no_conv/no_cons households).
+ETH,w5,weight,64467,100.0,0,0,OK,pw / pw2 / pw_w3 / pw_w4 / pw_w5.
+ETH,w5,ea_id,4959,100.0,0,0,OK,Wave EA id.
+ETH,w5,region,64467,100.0,0,0,OK,"saq01. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w5,zone,64467,100.0,0,0,OK,"saq02. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w5,woreda,64467,100.0,0,0,OK,"saq03. Zone/woreda codes are nested (not unique nationally) and stored ""1"" in W1-W3 vs ""01"" in W4-W5."
+ETH,w5,urban_code,64467,100.0,0,0,CONVENTION,"Values equal the raw code, but its meaning changes: W1 rural (0=small town,1=rural); W2-W3 rural (1=rural,2=small town,3=medium/large town); W4-W5 saq14 (1=rural,2=urban). Must be recoded before pooling."
+ETH,w5,n_members,64467,69.0865,0,19929,ERROR,"Counts roster rows of people who LEFT the household (still-member question = No). Official hh_size equals current-member count in 100% of hh; panel n_members != hh_size in this many hh: W2 1,434; W3 2,401; W4 534; W5 1,533."
+ETH,w5,share_child,64467,77.1728,0,14716,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w5,share_elderly,64467,90.5021,0,6123,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w5,share_female,64467,72.192,0,17927,ERROR,"Computed over all roster rows incl. departed members (same cause as n_members). Thresholds child<=14, elderly>=60 are a convention. W2/W3 also ignore corrected age/sex (hh_s1q04h/hh_s1q04e): 258/212 current members, 146/159 hh."
+ETH,w5,head_age,64467,100.0,0,0,OK,Roster member with relationship=1 (Head).
+ETH,w5,head_female,64467,100.0,0,0,OK,Roster member with relationship=1 (Head).
+ETH,w5,coffee_plots,64467,99.3749,182,221,CONVENTION,"Count of coffee fields in post-harvest sect9_ph (harvested) vs post-planting sect4_pp (planted). Differences are small (hh): W2 22, W4 35, W5 31."
+ETH,w5,coffee_sale_birr,64467,100.0,0,0,OK,"Sum of value of coffee sales: sect12_ph ph_s12q08 (W1-W3), sect11_ph s11q12 (W4-W5); 0 if coffee listed but not sold; NA if coffee not in the sales module."
+ETH,w5,coffee_grower,64467,99.7782,0,143,CONVENTION,"1 if coffee field in sect9_ph or coffee row in sales module; using sect4_pp adds W2 6, W4 22, W5 11 hh."
+ETH,w5,mkt_price,64467,95.6722,2790,0,ERROR,"Amount field ignored (W4 78 of 796 records, 1,017 cells; W5 67 of 742, 757 cells); cheese price (item 200, per kg) available but never used (W4 1,384 hh, W5 1,395 hh NA). Otherwise reproduced exactly."
+ETH,w5,year,64467,100.0,0,0,OK,
+ETH,w5,country,64467,100.0,0,0,OK,

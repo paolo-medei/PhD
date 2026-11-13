@@ -73,6 +73,8 @@ vc_load <- function(pf) {
     filter(track == "B", product %in% ANIM) %>%
     left_join(PROT_VC %>% rename(prot = prot), by="product") %>%
     mutate(prot = ifelse(product=="eggs" & std=="kg", 126, prot),
+           ## v21 (D17): Tanzania's milk products (cream, yoghurt) are in litres
+           prot = ifelse(product=="milk_processed" & std=="litre", 33, prot),
            ## trim the top 0.1% of every flow: one household reporting tonnes
            ## can decide a whole year's average
            across(c(qtot,qpur,own,gift,exp), ~ pmin(.x, quantile(.x, .999, na.rm=TRUE)))) %>%
@@ -197,7 +199,7 @@ hh <- vc %>% group_by(country, year, region, hhid, welfare, adulteq, weight) %>%
   ## v21 (M4): protein, not a sum of kg + litres + egg pieces
   summarise(q_all = sum(coalesce(qtot,0) * coalesce(prot,0)),
             v_mkt = sum(coalesce(exp,0)),
-            n_prod= sum(coalesce(qtot,0) > 0),
+            n_prod= sum(coalesce(qtot,0) > 0 | coalesce(cons,0) == 1),   # v21 (D14)
             share_pur = sum(coalesce(qpur,0)) /
                         pmax(sum(coalesce(qpur,0)+coalesce(own,0)), 1e-9),
             .groups="drop")

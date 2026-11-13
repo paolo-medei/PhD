@@ -1,0 +1,121 @@
+country,wave,column,n_compared,pct_equal,n_na_mismatch,n_value_mismatch,hh,prods,src
+TZA,w1,std,39180,100.0,0,0,0,{},{}
+TZA,w2,std,47088,100.0,0,0,0,{},{}
+TZA,w3,std,60120,100.0,0,0,0,{},{}
+TZA,w4,std,40224,100.0,0,0,0,{},{}
+TZA,w5,std,56508,100.0,0,0,0,{},{}
+TZA,w1,consumed,39180,100.0,0,0,0,{},{}
+TZA,w2,consumed,47088,100.0,0,0,0,{},{}
+TZA,w3,consumed,60120,100.0,0,0,0,{},{}
+TZA,w4,consumed,40224,100.0,0,0,0,{},{}
+TZA,w5,consumed,56508,100.0,0,0,0,{},{}
+TZA,w1,qty_std,39180,99.98,8,0,7,"{'milk_processed': 6, 'eggs': 2}",{'w1': 8}
+TZA,w2,qty_std,47088,99.945,26,0,26,{'milk_processed': 26},{'w2': 26}
+TZA,w3,qty_std,60120,99.987,8,0,8,{'milk_processed': 8},{'w3': 8}
+TZA,w4,qty_std,40224,99.993,3,0,3,{'milk_processed': 3},{'w4': 3}
+TZA,w5,qty_std,56508,99.996,2,0,2,{'milk_processed': 2},{'w5': 2}
+TZA,w1,purch_std,39180,99.99,4,0,4,{'milk_processed': 4},{'w1': 4}
+TZA,w2,purch_std,47088,99.962,18,0,18,{'milk_processed': 18},{'w2': 18}
+TZA,w3,purch_std,60120,99.992,5,0,5,{'milk_processed': 5},{'w3': 5}
+TZA,w4,purch_std,40224,99.995,2,0,2,{'milk_processed': 2},{'w4': 2}
+TZA,w5,purch_std,56508,99.996,2,0,2,{'milk_processed': 2},{'w5': 2}
+TZA,w1,own_std,39180,99.992,3,0,2,"{'eggs': 2, 'milk_processed': 1}",{'w1': 3}
+TZA,w2,own_std,47088,99.985,7,0,7,{'milk_processed': 7},{'w2': 7}
+TZA,w3,own_std,60120,99.995,3,0,3,{'milk_processed': 3},{'w3': 3}
+TZA,w4,own_std,40224,99.998,1,0,1,{'milk_processed': 1},{'w4': 1}
+TZA,w5,own_std,56508,100.0,0,0,0,{},{}
+TZA,w1,gift_std,39180,100.0,0,0,0,{},{}
+TZA,w2,gift_std,47088,99.998,1,0,1,{'milk_processed': 1},{'w2': 1}
+TZA,w3,gift_std,60120,100.0,0,0,0,{},{}
+TZA,w4,gift_std,40224,100.0,0,0,0,{},{}
+TZA,w5,gift_std,56508,100.0,0,0,0,{},{}
+TZA,w1,exp,39180,100.0,0,0,0,{},{}
+TZA,w2,exp,47088,100.0,0,0,0,{},{}
+TZA,w3,exp,60120,100.0,0,0,0,{},{}
+TZA,w4,exp,40224,100.0,0,0,0,{},{}
+TZA,w5,exp,56508,100.0,0,0,0,{},{}
+TZA,w1,exp_conv,39180,99.99,4,0,4,{'milk_processed': 4},{'w1': 4}
+TZA,w2,exp_conv,47088,99.962,18,0,18,{'milk_processed': 18},{'w2': 18}
+TZA,w3,exp_conv,60120,99.992,5,0,5,{'milk_processed': 5},{'w3': 5}
+TZA,w4,exp_conv,40224,99.995,2,0,2,{'milk_processed': 2},{'w4': 2}
+TZA,w5,exp_conv,56508,99.996,2,0,2,{'milk_processed': 2},{'w5': 2}
+TZA,w1,unconv,39180,99.99,0,4,4,{'milk_processed': 4},{'w1': 4}
+TZA,w2,unconv,47088,99.962,0,18,18,{'milk_processed': 18},{'w2': 18}
+TZA,w3,unconv,60120,99.992,0,5,5,{'milk_processed': 5},{'w3': 5}
+TZA,w4,unconv,40224,99.995,0,2,2,{'milk_processed': 2},{'w4': 2}
+TZA,w5,unconv,56508,99.996,0,2,2,{'milk_processed': 2},{'w5': 2}
+TZA,w1,uv,39180,99.99,4,0,4,{'milk_processed': 4},{'w1': 4}
+TZA,w2,uv,47088,99.962,18,0,18,{'milk_processed': 18},{'w2': 18}
+TZA,w3,uv,60120,99.992,5,0,5,{'milk_processed': 5},{'w3': 5}
+TZA,w4,uv,40224,99.995,2,0,2,{'milk_processed': 2},{'w4': 2}
+TZA,w5,uv,56508,99.996,2,0,2,{'milk_processed': 2},{'w5': 2}
+TZA,w1,adulteq,39180,100.0,0,0,0,{},{}
+TZA,w2,adulteq,47088,100.0,0,0,0,{},{}
+TZA,w3,adulteq,60120,100.0,0,0,0,{},{}
+TZA,w4,adulteq,40224,100.0,0,0,0,{},{}
+TZA,w5,adulteq,56508,100.0,0,0,0,{},{}
+TZA,w1,hhsize,39180,100.0,0,0,0,{},{}
+TZA,w2,hhsize,47088,100.0,0,0,0,{},{}
+TZA,w3,hhsize,60120,100.0,0,0,0,{},{}
+TZA,w4,hhsize,40224,100.0,0,0,0,{},{}
+TZA,w5,hhsize,56508,100.0,0,0,0,{},{}
+TZA,w1,urban,39180,100.0,0,0,0,{},{}
+TZA,w2,urban,47088,98.012,936,0,78,"{'coffee': 156, 'eggs': 156, 'milk': 156, 'beef': 78, 'goat_sheep': 78, 'meat_agg': 78, 'milk_processed': 78, 'pork': 78, 'poultry': 78}",{'w2': 936}
+TZA,w3,urban,60120,97.465,1524,0,127,"{'coffee': 254, 'eggs': 254, 'milk': 254, 'beef': 127, 'goat_sheep': 127, 'meat_agg': 127, 'milk_processed': 127, 'pork': 127, 'poultry': 127}",{'w3': 1524}
+TZA,w4,urban,40224,100.0,0,0,0,{},{}
+TZA,w5,urban,56508,100.0,0,0,0,{},{}
+TZA,w1,region,39180,100.0,0,0,0,{},{}
+TZA,w2,region,47088,98.012,936,0,78,"{'coffee': 156, 'eggs': 156, 'milk': 156, 'beef': 78, 'goat_sheep': 78, 'meat_agg': 78, 'milk_processed': 78, 'pork': 78, 'poultry': 78}",{'w2': 936}
+TZA,w3,region,60120,97.465,1524,0,127,"{'coffee': 254, 'eggs': 254, 'milk': 254, 'beef': 127, 'goat_sheep': 127, 'meat_agg': 127, 'milk_processed': 127, 'pork': 127, 'poultry': 127}",{'w3': 1524}
+TZA,w4,region,40224,99.761,96,0,8,"{'coffee': 16, 'eggs': 16, 'milk': 16, 'beef': 8, 'goat_sheep': 8, 'meat_agg': 8, 'milk_processed': 8, 'pork': 8, 'poultry': 8}",{'w4': 96}
+TZA,w5,region,56508,100.0,0,0,0,{},{}
+TZA,w1,hhweight,39180,100.0,0,0,0,{},{}
+TZA,w2,hhweight,47088,98.012,936,0,78,"{'coffee': 156, 'eggs': 156, 'milk': 156, 'beef': 78, 'goat_sheep': 78, 'meat_agg': 78, 'milk_processed': 78, 'pork': 78, 'poultry': 78}",{'w2': 936}
+TZA,w3,hhweight,60120,97.465,1524,0,127,"{'coffee': 254, 'eggs': 254, 'milk': 254, 'beef': 127, 'goat_sheep': 127, 'meat_agg': 127, 'milk_processed': 127, 'pork': 127, 'poultry': 127}",{'w3': 1524}
+TZA,w4,hhweight,40224,99.761,96,0,8,"{'coffee': 16, 'eggs': 16, 'milk': 16, 'beef': 8, 'goat_sheep': 8, 'meat_agg': 8, 'milk_processed': 8, 'pork': 8, 'poultry': 8}",{'w4': 96}
+TZA,w5,hhweight,56508,100.0,0,0,0,{},{}
+TZA,w1,welfare,39180,100.0,0,0,0,{},{}
+TZA,w2,welfare,47088,100.0,0,0,0,{},{}
+TZA,w3,welfare,60120,100.0,0,0,0,{},{}
+TZA,w4,welfare,40224,100.0,0,0,0,{},{}
+TZA,w5,welfare,56508,100.0,0,0,0,{},{}
+TZA,w1,share_child,39180,99.969,0,12,1,"{'coffee': 2, 'eggs': 2, 'milk': 2, 'beef': 1, 'goat_sheep': 1, 'meat_agg': 1, 'milk_processed': 1, 'pork': 1, 'poultry': 1}",{'w1': 12}
+TZA,w2,share_child,47088,97.936,936,36,81,"{'coffee': 162, 'eggs': 162, 'milk': 162, 'beef': 81, 'goat_sheep': 81, 'meat_agg': 81, 'milk_processed': 81, 'pork': 81, 'poultry': 81}",{'w2': 972}
+TZA,w3,share_child,60120,97.445,1524,12,128,"{'coffee': 256, 'eggs': 256, 'milk': 256, 'beef': 128, 'goat_sheep': 128, 'meat_agg': 128, 'milk_processed': 128, 'pork': 128, 'poultry': 128}",{'w3': 1536}
+TZA,w4,share_child,40224,99.761,96,0,8,"{'coffee': 16, 'eggs': 16, 'milk': 16, 'beef': 8, 'goat_sheep': 8, 'meat_agg': 8, 'milk_processed': 8, 'pork': 8, 'poultry': 8}",{'w4': 96}
+TZA,w5,share_child,56508,100.0,0,0,0,{},{}
+TZA,w1,share_elderly,39180,100.0,0,0,0,{},{}
+TZA,w2,share_elderly,47088,98.012,936,0,78,"{'coffee': 156, 'eggs': 156, 'milk': 156, 'beef': 78, 'goat_sheep': 78, 'meat_agg': 78, 'milk_processed': 78, 'pork': 78, 'poultry': 78}",{'w2': 936}
+TZA,w3,share_elderly,60120,97.465,1524,0,127,"{'coffee': 254, 'eggs': 254, 'milk': 254, 'beef': 127, 'goat_sheep': 127, 'meat_agg': 127, 'milk_processed': 127, 'pork': 127, 'poultry': 127}",{'w3': 1524}
+TZA,w4,share_elderly,40224,99.761,96,0,8,"{'coffee': 16, 'eggs': 16, 'milk': 16, 'beef': 8, 'goat_sheep': 8, 'meat_agg': 8, 'milk_processed': 8, 'pork': 8, 'poultry': 8}",{'w4': 96}
+TZA,w5,share_elderly,56508,100.0,0,0,0,{},{}
+TZA,w1,head_age,39180,100.0,0,0,0,{},{}
+TZA,w2,head_age,47088,98.012,936,0,78,"{'coffee': 156, 'eggs': 156, 'milk': 156, 'beef': 78, 'goat_sheep': 78, 'meat_agg': 78, 'milk_processed': 78, 'pork': 78, 'poultry': 78}",{'w2': 936}
+TZA,w3,head_age,60120,97.465,1524,0,127,"{'coffee': 254, 'eggs': 254, 'milk': 254, 'beef': 127, 'goat_sheep': 127, 'meat_agg': 127, 'milk_processed': 127, 'pork': 127, 'poultry': 127}",{'w3': 1524}
+TZA,w4,head_age,40224,99.761,96,0,8,"{'coffee': 16, 'eggs': 16, 'milk': 16, 'beef': 8, 'goat_sheep': 8, 'meat_agg': 8, 'milk_processed': 8, 'pork': 8, 'poultry': 8}",{'w4': 96}
+TZA,w5,head_age,56508,100.0,0,0,0,{},{}
+TZA,w1,head_female,39180,100.0,0,0,0,{},{}
+TZA,w2,head_female,47088,98.012,936,0,78,"{'coffee': 156, 'eggs': 156, 'milk': 156, 'beef': 78, 'goat_sheep': 78, 'meat_agg': 78, 'milk_processed': 78, 'pork': 78, 'poultry': 78}",{'w2': 936}
+TZA,w3,head_female,60120,97.465,1524,0,127,"{'coffee': 254, 'eggs': 254, 'milk': 254, 'beef': 127, 'goat_sheep': 127, 'meat_agg': 127, 'milk_processed': 127, 'pork': 127, 'poultry': 127}",{'w3': 1524}
+TZA,w4,head_female,40224,99.761,96,0,8,"{'coffee': 16, 'eggs': 16, 'milk': 16, 'beef': 8, 'goat_sheep': 8, 'meat_agg': 8, 'milk_processed': 8, 'pork': 8, 'poultry': 8}",{'w4': 96}
+TZA,w5,head_female,56508,100.0,0,0,0,{},{}
+TZA,w1,clusterid,39180,100.0,0,0,0,{},{}
+TZA,w2,clusterid,47088,98.012,936,0,78,"{'coffee': 156, 'eggs': 156, 'milk': 156, 'beef': 78, 'goat_sheep': 78, 'meat_agg': 78, 'milk_processed': 78, 'pork': 78, 'poultry': 78}",{'w2': 936}
+TZA,w3,clusterid,60120,97.465,1524,0,127,"{'coffee': 254, 'eggs': 254, 'milk': 254, 'beef': 127, 'goat_sheep': 127, 'meat_agg': 127, 'milk_processed': 127, 'pork': 127, 'poultry': 127}",{'w3': 1524}
+TZA,w4,clusterid,40224,99.761,96,0,8,"{'coffee': 16, 'eggs': 16, 'milk': 16, 'beef': 8, 'goat_sheep': 8, 'meat_agg': 8, 'milk_processed': 8, 'pork': 8, 'poultry': 8}",{'w4': 96}
+TZA,w5,clusterid,56508,100.0,0,0,0,{},{}
+TZA,w1,strataid,39180,100.0,0,0,0,{},{}
+TZA,w2,strataid,47088,98.012,936,0,78,"{'coffee': 156, 'eggs': 156, 'milk': 156, 'beef': 78, 'goat_sheep': 78, 'meat_agg': 78, 'milk_processed': 78, 'pork': 78, 'poultry': 78}",{'w2': 936}
+TZA,w3,strataid,60120,97.465,1524,0,127,"{'coffee': 254, 'eggs': 254, 'milk': 254, 'beef': 127, 'goat_sheep': 127, 'meat_agg': 127, 'milk_processed': 127, 'pork': 127, 'poultry': 127}",{'w3': 1524}
+TZA,w4,strataid,40224,99.761,96,0,8,"{'coffee': 16, 'eggs': 16, 'milk': 16, 'beef': 8, 'goat_sheep': 8, 'meat_agg': 8, 'milk_processed': 8, 'pork': 8, 'poultry': 8}",{'w4': 96}
+TZA,w5,strataid,56508,100.0,0,0,0,{},{}
+TZA,w1,country,39180,100.0,0,0,0,{},{}
+TZA,w2,country,47088,100.0,0,0,0,{},{}
+TZA,w3,country,60120,100.0,0,0,0,{},{}
+TZA,w4,country,40224,100.0,0,0,0,{},{}
+TZA,w5,country,56508,100.0,0,0,0,{},{}
+TZA,w1,year,39180,100.0,0,0,0,{},{}
+TZA,w2,year,47088,100.0,0,0,0,{},{}
+TZA,w3,year,60120,100.0,0,0,0,{},{}
+TZA,w4,year,40224,100.0,0,0,0,{},{}
+TZA,w5,year,56508,100.0,0,0,0,{},{}

@@ -83,7 +83,7 @@ for cc in ["ETH", "TZA", "NGA"]:
     # ---- 2. participation by quintile, meat ---------------------------------
     H = A[(A["product"] == "meat_agg") & (A.x > 0)].copy()
     H["qt"] = H.groupby("year").x.transform(lambda s: pd.qcut(s.rank(method="first"), 5, labels=False) + 1)
-    H["buys"] = (H.qty > 0).astype(float)
+    H["buys"] = ((H.qty.fillna(0) > 0) | (pd.to_numeric(H["exp"], errors="coerce").fillna(0) > 0)).astype(float)
     for q, g in H.groupby("qt"):
         rec(country=cc, check="participation meat by quintile", cell=f"Q{q}", stat="pct", mine=100 * np.average(g.buys, weights=g.w), p=np.nan, n=len(g))
     # ---- 3. permanent vs transitory, household FE, long differences ---------
@@ -119,6 +119,22 @@ for cc in ["ETH", "TZA", "NGA"]:
         bn, pn, _ = wls(L.d_lq.values, X, fes, L.w.values)
         rec(country=cc, check="long differences meat", cell=tag, stat="quality_longdiff", mine=bq[0], p=pq[0], n=n)
         rec(country=cc, check="long differences meat", cell=tag, stat="quantity_longdiff", mine=bn[0], p=pn[0], n=n)
+
+    # ---- 4. entry (linear probability), beef, and variety: track B ----------
+    Bd = d[(d.track == "B") & (d.x > 0)].copy(); Bd["l_x"] = np.log(Bd.x)
+    Bd["ry"] = Bd.region.astype(str) + "_" + Bd.year.astype(str)
+    g = Bd[Bd["product"] == "beef"]
+    bought = (g.qty.fillna(0) > 0) | (pd.to_numeric(g["exp"], errors="coerce").fillna(0) > 0)
+    b, p, n = wls(bought.astype(float).values, g[["l_x", "l_ae"]].values, [g.ry.values], g.w.values)
+    rec(country=cc, check="entry beef (LPM)", cell="region x year", stat="e_participation", mine=b[0], p=p[0], n=n)
+    ANIMAL = ["beef", "goat_sheep", "pork", "poultry", "eggs", "milk", "milk_processed", "cheese"]
+    qt = pd.to_numeric(Bd["qty_std"] if "qty_std" in Bd else Bd["qty_kg"], errors="coerce")
+    Bd["cons"] = ((qt.fillna(0) > 0) | (pd.to_numeric(Bd["consumed"], errors="coerce") == 1)).astype(int)
+    V = Bd[Bd["product"].isin(ANIMAL)].groupby(["year", "region", "hhid", "ry"], dropna=False).agg(
+        n=("cons", "sum"), l_x=("l_x", "first"), ae=("ae", "first"), w=("w", "first")).reset_index()
+    V = V[V.n > 0]
+    b, p, nn = wls(np.log(V.n.values.astype(float)), np.column_stack([V.l_x, np.log(V.ae)]), [V.ry.values], V.w.values)
+    rec(country=cc, check="variety (n. products)", cell="region x year", stat="elasticity", mine=b[0], p=p[0], n=nn)
 
 pd.DataFrame(out).to_csv(f"{S}/mine.csv", index=False)
 print(pd.DataFrame(out).round(4).to_string())

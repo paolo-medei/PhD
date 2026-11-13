@@ -1,0 +1,126 @@
+country,wave,column,n_compared,pct_equal,n_na_mismatch,n_value_mismatch,verdict,note
+TZA,w1,std,39180.0,100.0,0.0,0.0,OK,"kg meats/cheese/coffee, litre milk, piece eggs"
+TZA,w2,std,47088.0,100.0,0.0,0.0,OK,"kg meats/cheese/coffee, litre milk, piece eggs"
+TZA,w3,std,60120.0,100.0,0.0,0.0,OK,"kg meats/cheese/coffee, litre milk, piece eggs"
+TZA,w4,std,40224.0,100.0,0.0,0.0,OK,"kg meats/cheese/coffee, litre milk, piece eggs"
+TZA,w5,std,51480.0,100.0,0.0,0.0,OK,"kg meats/cheese/coffee, litre milk, piece eggs"
+TZA,w1,consumed,39180.0,100.0,0.0,0.0,OK,"q1==1 (Yes) -> 1, No -> 0; non-consumers have NA quantities."
+TZA,w2,consumed,47088.0,100.0,0.0,0.0,OK,"q1==1 (Yes) -> 1, No -> 0; non-consumers have NA quantities. 1 hh (0505019314003901) has an empty food module -> NA in both."
+TZA,w3,consumed,60120.0,100.0,0.0,0.0,OK,"q1==1 (Yes) -> 1, No -> 0; non-consumers have NA quantities."
+TZA,w4,consumed,40224.0,100.0,0.0,0.0,OK,"q1==1 (Yes) -> 1, No -> 0; non-consumers have NA quantities."
+TZA,w5,consumed,51480.0,100.0,0.0,0.0,OK,"q1==1 (Yes) -> 1, No -> 0; non-consumers have NA quantities. 9 rows with missing answer -> NA in both."
+TZA,w1,qty_std,39180.0,99.132,340.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 332, 'milk': 8}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 99.995%. Residual 2 rows: hh 08030100020133 eggs answered consumed=No but reports 6 pieces own production; pipeline keeps the quantity with consumed=0."
+TZA,w2,qty_std,47088.0,99.69,146.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'milk': 116, 'eggs': 30}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w3,qty_std,60120.0,99.993,4.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 4}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w4,qty_std,40224.0,100.0,0.0,0.0,OK,identical
+TZA,w5,qty_std,51480.0,99.518,248.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 248}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w1,purch_std,39180.0,99.556,174.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 168, 'milk': 6}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w2,purch_std,47088.0,99.796,96.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'milk': 78, 'eggs': 18}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w3,purch_std,60120.0,99.993,4.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 4}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w4,purch_std,40224.0,100.0,0.0,0.0,OK,identical
+TZA,w5,purch_std,51480.0,99.215,404.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 404}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w1,own_std,39180.0,99.592,160.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 158, 'milk': 2}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 99.995%. Residual 2 rows: hh 08030100020133 eggs answered consumed=No but reports 6 pieces own production; pipeline keeps the quantity with consumed=0."
+TZA,w2,own_std,47088.0,99.919,38.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'milk': 28, 'eggs': 10}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w3,own_std,60120.0,100.0,0.0,0.0,OK,identical
+TZA,w4,own_std,40224.0,100.0,0.0,0.0,OK,identical
+TZA,w5,own_std,51480.0,99.371,324.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 324}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w1,gift_std,39180.0,99.974,10.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 10}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w2,gift_std,47088.0,99.975,12.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'milk': 10, 'eggs': 2}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w3,gift_std,60120.0,100.0,0.0,0.0,OK,identical
+TZA,w4,gift_std,40224.0,100.0,0.0,0.0,OK,identical
+TZA,w5,gift_std,51480.0,99.957,22.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 22}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w1,exp,39180.0,100.0,0.0,0.0,OK,spending>0 of consumers; 0 -> NA
+TZA,w2,exp,47088.0,100.0,0.0,0.0,OK,spending>0 of consumers; 0 -> NA
+TZA,w3,exp,60120.0,100.0,0.0,0.0,OK,spending>0 of consumers; 0 -> NA
+TZA,w4,exp,40224.0,100.0,0.0,0.0,OK,spending>0 of consumers; 0 -> NA
+TZA,w5,exp,51480.0,100.0,0.0,0.0,OK,spending>0 of consumers; 0 -> NA
+TZA,w1,exp_conv,39180.0,99.561,172.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 166, 'milk': 6}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w2,exp_conv,47088.0,99.796,96.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'milk': 78, 'eggs': 18}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w3,exp_conv,60120.0,99.993,4.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 4}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w4,exp_conv,40224.0,100.0,0.0,0.0,OK,identical
+TZA,w5,exp_conv,51480.0,99.215,404.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 404}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w1,unconv,39180.0,99.561,0.0,172.0,CONVENTION,"All diffs are unconv=1(mine)/0(pipeline) on {'eggs': 166, 'milk': 6}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w2,unconv,47088.0,99.796,0.0,96.0,CONVENTION,"All diffs are unconv=1(mine)/0(pipeline) on {'milk': 78, 'eggs': 18}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w3,unconv,60120.0,99.993,0.0,4.0,CONVENTION,"All diffs are unconv=1(mine)/0(pipeline) on {'eggs': 4}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w4,unconv,40224.0,100.0,0.0,0.0,OK,identical
+TZA,w5,unconv,51480.0,99.215,0.0,404.0,CONVENTION,"All diffs are unconv=1(mine)/0(pipeline) on {'eggs': 404}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w1,uv,39180.0,99.561,172.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 166, 'milk': 6}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w2,uv,47088.0,99.796,96.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'milk': 78, 'eggs': 18}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w3,uv,60120.0,99.993,4.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 4}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w4,uv,40224.0,100.0,0.0,0.0,OK,identical
+TZA,w5,uv,51480.0,99.215,404.0,0.0,CONVENTION,"All diffs are NA(mine)/value(pipeline) on {'eggs': 404}: pipeline converts eggs g->pieces at 55 g/egg and kg->1000/55 pieces, and milk kg->litre 1:1; stated rule says these units are not convertible. With those two conventions match = 100.0%."
+TZA,w1,adulteq,39180.0,100.0,0.0,0.0,OK,official consumption aggregate
+TZA,w2,adulteq,47088.0,100.0,0.0,0.0,OK,"official consumption aggregate (NA for 78 hh not in aggregate, both sides)"
+TZA,w3,adulteq,60120.0,100.0,0.0,0.0,OK,"official consumption aggregate (NA for 127 hh not in aggregate, both sides)"
+TZA,w4,adulteq,40224.0,100.0,0.0,0.0,OK,"official consumption aggregate (NA for 8 hh not in aggregate, both sides)"
+TZA,w5,adulteq,51480.0,100.0,0.0,0.0,OK,official consumption aggregate
+TZA,w1,hhsize,39180.0,100.0,0.0,0.0,OK,official consumption aggregate
+TZA,w2,hhsize,47088.0,100.0,0.0,0.0,OK,"official consumption aggregate (NA for 78 hh not in aggregate, both sides)"
+TZA,w3,hhsize,60120.0,100.0,0.0,0.0,OK,"official consumption aggregate (NA for 127 hh not in aggregate, both sides)"
+TZA,w4,hhsize,40224.0,100.0,0.0,0.0,OK,"official consumption aggregate (NA for 8 hh not in aggregate, both sides)"
+TZA,w5,hhsize,51480.0,100.0,0.0,0.0,OK,official consumption aggregate
+TZA,w1,urban,39180.0,100.0,0.0,0.0,OK,"Aggregate ""urban"" (1=Rural, 2=Urban; NOT a 0/1 dummy). identical"
+TZA,w2,urban,47088.0,98.012,936.0,0.0,CONVENTION,"Aggregate ""urban"" (1=Rural, 2=Urban; NOT a 0/1 dummy). 78 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them)."
+TZA,w3,urban,60120.0,97.465,1524.0,0.0,CONVENTION,"Aggregate ""urban"" (1=Rural, 2=Urban; NOT a 0/1 dummy). 127 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them)."
+TZA,w4,urban,40224.0,100.0,0.0,0.0,OK,"Aggregate ""urban"" (1=Rural, 2=Urban; NOT a 0/1 dummy). identical"
+TZA,w5,urban,51480.0,100.0,0.0,0.0,OK,"Aggregate ""urban"" (1=Rural, 2=Urban; NOT a 0/1 dummy). identical"
+TZA,w1,region,39180.0,100.0,0.0,0.0,OK,Aggregate region code (1-30/31). identical
+TZA,w2,region,47088.0,98.012,936.0,0.0,CONVENTION,Aggregate region code (1-30/31). 78 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w3,region,60120.0,97.465,1524.0,0.0,CONVENTION,Aggregate region code (1-30/31). 127 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w4,region,40224.0,99.761,96.0,0.0,CONVENTION,Aggregate region code (1-30/31). 8 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w5,region,51480.0,100.0,0.0,0.0,OK,Aggregate region code (1-30/31). identical
+TZA,w1,hhweight,39180.0,100.0,0.0,0.0,OK,TZY1 hhweight = SEC_A_T hh_weight_trimmed. identical
+TZA,w2,hhweight,47088.0,98.012,936.0,0.0,CONVENTION,TZY2 hhweight (= HH_SEC_A y2_weight). 78 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w3,hhweight,60120.0,97.465,1524.0,0.0,CONVENTION,HH_SEC_A y3_weight (= Y3_weights y3_panelweight). 127 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w4,hhweight,40224.0,99.761,96.0,0.0,CONVENTION,consumptionNPS4 hhweight (= hh_sec_a y4_weights). 8 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w5,hhweight,51480.0,100.0,0.0,0.0,OK,consumption_real_y5 hhweight = hh_sec_a y5_crossweight. identical
+TZA,w1,welfare,39180.0,96.018,0.0,1560.0,ERROR,"Pipeline = expmR/max(adulteq,1): the 130 single-member households with adulteq 0.72/0.88 get expmR/1 instead of expmR/adulteq (welfare -28%/-12%); not documented and not applied in w5 (expmR_pae uses true adulteq). All other households equal expmR/adulteq exactly."
+TZA,w2,welfare,47088.0,96.56,0.0,1620.0,ERROR,"Pipeline = expmR/max(adulteq,1): the 135 single-member households with adulteq 0.72/0.88 get expmR/1 instead of expmR/adulteq (welfare -28%/-12%); not documented and not applied in w5 (expmR_pae uses true adulteq). All other households equal expmR/adulteq exactly."
+TZA,w3,welfare,60120.0,96.008,0.0,2400.0,ERROR,"Pipeline = expmR/max(adulteq,1): the 200 single-member households with adulteq 0.72/0.88 get expmR/1 instead of expmR/adulteq (welfare -28%/-12%); not documented and not applied in w5 (expmR_pae uses true adulteq). All other households equal expmR/adulteq exactly."
+TZA,w4,welfare,40224.0,95.555,0.0,1788.0,ERROR,"Pipeline = expmR/max(adulteq,1): the 149 single-member households with adulteq 0.72/0.88 get expmR/1 instead of expmR/adulteq (welfare -28%/-12%); not documented and not applied in w5 (expmR_pae uses true adulteq). All other households equal expmR/adulteq exactly."
+TZA,w5,welfare,51480.0,100.0,0.0,0.0,ERROR,"Values = consumption_real_y5 expmR_pae exactly, as stated; but label is ""Total consumption, real, per 28 days, per adult equivalent"": NOT annual (x365/28=13.04 smaller than w1-w4 annual expmR/adulteq), different aggregate (Y5 methodology, NPS5 price base) and true adulteq (no floor at 1). Median welfare 2014=991,420 (annual) vs 2020=95,620 (28 days)."
+TZA,w1,share_child,39180.0,99.969,0.0,12.0,CONVENTION,"Rule reproduced: #members age<15 / #listed roster members (all rows of roster, not official hhsize). 1 hh: pipeline denominator excludes members with missing age."
+TZA,w2,share_child,47088.0,97.936,936.0,36.0,CONVENTION,"Rule reproduced: #members age<15 / #listed roster members (all rows of roster, not official hhsize). 78 hh not in consumption aggregate are NA in pipeline though roster exists. 3 hh: pipeline denominator excludes members with missing age."
+TZA,w3,share_child,60120.0,97.445,1524.0,12.0,CONVENTION,"Rule reproduced: #members age<15 / #listed roster members (all rows of roster, not official hhsize). 127 hh not in consumption aggregate are NA in pipeline though roster exists. 1 hh: pipeline denominator excludes members with missing age."
+TZA,w4,share_child,40224.0,99.761,96.0,0.0,CONVENTION,"Rule reproduced: #members age<15 / #listed roster members (all rows of roster, not official hhsize). 8 hh not in consumption aggregate are NA in pipeline though roster exists. "
+TZA,w5,share_child,51480.0,100.0,0.0,0.0,CONVENTION,"Rule reproduced: #members age<15 / #listed roster members (all rows of roster, not official hhsize). "
+TZA,w1,share_elderly,39180.0,100.0,0.0,0.0,OK,Rule reproduced: #members age>=60 / #listed roster members. identical
+TZA,w2,share_elderly,47088.0,98.012,936.0,0.0,CONVENTION,Rule reproduced: #members age>=60 / #listed roster members. 78 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w3,share_elderly,60120.0,97.465,1524.0,0.0,CONVENTION,Rule reproduced: #members age>=60 / #listed roster members. 127 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w4,share_elderly,40224.0,99.761,96.0,0.0,CONVENTION,Rule reproduced: #members age>=60 / #listed roster members. 8 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w5,share_elderly,51480.0,100.0,0.0,0.0,OK,Rule reproduced: #members age>=60 / #listed roster members. identical
+TZA,w1,head_age,39180.0,100.0,0.0,0.0,OK,Age of roster member with relationship==1 (HEAD). identical
+TZA,w2,head_age,47088.0,98.012,936.0,0.0,CONVENTION,Age of roster member with relationship==1 (HEAD). 78 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w3,head_age,60120.0,97.465,1524.0,0.0,CONVENTION,Age of roster member with relationship==1 (HEAD). 127 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w4,head_age,40224.0,99.761,96.0,0.0,CONVENTION,Age of roster member with relationship==1 (HEAD). 8 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w5,head_age,51480.0,100.0,0.0,0.0,OK,Age of roster member with relationship==1 (HEAD). identical
+TZA,w1,head_female,39180.0,100.0,0.0,0.0,OK,sex==2 of roster member with relationship==1. identical
+TZA,w2,head_female,47088.0,98.012,936.0,0.0,CONVENTION,sex==2 of roster member with relationship==1. 78 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w3,head_female,60120.0,97.465,1524.0,0.0,CONVENTION,sex==2 of roster member with relationship==1. 127 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w4,head_female,40224.0,99.761,96.0,0.0,CONVENTION,sex==2 of roster member with relationship==1. 8 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w5,head_female,51480.0,100.0,0.0,0.0,OK,sex==2 of roster member with relationship==1. identical
+TZA,w1,clusterid,39180.0,100.0,0.0,0.0,OK,Cover-file clusterid. identical
+TZA,w2,clusterid,47088.0,98.012,936.0,0.0,CONVENTION,Cover-file clusterid. 78 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w3,clusterid,60120.0,97.465,1524.0,0.0,CONVENTION,Cover-file clusterid. 127 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w4,clusterid,40224.0,99.761,96.0,0.0,CONVENTION,Cover-file clusterid. 8 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w5,clusterid,51480.0,100.0,0.0,0.0,OK,Cover-file clusterid. identical
+TZA,w1,strataid,39180.0,100.0,0.0,0.0,OK,Cover-file strataid. identical
+TZA,w2,strataid,47088.0,98.012,936.0,0.0,CONVENTION,Cover-file strataid. 78 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w3,strataid,60120.0,97.465,1524.0,0.0,CONVENTION,Cover-file strataid. 127 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w4,strataid,40224.0,99.761,96.0,0.0,CONVENTION,Cover-file strataid. 8 hh absent from the consumption aggregate are NA in pipeline although the cover/roster file has the value (harmless for regressions: welfare is NA for them).
+TZA,w5,strataid,51480.0,100.0,0.0,0.0,OK,Cover-file strataid. identical
+TZA,w1,country,39180.0,100.0,0.0,0.0,OK,identical
+TZA,w2,country,47088.0,100.0,0.0,0.0,OK,identical
+TZA,w3,country,60120.0,100.0,0.0,0.0,OK,identical
+TZA,w4,country,40224.0,100.0,0.0,0.0,OK,identical
+TZA,w5,country,51480.0,100.0,0.0,0.0,OK,identical
+TZA,w1,year,39180.0,100.0,0.0,0.0,OK,identical
+TZA,w2,year,47088.0,100.0,0.0,0.0,OK,identical
+TZA,w3,year,60120.0,100.0,0.0,0.0,OK,identical
+TZA,w4,year,40224.0,100.0,0.0,0.0,OK,identical
+TZA,w5,year,51480.0,100.0,0.0,0.0,OK,identical
+TZA,w5,HOUSEHOLD SET,4709.0,91.102,419.0,0.0,ERROR,"Panel w5 = only the 4290 hh of hh_sec_ja1 (j1_selection=1). The 419 hh with j1_selection=2 answered the standard module hh_sec_j1 (same instrument as 2008-2014; 5,028 rows; 138 beef, 106 milk, 78 egg consumers) and have welfare+weights in consumption_real_y5, but are absent. They look like a random split (354 clusters, urban 49% vs 45%, median welfare 94.7k vs 95.6k)."
+TZA,all,HOUSEHOLD SET,19841.0,100.0,0.0,0.0,OK,w1-w4: household sets identical to the food module files (3265/3924/5010/3352); rows = 12 per hh; keys unique.
+TZA,all,qty_std[cheese],2020.0,,,,ERROR,"Matches my rebuild, but wrong std unit for the item: code 902 = ""MILK PRODUCTS (LIKE CREAM, CHEESE, YOGHURT ETC)"", reported in litre/ml by ~97% of consumers. std=kg leaves qty for 45 of 2,020 consumer rows (w1 6/235, w2 26/350, w3 8/505, w4 3/380, w5 2/550); unconv=1 for 90-99% of spenders; uv on 2-18 obs per wave."
+TZA,w5,eggs unit 20 rule,660.0,,,,CONVENTION,"86 egg-consuming hh report total in unit 20 (34 purchases, 9 own, 0 gifts). Plausible: their own gram conversion is 57.6 g/unit (pieces: 56 g) and price 350 TSh/unit (pieces: 350)."
+TZA,w3-w4,hhid (cross-wave),,,,,CONVENTION,"hhid is the wave-specific id. 1,153 w4 hhid strings are identical to w3 hhid strings, but all 3,352 w4 hh have hh_a07_2 ""part of NPS Y3?""=No (refresh sample). Any FE link by raw hhid would create false panels. Not checkable from this file."

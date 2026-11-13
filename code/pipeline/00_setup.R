@@ -161,16 +161,26 @@ rd_tz <- function(yr, stem) {
 }
 val_labels <- labelled::val_labels
 
-## v22: used by the Uganda and Malawi builds (TRAP U10, M6). The price of each
-## purchase row (spending / converted quantity); above 10 times or below a
-## tenth of the wave's median for the product it is a unit error (a tray
-## recorded as one egg, grams typed as kilos): the row's quantities are
-## emptied, so the purchase counts as bought but not as a unit value.
+## v23: used by the Uganda and Malawi builds (TRAP U10, M6). The price of each
+## purchase row (spending / converted quantity). Eggs first: a tray recorded as
+## one egg (or 30 eggs recorded as trays) is priced 30 times off the median;
+## when dividing (multiplying) by 30 brings it within a factor 3 of the
+## median, the row's quantities are rescaled (decided by Paolo, 13 Nov 2026).
+## Then, any product: a purchase still above 10 times or below a tenth of the
+## wave's median for the product is a unit error and its quantities are
+## emptied, so it counts as bought but not as a unit value.
 flag_price_outliers <- function(f) {
+  q4  <- c("qty_std", "purch_std", "own_std", "gift_std")
   pe  <- ifelse(f$purch_std > 0 & f$exp > 0, f$exp / f$purch_std, NA)
   med <- ave(pe, f$product, FUN = function(x) median(x, na.rm = TRUE))
+  near <- function(p) !is.na(p) & p > med / 3 & p < 3 * med
+  up <- f$product == "eggs" & !is.na(pe) & pe > 10 * med & near(pe / 30)
+  dn <- f$product == "eggs" & !is.na(pe) & pe < med / 10 & near(pe * 30)
+  f[up, q4] <- f[up, q4] * 30
+  f[dn, q4] <- f[dn, q4] / 30
+  pe  <- ifelse(f$purch_std > 0 & f$exp > 0, f$exp / f$purch_std, NA)
   bad <- !is.na(pe) & (pe > 10 * med | pe < med / 10)
-  f[bad, c("qty_std", "purch_std", "own_std", "gift_std")] <- NA
+  f[bad, q4] <- NA
   f
 }
 

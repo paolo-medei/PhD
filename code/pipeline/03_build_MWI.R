@@ -154,7 +154,10 @@ build_wave_mw <- function(w) {
   f$own_std   <- src("hh_g06a", "hh_g06b")
   f$gift_std  <- src("hh_g07a", "hh_g07b")
   f$exp       <- num(f$hh_g05)
-  f$consumed  <- as.numeric(num(f$hh_g01) == 1)
+  ## v23: any quantity or spending means the item was consumed
+  f$consumed  <- as.numeric(num(f$hh_g01) == 1 |
+                            rowSums(cbind(num(f$hh_g03a), num(f$hh_g04a), num(f$hh_g06a),
+                                          num(f$hh_g07a), f$exp) > 0, na.rm = TRUE) > 0)
   f <- flag_price_outliers(f)                                      # TRAP M6
   f <- f %>% select(hhid, product, std, consumed, qty_std, purch_std, own_std, gift_std, exp)
 
@@ -193,25 +196,27 @@ build_wave_mw <- function(w) {
   r  <- rd_mw(C, "hh_mod_b")
   sx <- tolower(trimws(as.character(haven::as_factor(r$hh_b03))))
   dem <- r %>% mutate(hhid = trimws(as.character(case_id)), .age = num(hh_b05a),
-                      .fem = as.numeric(sx == "female"), .head = num(hh_b04) == 1) %>%
+                      .fem = as.numeric(sx == "female"), .head = num(hh_b04) %in% 1) %>%
     group_by(hhid) %>%
     summarise(n_mem         = n(),
               share_child   = mean(.age <  15, na.rm=TRUE),
               share_elderly = mean(.age >= 60, na.rm=TRUE),
-              head_age      = mean(.age[.head], na.rm=TRUE),
-              head_female   = mean(.fem[.head], na.rm=TRUE), .groups="drop")
+              head_age      = .age[.head][1],             # one head: the first listed
+              head_female   = .fem[.head][1], .groups="drop") %>%
+    mutate(across(c(share_child, share_elderly), ~ ifelse(is.nan(.x), NA_real_, .x)))
 
   ## welfare (TRAP M4): real annual consumption per capita
   a <- rd_mw(C, C$agg) %>% mutate(hhid = trimws(as.character(case_id))) %>%
     distinct(hhid, .keep_all = TRUE)
   a <- a %>% transmute(hhid, rexp = num(rexpagg),
-                       hhsize = if ("hhsize" %in% names(a)) num(hhsize) else NA_real_) %>%
-    left_join(dem, by = "hhid") %>%
-    mutate(hhsize = ifelse(is.na(hhsize), n_mem, hhsize),
-           welfare = rexp / hhsize, adulteq = hhsize) %>%
-    select(-rexp, -n_mem)
+                       hhsize = if ("hhsize" %in% names(a)) num(hhsize) else NA_real_)
 
-  out %>% left_join(a, by = "hhid") %>% left_join(cv %>% select(-region3), by = "hhid") %>%
+  ## roster variables for every household, with or without an aggregate
+  out %>% left_join(dem, by = "hhid") %>% left_join(a, by = "hhid") %>%
+    mutate(hhsize  = ifelse(is.na(hhsize) & !is.na(rexp), n_mem, hhsize),
+           welfare = rexp / hhsize, adulteq = hhsize) %>%
+    select(-rexp, -n_mem) %>%
+    left_join(cv %>% select(-region3), by = "hhid") %>%
     mutate(country = "MWI", wave = w, year = C$year, strataid = NA_character_,
            uv = ifelse(purch_std > 0 & exp_conv > 0, exp_conv / purch_std, NA_real_))
 }

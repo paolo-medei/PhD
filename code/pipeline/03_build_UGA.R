@@ -26,7 +26,8 @@
 ##           "Packet (125g)" in 2018-2019. Units are therefore converted from
 ##           their LABEL in each wave, and only when the label states a metric
 ##           amount of the product ("Packet (500 g)", "Cup/Mug (0.5lt)" for a
-##           liquid). "Nice cup (60g)" gives no volume for milk and is flagged.
+##           liquid). "Nice cup" (60 g / 100 g, no volume) is read as 0.5 l
+##           for milk: it costs what the 0.5-litre cup costs (Paolo, 13 Nov).
 ##  TRAP U5  Sex is coded Female = 0 / Male = 1 in 2010 and Male = 1 /
 ##           Female = 2 afterwards. Read from the label.
 ##  TRAP U6  The household id changes format three times: 10-digit numbers
@@ -43,17 +44,14 @@
 ##           (a kilo would cost 1,000-2,000 UGX in 2010-13 against 10,000+ in
 ##           2015-19). Coffee keeps consumption and spending; its quantities
 ##           are flagged as not convertible. Only 2-7% of households buy it.
-##  Milk bought in "Nice cup" (5-16% of milk buyers) is flagged too: the label
-##  gives grams, not a volume. Its price per cup equals that of the 0.5-litre
-##  cup, so 0.5 l is likely - a decision for Paolo, as D6 was for Tanzania.
 ##  TRAP U10 2015 has no "tray" unit: 25 of 348 egg purchases (7%) are recorded
 ##           as ONE piece at 8,000-9,300 UGX, against a median of 350 per egg -
 ##           a tray of 30. Left in, they drive the 2015 egg "quality"
-##           elasticity to 0.29. Rule, every wave and product (also used for
-##           Malawi): a purchase priced above 10 times or below a tenth of the
-##           wave's median for the product has its quantities flagged. Reading
-##           the 2015 rows as 30 eggs is likely right - a decision for Paolo,
-##           like the Nice cup.
+##           elasticity to 0.29. They are read as trays (quantity x 30; two
+##           2019 "trays" priced as single eggs, / 30) - Paolo, 13 Nov. Then,
+##           every product (also Malawi): a purchase still priced above 10 times
+##           or below a tenth of the wave's median has its quantities flagged
+##           (flag_price_outliers(), 00_setup.R).
 ##  TRAP U8  The consumption aggregate is monthly, per adult equivalent, in
 ##           constant prices (2005/06 base up to 2013, 2009/10 base from 2015).
 ##           It is put on an annual scale (x 12); the change of base sits in
@@ -87,14 +85,15 @@ WAVES_UG <- list(
             cover="gsec1", id_cover="hh", roster="gsec2", id_roster="hh",
             agg="pov2015_16", id_agg="hh", weight="h_xwgt_W5", cluster="ea"),
   ## 2018-2019 have no EA code in the public files: the parish is the cluster
+  ## (v23: with the county, since subcounties are numbered within county)
   w5 = list(year=2018, yr="2018", style="new", food="GSEC15B", id_food="hhid",
             cover="GSEC1", id_cover="hhid", roster="GSEC2", id_roster="hhid",
             agg="pov2018_19", id_agg="hhid", weight="wgt",
-            cluster=c("district_code","subcounty_code","parish_code")),
+            cluster=c("district_code","county_code","subcounty_code","parish_code")),
   w6 = list(year=2019, yr="2019", style="new", food="gsec15b", id_food="hhid",
             cover="gsec1", id_cover="hhid", roster="gsec2", id_roster="hhid",
             agg="pov2019_20", id_agg="hhid", weight="wgt",
-            cluster=c("dc_2018","sc_2018","pc_2018"))
+            cluster=c("dc_2018","cc_2018","sc_2018","pc_2018"))
 )
 
 ## Products. 120 "other meat" (duck, rabbit, game) is left out, as in the other
@@ -134,6 +133,9 @@ conv_ug <- function(lab, std) {
     std %in% c("kg","litre") & !is.na(g)                    ~ g / 1000,
     std == "litre" & grepl("^litre", l)                     ~ 1,
     std == "litre" & !is.na(lt)                             ~ lt,  # cup 0.5 l, glass 0.25 l
+    ## v23 (decided by Paolo, 13 Nov): the "Nice cup" costs what the 0.5-litre
+    ## cup costs and half a litre, in every wave
+    std == "litre" & grepl("^nice cup", l)                  ~ 0.5,
     TRUE ~ NA_real_)
 }
 
@@ -168,7 +170,11 @@ build_wave_ug <- function(w) {
                          na.rm = TRUE) * f$.k
   f$qty_std[f$qty_std == 0] <- NA
   f$exp       <- q(v$spend)
-  f$consumed  <- as.numeric(num(f[[v$yn]]) == 1)
+  ## v23: six 2013 rows say "not consumed" next to a purchase; a purchase,
+  ## own production or gift means it was consumed
+  f$consumed  <- as.numeric(num(f[[v$yn]]) == 1 |
+                            rowSums(cbind(q(v$q_pur), q(v$q_away), q(v$q_own), q(v$q_gif), f$exp) > 0,
+                                    na.rm = TRUE) > 0)
   ## TRAP U10: a purchase priced at more than 10 times, or less than a tenth
   ## of, the wave's median for the product is a unit error (a tray recorded
   ## as one egg); its quantities are flagged
@@ -199,12 +205,14 @@ build_wave_ug <- function(w) {
   out <- bind_rows(A, B)
 
   ## TRAP U1: every household x product, zero where nothing was consumed
+  ## (milk_processed only where it was asked: 2018-19)
   prods <- bind_rows(
     ITEMS_UG %>% distinct(product, std) %>% mutate(track = "B"),
     ITEMS_UG %>% mutate(product = ifelse(product %in% MEAT_UG, "meat_agg", product)) %>%
       filter(product != "milk_processed") %>% distinct(product, std) %>% mutate(track = "A"))
   out <- tidyr::crossing(hhid = hh_all, prods) %>%
     left_join(out, by = c("hhid", "product", "std", "track")) %>%
+    filter(!(product == "milk_processed" & C$style == "old")) %>%
     mutate(consumed = ifelse(is.na(consumed), 0, consumed),
            unconv   = ifelse(is.na(unconv), 0L, unconv))
 
@@ -218,36 +226,46 @@ build_wave_ug <- function(w) {
   ## demographics: usual and regular members only (not guests, not people who
   ## left or died, who are also on the roster)
   r <- rd_ug(C$yr, C$roster)
-  keep <- rep(TRUE, nrow(r))
+  keep <- usual <- rep(TRUE, nrow(r))
   if ("h2q7" %in% names(r)) {
-    st <- tolower(as.character(haven::as_factor(r$h2q7)))
-    keep <- grepl("^(usual|regular) member (present|absent)$", trimws(st))
+    st <- trimws(tolower(as.character(haven::as_factor(r$h2q7))))
+    keep  <- grepl("^(usual|regular) member (present|absent)$", st)
+    usual <- grepl("^usual member (present|absent)$", st)    # the aggregate's hsize
   }
   sx <- tolower(trimws(as.character(haven::as_factor(r$h2q3))))       # TRAP U5
+  ## age shares over members of known age; ONE head per household (v23: one
+  ## 2013 household lists two - the first on the roster is kept)
   dem <- r %>% mutate(hhid = idstr(.data[[C$id_roster]]), .age = num(h2q8),
-                      .fem = as.numeric(sx == "female"), .head = num(h2q4) == 1) %>%
+                      .fem = as.numeric(sx == "female"), .head = num(h2q4) %in% 1,
+                      .usual = usual) %>%
     filter(keep) %>% group_by(hhid) %>%
-    summarise(n_mem         = n(),
+    summarise(n_usual       = sum(.usual),
               share_child   = mean(.age <  15, na.rm=TRUE),
               share_elderly = mean(.age >= 60, na.rm=TRUE),
-              head_age      = mean(.age[.head], na.rm=TRUE),
-              head_female   = mean(.fem[.head], na.rm=TRUE), .groups="drop")
-  a <- a %>% left_join(dem, by = "hhid") %>%
-    mutate(hhsize = ifelse(is.na(hhsize), n_mem, hhsize)) %>% select(-n_mem)
+              head_age      = .age[.head][1],
+              head_female   = .fem[.head][1], .groups="drop") %>%
+    mutate(across(c(share_child, share_elderly), ~ ifelse(is.nan(.x), NA_real_, .x)))
+  ## v23: household size where the aggregate has none (2011) = usual members,
+  ## as the aggregate's hsize counts them
 
   ## geography, cluster and weight from the cover page
   cv <- rd_ug(C$yr, C$cover)
   lab_of <- function(x) tolower(trimws(as.character(haven::as_factor(x))))
-  cv$.cl <- do.call(paste, c(lapply(C$cluster, function(k) idstr(cv[[k]])), sep = "_"))
+  cl  <- lapply(C$cluster, function(k) idstr(cv[[k]]))
+  cv$.cl <- ifelse(Reduce(`|`, lapply(cl, function(x) is.na(x) | x %in% c("", "NA"))), NA,
+                   do.call(paste, c(cl, sep = "_")))
   cv <- cv %>% transmute(
     hhid      = idstr(.data[[C$id_cover]]),
-    region    = as.character(num(region)),
+    ## v23: Kampala is region 0 in 2010 only; elsewhere it is inside Central
+    region    = as.character(ifelse(num(region) == 0, 1, num(region))),
     urban     = ifelse(lab_of(urban) == "urban", "1", "0"),
     clusterid = .cl,
     hhweight  = num(.data[[C$weight]])) %>%
     distinct(hhid, .keep_all = TRUE)
 
-  out %>% left_join(a, by = "hhid") %>% left_join(cv, by = "hhid") %>%
+  out %>% left_join(a, by = "hhid") %>% left_join(dem, by = "hhid") %>%
+    mutate(hhsize = ifelse(is.na(hhsize) & n_usual > 0, n_usual, hhsize)) %>% select(-n_usual) %>%
+    left_join(cv, by = "hhid") %>%
     mutate(country = "UGA", wave = w, year = C$year, strataid = NA_character_,
            uv = ifelse(purch_std > 0 & exp_conv > 0, exp_conv / purch_std, NA_real_))
 }

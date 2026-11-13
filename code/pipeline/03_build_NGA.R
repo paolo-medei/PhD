@@ -25,10 +25,9 @@
 ##           so wave 5 is excluded. Add it here when the aggregate is released.
 ##
 ##  Conversion: 2018 carries a per-row factor (s10bq2_cvn, "Kg/L conversion").
-##  For 2010-2015 the unit LABELS state the weight themselves - "Sack/Bag:
-##  Medium (50 kg)", "Basket: Small (15 kg)" - so the factor is read straight
-##  out of the label, with the metric codes handled explicitly. Units whose
-##  label carries no weight stay missing and are FLAGGED, never guessed.
+##  2012 and 2015 ship conversion tables (2012 in grams/centilitres, D12).
+##  2010 has none: only metric units are converted; containers whose label
+##  gives a capacity ("Basin: Small (10 kg)") are FLAGGED, never guessed (D13).
 ###############################################################################
 if (exists("RUN_NGA") && !RUN_NGA) message("PART 2b skipped") else if (RUN_BUILD) {
 
@@ -87,10 +86,10 @@ kg_from_labels <- function(x) {
   nm <- names(lv); code <- as.numeric(lv)
   kg <- rep(NA_real_, length(code))
   low <- tolower(nm)
-  ## "... (50 kg)" or "... (15 Kg)"
-  m <- regmatches(low, regexpr("\\(\\s*[0-9.]+\\s*kg", low))
-  has <- lengths(regmatches(low, gregexpr("\\(\\s*[0-9.]+\\s*kg", low))) > 0
-  kg[has] <- as.numeric(gsub("[^0-9.]", "", m))
+  ## v21 (D13): container labels ("Basin: Small (10 kg)") give the size of the
+  ## container, not the weight of what is in it: 40 small basins of fish became
+  ## 400 kg and beef came out at 25 naira/kg against 700. Only metric units
+  ## are converted; containers are flagged as not convertible.
   ## the plain metric units
   kg[low == "kilograms" | low == "kilogram" | low == "kg"] <- 1
   kg[low == "grams"     | low == "gram"]                   <- 1/1000
@@ -115,8 +114,11 @@ build_wave_ng <- function(w) {
     select(hhid, any_of(c("zone","state","lga","ea","sector"))) %>%
     distinct(hhid, .keep_all = TRUE)
 
+  ## v21 (D11): "other milk products" is code 114 in 2010 and 115 from 2012
+  ## (114 becomes cheese). Keying on 115 everywhere lost it in 2010.
+  items <- if (w == "w1") ITEMS_NG %>% mutate(item = ifelse(item == 115, 114, item)) else ITEMS_NG
   f <- f %>% mutate(item = num(item_cd), hhid = as.character(hhid)) %>%
-    inner_join(ITEMS_NG, by="item")
+    inner_join(items, by="item")
 
   if (C$cvn) {
     ## 2018: the survey supplies the factor row by row, and the source columns
@@ -137,8 +139,12 @@ build_wave_ng <- function(w) {
     cv <- rd_ng(C$zipyr, C$conv)
     key <- if ("nsu_cd" %in% names(cv)) "nsu_cd" else "unit_cd"
     val <- if ("conv" %in% names(cv)) "conv" else "conv_national"
-    cv <- cv %>% transmute(.ci = num(item_cd), .cu = num(.data[[key]]),
-                           .cf = num(.data[[val]])) %>%
+    ## v21 (D12): the 2012 table is in GRAMS (g_cl = 1) or CENTILITRES (g_cl = 0),
+    ## not kg: one egg was 50 kg. The 2015 table is already in kg.
+    div <- if ("g_cl" %in% names(cv)) ifelse(num(cv$g_cl) == 1, 1000, 100) else 1
+    cv <- cv %>% mutate(.div = div) %>%
+      transmute(.ci = num(item_cd), .cu = num(.data[[key]]),
+                .cf = num(.data[[val]]) / .div) %>%
       filter(!is.na(.cf)) %>% group_by(.ci, .cu) %>%
       summarise(.cf = mean(.cf), .groups="drop")
     ## TRAP N7  The 2012 table covers NO meat item at all - 90, 91, 92, 93, 80
@@ -180,8 +186,9 @@ build_wave_ng <- function(w) {
 
   agg_by <- function(df, col) {
     df %>%
-      mutate(.unconv   = as.integer(exp > 0 & is.na(purch_kg)),
-             .exp_conv = ifelse(is.na(purch_kg), NA_real_, exp)) %>%
+      ## v21: a purchase reported as 0 units with spending is not convertible
+      mutate(.unconv   = as.integer(exp > 0 & (is.na(purch_kg) | purch_kg <= 0)),
+             .exp_conv = ifelse(is.na(purch_kg) | purch_kg <= 0, NA_real_, exp)) %>%
       group_by(hhid, product = .data[[col]], recall,
                across(all_of(geo))) %>%
       summarise(consumed = suppressWarnings(max(consumed, na.rm=TRUE)),
@@ -237,7 +244,8 @@ build_wave_ng <- function(w) {
            std = "kg",
            uv = ifelse(purch_kg > 0 & exp_conv > 0, exp_conv / purch_kg, NA_real_),
            region = as.character(zone),
-           clusterid = paste0(as.character(state), "_", as.character(ea)),
+           ## v21: EA numbers repeat across LGAs (21-29 ids spanned two LGAs)
+           clusterid = paste0(as.character(state), "_", as.character(lga), "_", as.character(ea)),
            urban = as.character(sector),
            across(c(hhid, region, urban, clusterid), as.character))
 }

@@ -14,6 +14,8 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
   Registro completo: `docs/FINDINGS.md`. Numeri delle slide, v20 e v21: `docs/SLIDE_TRACE.md`.
 - La run sul PC di Paolo (Windows, 12 novembre) coincide cella per cella con quella di riferimento;
   i suoi warning hanno fatto trovare D9 e D10.
+- 13 novembre: verifica indipendente colonna per colonna dei tre pannelli e delle stime principali
+  (`checks/audit/`); gli errori trovati (D11-D19, M12-M13) sono corretti.
 - Aperto: M11 (strumento per la spesa totale, da discutere con il Professore).
 - Informazioni su produzione zootecnica e caffè, per dopo: `docs/PRODUZIONE_E_CAFFE.md`.
 

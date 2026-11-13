@@ -20,19 +20,22 @@ costruite su quella run; `ANALISI_semplice.R` (5 ottobre) non è la fonte dei nu
 Il copione (docx) riporta le quote del paniere *con* il pesce (30% → 11%, 22% → 41%, 40% → 28%,
 3% → 14%): stessa tabella, base diversa.
 
-## Gli stessi numeri nella v21 (13 wave, 12 novembre 2026)
+## Gli stessi numeri nella v21 (13 wave, 13 novembre 2026)
 
-Dopo tutte le correzioni di `docs/FINDINGS.md`. Nigeria senza il 2018.
+Dopo tutte le correzioni di `docs/FINDINGS.md` (D1-D19, M1-M13) e le verifiche indipendenti. Nigeria senza il 2018.
 
 | Slide | Numero | 30 settembre (v20) | v21 |
 |---|---|---|---|
-| 8 | Comprano carne, quinto più povero → più ricco | ETH 4% → 42%; TZA 16% → 71%; NGA 47% → 57% | ETH 4% → 42%; TZA 15% → 72%; **NGA 35% → 67%** |
-| 8 | Pendenza dell'entrata, manzo (modello lineare; probit come controllo) | 0,16 / 0,23 / 0,20 (sul consumo) | 0,15 / 0,27 / 0,25 (sugli acquisti; probit 0,15 / 0,27 / 0,26) |
-| 9 | Quota della qualità, carne | 15% / 10% / 8% | 15% / 10% / 8% |
+| 8 | Comprano carne, quinto più povero → più ricco | ETH 4% → 42%; TZA 16% → 71%; NGA 47% → 57% | **ETH 5% → 46%**; TZA 15% → 71%; **NGA 35% → 67%** |
+| 8 | Pendenza dell'entrata, manzo (modello lineare; probit come controllo) | 0,16 / 0,23 / 0,20 (sul consumo) | 0,15 / 0,27 / 0,26 (sugli acquisti; probit 0,15 / 0,27 / 0,26) |
+| 9 | Quota della qualità, carne | 15% / 10% / 8% | 15% / 10% / **6,5%** |
 | 9 | Wave con qualità significativa, carne | 12 su 14 | 11 su 13 (3/5, 5/5, 3/3) |
+| 9 | kg ×1,7-4,0; prezzo +10-52% | non rintracciato | da togliere |
 | 10 | Etiopia: latticini, capre e pecore (quote senza pesce) | 32% → 11%; 24% → 41% | **18% → 10%; 17% → 38%** |
 | 10 | Nigeria: manzo, pollame | 61% → 45%; 5% → 23% | 58% → 50%; 3% → 18% |
-| 10 | Elasticità della varietà | 0,26 / 0,28 / 0,32 | 0,26 / 0,36 / 0,30 |
-| — | Moltiplicatore di filiera (spesa / quantità) | 2,20 / 1,21 / 0,96 (unità miste) | 1,28 / 1,04 / 0,88 (in proteine) |
+| 10 | Elasticità della varietà | 0,26 / 0,28 / 0,32 | 0,30 / 0,38 / 0,31 |
+| 11 | Costo per grammo di proteina (tra prodotti) | — | 0,28 / 0,05 / 0,03 |
+| 11 | PIL pro capite | 1.000-1.600 USD | PPP 2021: 2.009 / 2.890 / 8.374 |
+| — | Moltiplicatore di filiera (spesa / quantità) | 2,20 / 1,21 / 0,96 (unità miste) | 1,28 / 1,00 / 1,04 (in proteine) |
 
 Ordine dei paesi: Etiopia / Tanzania / Nigeria.

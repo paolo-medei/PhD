@@ -10,8 +10,8 @@ if (RUN_BUILD) {
 ##         in all five waves.
 ## TRAP 2  In 2020 the sample is SPLIT, not subsampled: hh_sec_ja1 covers 4,290
 ##         households and hh_sec_j1 a DISJOINT 419 (overlap = 0, union = 4,709 =
-##         the consumption aggregate). Only ja1 is used, so 2020 covers 91% of
-##         the wave; the 419 are excluded because their module differs.
+##         the consumption aggregate). v21 (D19): both are used. j1 asks the
+##         same questions (hh_j01-06) with metric units and poultry unsplit (804).
 ## TRAP 3  Suffix _1 is the UNIT and _2 the QUANTITY. Reading _1 as the quantity
 ##         turns every purchase into a number between 1 and 5.
 ## TRAP 4  The household id is renamed every wave.
@@ -57,7 +57,9 @@ ITEMS_TZ <- tibble::tribble(
   8042,  "poultry",     "kg",     # ... and other poultry
    807,  "eggs",        "piece",
    901,  "milk",        "litre",
-   902,  "cheese",      "kg",     # "milk products (cream, cheese, yoghurt)"
+   ## v21 (D17): "MILK PRODUCTS (LIKE CREAM, CHEESE, YOGHURT)", ~97% reported in
+   ## litres or ml: with std kg only 45 of 2,020 consumer rows had a quantity
+   902,  "milk_processed", "litre",
   1102,  "coffee",      "kg"      # NB: label is "COFFEE AND COCOA" - impure
 )
 MEAT_TZ <- c("beef","goat_sheep","pork","poultry")
@@ -99,6 +101,11 @@ conv_tz <- function(unit, std) {
 build_wave_tz <- function(w) {
   C <- WAVES_TZ[[w]]
   f <- rd_tz(C$zipyr, C$food)
+  if (w == "w5") {                       # v21 (D19): the 419 households of hh_sec_j1
+    j1 <- rd_tz(C$zipyr, "hh_sec_j1")
+    names(j1) <- sub("^hh_j0", "hh_ja0", names(j1))
+    f <- bind_rows(haven::zap_labels(f), haven::zap_labels(j1))
+  }
 
   if (C$style == "old") {                       # 2008 uses skq* names
     v <- list(yn="skq1", q_tot="skq2_amount", u_tot="skq2_meas",
@@ -141,8 +148,8 @@ build_wave_tz <- function(w) {
   ## value, so its spend is excluded from the matched total (see Ethiopia).
   agg_by <- function(df, prod_col) {
     df %>%
-      mutate(.unconv   = as.integer(exp > 0 & is.na(purch_std)),
-             .exp_conv = ifelse(is.na(purch_std), NA_real_, exp)) %>%
+      mutate(.unconv   = as.integer(exp > 0 & (is.na(purch_std) | purch_std <= 0)),
+             .exp_conv = ifelse(is.na(purch_std) | purch_std <= 0, NA_real_, exp)) %>%
       group_by(hhid, product = .data[[prod_col]], std) %>%
       summarise(consumed  = suppressWarnings(max(consumed, na.rm=TRUE)),
                 qty_std   = sum(qty_std,   na.rm=TRUE),
@@ -161,7 +168,7 @@ build_wave_tz <- function(w) {
   B <- agg_by(f, "product") %>% mutate(track = "B")          # disaggregated
   A <- f %>%                                                  # meat pooled,
     mutate(prodA = ifelse(product %in% MEAT_TZ, "meat_agg", product)) %>%
-    filter(prodA != "cheese") %>%
+    filter(!prodA %in% c("cheese", "milk_processed")) %>%
     agg_by("prodA") %>% mutate(track = "A")
   out <- bind_rows(A, B)
 
@@ -173,7 +180,12 @@ build_wave_tz <- function(w) {
   ## v21 (D3): expmR is the HOUSEHOLD total ("Total consumption, annual, real");
   ## only 2020's expmR_pae is per adult equivalent. Put 2008-2014 on the same
   ## footing, as in Ethiopia (nom_totcons_aeq).
-  if (C$welfare == "expmR") a <- a %>% mutate(welfare = welfare / pmax(adulteq, 1))
+  ## v21 (D18): divide by the adult equivalents themselves; the floor at 1
+  ## cut welfare by 12-28% for 614 one-person households.
+  if (C$welfare == "expmR") a <- a %>% mutate(welfare = welfare / adulteq)
+  ## v21 (D18): expmR_pae is "real, PER 28 DAYS, per adult equivalent": put it
+  ## on the annual scale of 2008-2014 (x 365/28 = 13.04).
+  if (C$welfare == "expmR_pae") a <- a %>% mutate(welfare = welfare * 365 / 28)
   if (!"hhweight" %in% names(a)) a$hhweight <- NA_real_
 
   ## demographics — the SAME controls the Ethiopia build supplies, so the two

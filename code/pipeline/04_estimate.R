@@ -74,7 +74,8 @@ fit_cell <- function(g, ctrl) {
                       else c(coef(m)[k], se(m)[k], pvalue(m)[k])
   a <- gv(M(fq),"l_x"); n <- gv(M(fn),"l_x"); s <- gv(M(fs),"l_x2")
   full <- g %>% filter(welfare > 0) %>%
-    mutate(buys = as.integer(dplyr::coalesce(uv > 0 & qty > 0, FALSE)))
+    ## v21 (D14): bought = spent something or bought a convertible quantity
+    mutate(buys = as.integer(dplyr::coalesce(qty > 0, FALSE) | dplyr::coalesce(exp > 0, FALSE)))
   tibble(n_buyers=nrow(b), participation=round(100*mean(full$buys),1),
          e_quality=a[1], se_quality=a[2], p_quality=a[3],
          e_quantity=n[1], se_quantity=n[2], p_quantity=n[3],

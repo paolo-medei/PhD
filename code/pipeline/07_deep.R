@@ -48,7 +48,7 @@ PROT <- tibble::tribble(
   "milk",           "litre",  33,
   "milk",           "kg",     33,
   "milk_processed", "kg",    250,   # powder dominates; tinned is lower
-  "milk_processed", "litre", 250,
+  "milk_processed", "litre", 33,    # v21: Tanzania's 902 (cream, yoghurt) is liquid
   "cheese",      "kg",     200,
   "coffee",      "kg",     0        # a stimulant, not a protein source
 )
@@ -86,7 +86,8 @@ hh_level <- function(d) {
   d %>% filter(product %in% ANIMAL) %>%
     group_by(country, year, region, hhid, welfare, adulteq, weight, l_x) %>%
     summarise(
-      n_products  = sum(coalesce(qty_tot,0) > 0),          # VARIETY, count
+      ## v21 (D14): consumed = said so, or a convertible quantity
+      n_products  = sum(coalesce(qty_tot,0) > 0 | coalesce(consumed,0) == 1),  # VARIETY, count
       asf_exp     = sum(coalesce(exp,0)),
       asf_prot    = sum(coalesce(prot,0)*coalesce(qty_tot,0)),
       hhi         = { s <- coalesce(exp,0); s <- s/ifelse(sum(s)>0,sum(s),NA)
@@ -166,7 +167,8 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
     gv <- function(m,k="l_x") if (inherits(m,"try-error") ||
             !(k %in% names(coef(m)))) c(NA,NA) else c(coef(m)[k], pvalue(m)[k])
     full <- g %>% filter(welfare > 0) %>%
-      mutate(buys = as.integer(coalesce(qty_pur > 0, FALSE)))
+      ## v21 (D14): a purchase whose unit does not convert is still a purchase
+      mutate(buys = as.integer(coalesce(qty_pur > 0, FALSE) | coalesce(exp > 0, FALSE)))
     ## main: linear probability model, weighted, region x year effects
     mp <- try(feols(buys ~ l_x + l_ae | region^year, full, weights=~weight,
                     vcov="hetero"), silent=TRUE)
@@ -234,9 +236,9 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
       filter(!is.na(owner)) %>%
       group_by(product, owner) %>%
       summarise(n_hh = n_distinct(hhid),
-                pct_consuming = round(100*weighted.mean(coalesce(qty_tot,0)>0,
+                pct_consuming = round(100*weighted.mean(coalesce(qty_tot,0)>0 | coalesce(consumed,0)==1,
                                                         weight, na.rm=TRUE),1),
-                pct_buying    = round(100*weighted.mean(coalesce(qty_pur,0)>0,
+                pct_buying    = round(100*weighted.mean(coalesce(qty_pur,0)>0 | coalesce(exp,0)>0,
                                                         weight, na.rm=TRUE),1),
                 kg_per_ae     = round(weighted.mean(coalesce(q_ae,0), weight, na.rm=TRUE),3),
                 .groups="drop")

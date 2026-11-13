@@ -62,6 +62,7 @@ vc_load <- function(pf) {
     own     = num(g("own_std","own_kg")),
     gift    = num(g("gift_std","gift_kg")),
     exp     = num(g("exp")),
+    cons    = num(g("consumed")),
     uv      = num(g("uv")),
     welfare = num(g("welfare","nom_totcons_aeq")),
     adulteq = pmax(num(g("adulteq")), 1),
@@ -278,8 +279,8 @@ ggsave(file.path(VCFIG,"VC_09_marketisation_over_time.png"), g9, width=12, heigh
 ## ============ 10. DESCRIPTIVE DASHBOARD + FULL TABLE ===================== #
 desc <- vc %>% group_by(country, year, lab) %>%
   summarise(n_hh        = n_distinct(hhid),
-            pct_consume = round(100*weighted.mean(coalesce(qtot,0) > 0, weight, na.rm=TRUE),1),
-            pct_buy     = round(100*weighted.mean(coalesce(qpur,0) > 0, weight, na.rm=TRUE),1),
+            pct_consume = round(100*weighted.mean(coalesce(qtot,0) > 0 | coalesce(cons,0) == 1, weight, na.rm=TRUE),1),
+            pct_buy     = round(100*weighted.mean(coalesce(qpur,0) > 0 | coalesce(exp,0) > 0, weight, na.rm=TRUE),1),
             med_qty_ae  = round(median((qtot/adulteq)[qtot > 0], na.rm=TRUE),3),
             med_uv      = round(median(uv[uv > 0], na.rm=TRUE),1),
             pct_purchased_of_qty = round(100*sum(coalesce(qpur,0))/

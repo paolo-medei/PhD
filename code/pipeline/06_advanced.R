@@ -326,7 +326,8 @@ for (pf in panels) {
   cat("\n--- participation by welfare quintile ---\n")
   q <- d %>% filter(welfare > 0) %>% group_by(year) %>%
     mutate(qt = ntile(welfare, 5)) %>% ungroup() %>%
-    mutate(buys = as.integer(coalesce(qty_pur > 0, FALSE))) %>%
+    ## v21 (D14): a purchase whose unit does not convert is still a purchase
+    mutate(buys = as.integer(coalesce(qty_pur > 0, FALSE) | coalesce(exp > 0, FALSE))) %>%
     group_by(product, qt) %>%
     summarise(participation = round(100*weighted.mean(buys, weight, na.rm=TRUE),1),
               .groups="drop") %>%

@@ -119,8 +119,8 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
   H  <- hh_level(d)
 
   ## quintiles of welfare, within year
-  d <- d %>% group_by(year) %>% mutate(qt = ntile(welfare, 5)) %>% ungroup()
-  H <- H %>% group_by(year) %>% mutate(qt = ntile(welfare, 5)) %>% ungroup()
+  d <- hh_quintile(d)          # v24 (M16)
+  H <- H %>% left_join(d %>% distinct(year, hhid, qt), by = c("year", "hhid"))
 
   ## ======================= 6.1 THE BASKET, RICH vs POOR ================== #
   cat("\n--- 6.1 what the richest fifth eats, against the poorest ---\n")

@@ -79,7 +79,7 @@ vc_load <- function(pf) {
            ## trim the top 0.1% of every flow: one household reporting tonnes
            ## can decide a whole year's average
            across(c(qtot,qpur,own,gift,exp), ~ pmin(.x, quantile(.x, .999, na.rm=TRUE)))) %>%
-    group_by(year) %>% mutate(qt = ntile(welfare, 5)) %>% ungroup()
+    hh_quintile()                # v24 (M16)
 }
 
 vc <- map_dfr(list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE),

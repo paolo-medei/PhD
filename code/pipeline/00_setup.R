@@ -192,3 +192,14 @@ flag_price_outliers <- function(f, all_sources = TRUE) {
 ## values for at least this share of its buyers. Older products are not
 ## subject to it, so v23 results do not move (Ethiopian milk has cells at 19%).
 MIN_UV_SHARE <- c(fish = 0.5)
+
+## v24 (M16): welfare quintiles are assigned to HOUSEHOLDS, once per year, and
+## then joined to their rows. ntile() on household x product rows could put
+## the rows of one household at a quintile boundary into two quintiles, and
+## the cut moved whenever a product was added (fish). Unweighted, as before.
+hh_quintile <- function(d) {
+  q <- d %>% filter(!is.na(welfare)) %>% distinct(year, hhid, welfare) %>%
+    group_by(year) %>% mutate(qt = ntile(welfare, 5)) %>% ungroup() %>%
+    select(year, hhid, qt)
+  d %>% select(-any_of("qt")) %>% left_join(q, by = c("year", "hhid"))
+}

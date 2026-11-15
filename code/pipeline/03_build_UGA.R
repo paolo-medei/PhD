@@ -114,7 +114,25 @@ ITEMS_UG <- tibble::tribble(
    125,  "milk",           "litre",
   1252,  "milk_processed", "litre",  # fermented milk (bongo), 2018-19 only
   1254,  "milk_processed", "litre",  # yoghurt, 2018-19 only
-   148,  "coffee",         "kg"
+   148,  "coffee",         "kg",
+   ## v24 (Paolo, 15 Nov 2026): fish back in, as its own product. 122 fresh,
+   ## 123 dry/smoked (2010-15); 2018-19 split by species: 1221 fresh tilapia,
+   ## 1222 fresh Nile perch, 1231 dry/smoked tilapia, 1232 dry/smoked Nile
+   ## perch, 1235 other fresh, 1236 other dry/smoked, 1237 silver fish
+   ## (mukene). TRAP U11: fish is bought as whole fish (small/medium/large),
+   ## heaps, bundles and cups; only kilograms and the "Nice cup (100 g)"
+   ## family state a weight - 3-27% of purchases. Like chicken, fish counts
+   ## for buying and spending; its quantities are too few and too selective
+   ## for unit values (10_margins.R requires half of buyers to have one).
+   122,  "fish",           "kg",
+   123,  "fish",           "kg",
+  1221,  "fish",           "kg",
+  1222,  "fish",           "kg",
+  1231,  "fish",           "kg",
+  1232,  "fish",           "kg",
+  1235,  "fish",           "kg",
+  1236,  "fish",           "kg",
+  1237,  "fish",           "kg"
 )
 MEAT_UG <- c("beef","goat_sheep","pork","poultry")
 
@@ -123,6 +141,7 @@ conv_ug <- function(lab, std) {
   l <- tolower(gsub("\\s+", " ", trimws(lab)))
   g <- suppressWarnings(as.numeric(sub("^(packet|sacket|nido tin) ?\\(([0-9.]+) ?g\\).*$", "\\2", l)))
   lt <- suppressWarnings(as.numeric(sub("^.*\\(([0-9.]+) ?lt\\).*$", "\\1", l)))
+  ncg <- suppressWarnings(as.numeric(sub("^nice cup ?\\(([0-9.]+) ?g\\).*$", "\\1", l)))
   dplyr::case_when(
     is.na(l)                                                ~ NA_real_,
     std == "piece" & grepl("^tray of 30", l)                ~ 30,
@@ -131,6 +150,9 @@ conv_ug <- function(lab, std) {
     std %in% c("kg","litre") & grepl("^gram", l)            ~ 1/1000,
     std %in% c("kg","litre") & grepl("^packet ?\\(1 ?kg\\)", l) ~ 1,
     std %in% c("kg","litre") & !is.na(g)                    ~ g / 1000,
+    ## v24: "Nice cup(100g)- Large" etc. state a weight; used for solids only
+    ## (dried silver fish), never for milk (see the 0.5 l rule below)
+    std == "kg" & !is.na(ncg)                               ~ ncg / 1000,
     std == "litre" & grepl("^litre", l)                     ~ 1,
     std == "litre" & !is.na(lt)                             ~ lt,  # cup 0.5 l, glass 0.25 l
     ## v23 (decided by Paolo, 13 Nov): the "Nice cup" costs what the 0.5-litre

@@ -75,8 +75,30 @@ ITEMS_MW <- tibble::tribble(
    501,  "eggs",           "piece",
    701,  "milk",           "litre",  # fresh milk
    702,  "milk_processed", "kg",     # powdered milk (as Nigeria's)
-   902,  "coffee",         "kg"
-)   # 503-515 fish, 705 chambiko, 706 yoghurt, 707 cheese, 82x vendor food: not used
+   902,  "coffee",         "kg",
+   ## v24 (Paolo, 15 Nov 2026): fish back in, as its own product. 502 dried,
+   ## 503 fresh, 513 smoked (2010; 2016 has both codings), then by size of
+   ## variety: 5021-5023 sun-dried, 5031-5033 fresh, 5121-5123 smoked.
+   ## TRAP M7: 97% of fish purchases are heaps or pieces. The 2020 table has
+   ## factors for them, but the prices contradict it: within the same item
+   ## and year a kilo bought in small heaps costs 2-6 times one bought in
+   ## large heaps (2024 large sun-dried: 11,628 against 1,802 MK/kg), and the
+   ## same fish costs 2-3 times more per kilo in one region than in another.
+   ## As for red-meat pieces, heaps are NOT converted: fish counts for buying
+   ## and spending, with quantities only where stated in kg or grams.
+   502,  "fish",           "kg",
+   503,  "fish",           "kg",
+   513,  "fish",           "kg",
+  5021,  "fish",           "kg",
+  5022,  "fish",           "kg",
+  5023,  "fish",           "kg",
+  5031,  "fish",           "kg",
+  5032,  "fish",           "kg",
+  5033,  "fish",           "kg",
+  5121,  "fish",           "kg",
+  5122,  "fish",           "kg",
+  5123,  "fish",           "kg"
+)   # 512 tinned meat or fish, 514 fish soup, 705 chambiko, 706 yoghurt, 707 cheese, 82x vendor food: not used
 MEAT_MW <- c("beef","goat_sheep","pork","poultry")
 
 ## the World Bank's 2020 food conversion table (kg per unit), if present.

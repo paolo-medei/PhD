@@ -279,6 +279,12 @@ for (pf in panels) {
     mutate(across(c(.p,.o,.g), ~ pmin(.x, quantile(.x, .999, na.rm=TRUE)))) %>%
     ungroup() %>%
     mutate(.tot = .p + .o + .g) %>%
+    ## v24: products in MIN_UV_SHARE (fish) only where converted quantities
+    ## cover enough consumers - not Ugandan or Malawian heaps of fish
+    group_by(product, year) %>%
+    mutate(.cover = sum(.tot > 0) / max(1, sum(coalesce(num(consumed), 0) == 1 | .tot > 0))) %>%
+    ungroup() %>%
+    filter(!(product %in% names(MIN_UV_SHARE)) | .cover >= MIN_UV_SHARE[product]) %>%
     filter(.tot > 0) %>%
     group_by(product, year) %>%
     summarise(pct_purchased = round(100*sum(.p)/sum(.tot),1),
@@ -289,9 +295,11 @@ for (pf in panels) {
   write.csv(src, file.path(TMPCSV, paste0(cc,"_10_sources.csv")), row.names=FALSE)
 
   ## the same decomposition run on TOTAL consumption instead of purchases
-  fitA <- function(g) {
+  fitA <- function(g, prod = NA_character_) {
     b <- g %>% filter(qty_tot > 0, uv > 0, welfare > 0, unconv == 0)
     if (nrow(b) < 80) return(tibble())
+    if (!is.na(prod) && prod %in% names(MIN_UV_SHARE) &&
+        nrow(b) < MIN_UV_SHARE[[prod]] * sum(coalesce(g$qty_pur, 0) > 0 | coalesce(num(g$exp), 0) > 0)) return(tibble())
     m <- try(feols(log(qty_tot) ~ l_x + l_ae | region, b, weights=~weight,
                    vcov="hetero"), silent=TRUE)
     p <- try(feols(log(qty_pur) ~ l_x + l_ae | region,
@@ -300,7 +308,7 @@ for (pf in panels) {
     gv <- function(m) if (inherits(m,"try-error")) NA else unname(coef(m)["l_x"])
     tibble(n=nrow(b), e_qty_total=gv(m), e_qty_purchased=gv(p))
   }
-  totq <- d %>% group_by(year, product) %>% group_modify(~fitA(.x)) %>% ungroup()
+  totq <- d %>% group_by(year, product) %>% group_modify(~fitA(.x, .y$product)) %>% ungroup()
   cat("\n--- quantity elasticity: TOTAL consumption vs PURCHASES only ---\n")
   print(as.data.frame(totq %>% mutate(across(where(is.numeric), ~round(.x,3)))))
   write.csv(totq, file.path(TMPCSV, paste0(cc,"_11_total_vs_purchased.csv")),

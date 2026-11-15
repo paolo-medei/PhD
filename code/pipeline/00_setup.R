@@ -186,4 +186,9 @@ flag_price_outliers <- function(f, all_sources = TRUE) {
   f
 }
 
-
+## v24: products whose quantities are mostly not convertible (fish in Uganda
+## and Malawi: heaps, whole fish) would give unit values for a small,
+## selected minority of buyers. For the products named here a cell needs unit
+## values for at least this share of its buyers. Older products are not
+## subject to it, so v23 results do not move (Ethiopian milk has cells at 19%).
+MIN_UV_SHARE <- c(fish = 0.5)

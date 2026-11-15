@@ -60,7 +60,19 @@ ITEMS_TZ <- tibble::tribble(
    ## v21 (D17): "MILK PRODUCTS (LIKE CREAM, CHEESE, YOGHURT)", ~97% reported in
    ## litres or ml: with std kg only 45 of 2,020 consumer rows had a quantity
    902,  "milk_processed", "litre",
-  1102,  "coffee",      "kg"      # NB: label is "COFFEE AND COCOA" - impure
+  1102,  "coffee",      "kg",     # NB: label is "COFFEE AND COCOA" - impure
+   ## v24 (Paolo, 15 Nov 2026): fish back in, as its own product (not meat).
+   ## 808 fresh fish and seafood incl. dagaa (2020: split into 8081 dagaa,
+   ## 8082 kolekole, 8083 tilapia, 8084 other), 809 dried/salted/canned,
+   ## 810 packaged. 2008-2014: >99% of purchases in kg or grams; 2020: about
+   ## 20% in heaps or pieces, which stay unconverted (flagged, never guessed).
+   808,  "fish",        "kg",
+  8081,  "fish",        "kg",
+  8082,  "fish",        "kg",
+  8083,  "fish",        "kg",
+  8084,  "fish",        "kg",
+   809,  "fish",        "kg",
+   810,  "fish",        "kg"
 )
 MEAT_TZ <- c("beef","goat_sheep","pork","poultry")
 

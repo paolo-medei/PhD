@@ -41,9 +41,13 @@ three <- function(g, ctrl) {
   sl <- cx(as.formula(paste("buys ~ l_x +", ctrl, "| ry")), g)
   b  <- g %>% filter(uv > 0, qty > 0, unconv == 0) %>% group_by(year) %>%
     filter(uv >= quantile(uv, .01), uv <= quantile(uv, .99)) %>% ungroup()
+  ## v24: quantity and quality only where unit values cover enough buyers
+  ## (MIN_UV_SHARE, 04_estimate.R: fish needs half of its buyers)
+  ok <- nrow(b) >= 200 && !(g$product[1] %in% names(MIN_UV_SHARE) &&
+                             nrow(b) < MIN_UV_SHARE[[g$product[1]]] * sum(g$buys))
   c(P = P, slope = sl, entry = sl / P,
-    qty  = cx(as.formula(paste("log(qty) ~ l_x +", ctrl, "| ry")), b),
-    qual = cx(as.formula(paste("log(uv)  ~ l_x +", ctrl, "| ry")), b),
+    qty  = if (ok) cx(as.formula(paste("log(qty) ~ l_x +", ctrl, "| ry")), b) else NA_real_,
+    qual = if (ok) cx(as.formula(paste("log(uv)  ~ l_x +", ctrl, "| ry")), b) else NA_real_,
     n_uv = nrow(b))
 }
 
@@ -57,7 +61,10 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
   for (v in c("share_child","share_elderly","head_age","head_female"))
     if (v %in% names(raw) && mean(!is.na(raw[[v]])) > .5) { d[[v]] <- as.numeric(raw[[v]]); cv <- c(cv, v) }
   ctrl <- paste(cv, collapse = " + ")
-  prods <- c("meat_agg", "milk", "eggs", if (cc == "ETH") "coffee")
+  ## v24: fish wherever it is in every round (all but Ethiopia, where it is
+  ## separate only from 2015)
+  prods <- c("meat_agg", "milk", "eggs", if (cc == "ETH") "coffee",
+             if (any(raw$product == "fish" & raw$track == "A")) "fish")
   d <- d %>% filter(track == "A", product %in% prods, welfare > 0) %>%
     filter(if_all(all_of(cv), ~ !is.na(.x))) %>%
     mutate(ry   = paste(as.character(region), year, sep = "_"),
@@ -94,7 +101,7 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
 if (length(marg)) {
   mg <- bind_rows(marg)
   write.csv(mg, file.path(TMPCSV, "MARGINS_01_three_margins.csv"), row.names = FALSE)
-  pl <- mg %>% filter(product != "coffee") %>%
+  pl <- mg %>% filter(product != "coffee", !is.na(sh_qty)) %>%
     select(country, product, Entry = sh_entry, Quantity = sh_qty, Quality = sh_qual) %>%
     pivot_longer(c(Entry, Quantity, Quality), names_to = "margin", values_to = "share") %>%
     mutate(margin = factor(margin, c("Quality", "Quantity", "Entry")),

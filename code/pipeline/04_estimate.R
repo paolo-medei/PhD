@@ -59,11 +59,16 @@ add_cluster_price <- function(d) {
     mutate(price_exo = ifelse(!is.na(mkt), mkt, p_loo))
 }
 
-fit_cell <- function(g, ctrl) {
+## v24: MIN_UV_SHARE (00_setup.R) - unit values must cover enough buyers
+fit_cell <- function(g, ctrl, prod = NA_character_) {
   b <- g %>% filter(uv > 0, qty > 0, welfare > 0, unconv == 0)
   if (nrow(b) > 100) { q <- quantile(b$uv, c(.01,.99), na.rm=TRUE)
                        b <- b %>% filter(uv >= q[1], uv <= q[2]) }
   if (nrow(b) < 80) return(tibble())
+  if (!is.na(prod) && prod %in% names(MIN_UV_SHARE)) {
+    nb <- sum(dplyr::coalesce(g$qty > 0, FALSE) | dplyr::coalesce(g$exp > 0, FALSE), na.rm = TRUE)
+    if (nrow(b) < MIN_UV_SHARE[[prod]] * nb) return(tibble())
+  }
   fq <- as.formula(paste("log(uv)  ~ l_x +", ctrl, "| region"))
   fn <- as.formula(paste("log(qty) ~ l_x +", ctrl, "| region"))
   ## v21 (D7): explicit square; fixest >= 0.14 renames I(l_x^2) to I(I(l_x^2))
@@ -84,9 +89,12 @@ fit_cell <- function(g, ctrl) {
          plateau = !is.na(s[1]) && s[1] < 0 && !is.na(s[3]) && s[3] < .10)
 }
 
-fit_price <- function(g, ctrl) {
+fit_price <- function(g, ctrl, prod = NA_character_) {
   b <- g %>% filter(qty > 0, welfare > 0, price_exo > 0, unconv == 0)
   if (nrow(b) < 120 || n_distinct(b$cluster) < 20) return(tibble())
+  if (!is.na(prod) && prod %in% names(MIN_UV_SHARE) &&
+      nrow(b) < MIN_UV_SHARE[[prod]] * sum(dplyr::coalesce(g$qty > 0, FALSE) | dplyr::coalesce(g$exp > 0, FALSE), na.rm = TRUE))
+    return(tibble())
   q <- quantile(b$qty, c(.01,.99), na.rm=TRUE)
   b <- b %>% filter(qty >= q[1], qty <= q[2])
   f <- as.formula(paste("log(qty) ~ log(price_exo) + l_x +", ctrl, "| region"))
@@ -120,8 +128,8 @@ for (pf in panels) {
   d <- add_cluster_price(d)
   A <- d %>% filter(track == "A")
 
-  res <- A %>% group_by(year, product) %>% group_modify(~fit_cell(.x, ctrl)) %>% ungroup()
-  pel <- A %>% group_by(year, product) %>% group_modify(~fit_price(.x, ctrl)) %>% ungroup()
+  res <- A %>% group_by(year, product) %>% group_modify(~fit_cell(.x, ctrl, .y$product)) %>% ungroup()
+  pel <- A %>% group_by(year, product) %>% group_modify(~fit_price(.x, ctrl, .y$product)) %>% ungroup()
 
   OUT <- RUN_DIR; FIG <- FIGDIAG
   write.csv(res, file.path(TMPCSV, paste0(cc,"_01_decomposition.csv")), row.names=FALSE)

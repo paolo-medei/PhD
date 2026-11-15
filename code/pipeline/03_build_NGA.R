@@ -69,6 +69,8 @@ ITEMS_NG <- tibble::tribble(
   113,  "milk_processed",  # tinned milk      } fresh milk is only ~6% of hh
   115,  "milk_processed",  # other milk products
   100,  "fish", 101, "fish", 102, "fish", 103, "fish",
+  ## v24: seafood (105), canned fish (106) and other fish (107) join fish; snails (104) stay out
+  105,  "fish", 106, "fish", 107, "fish",
   120,  "coffee"
 )   # 112 baby formula deliberately excluded: a different market
 MEAT_NG <- c("beef","goat_sheep","pork","poultry")
@@ -206,7 +208,8 @@ build_wave_ng <- function(w) {
   }
   B <- agg_by(f, "product") %>% mutate(track = "B")
   A <- f %>% mutate(prodA = ifelse(product %in% MEAT_NG, "meat_agg", product)) %>%
-    filter(prodA != "fish") %>% agg_by("prodA") %>% mutate(track = "A")
+    ## v24: fish is in every round, so it now belongs to the comparable track too
+    agg_by("prodA") %>% mutate(track = "A")
   out <- bind_rows(A, B)
 
   ## TRAP N6  In 2010 the roster holds ONLY the items a household actually

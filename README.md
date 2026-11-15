@@ -23,6 +23,9 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
   quattro indagini trasversali: il panel IHPS è distribuito senza aggregato di consumo) in
   `03_build_UGA.R` e `03_build_MWI.R`; trappole e scelte in `docs/FINDINGS.md`, sezione E.
   I due paesi si saltano da soli se i loro archivi non ci sono.
+- 15 novembre, v24: il pesce torna come prodotto a sé (non carne) in tutti i paesi, deciso da Paolo;
+  confronto con i bilanci alimentari FAO e quota importata dell'offerta (`10_fao.R`, serve
+  FAOSTAT: vedi Dati); corretto il costo per grammo di proteina (M15). `docs/FINDINGS.md`, sezione G.
 - Aperto: M11 (strumento per la spesa totale, da discutere con il Professore).
 - Informazioni su produzione zootecnica e caffè, per dopo: `docs/PRODUZIONE_E_CAFFE.md`.
 
@@ -31,7 +34,7 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 ```
 code/run_all.R          esegue i moduli in ordine e confronta il risultato con results_reference/
 code/compare_results.R  il confronto cella per cella (usato da run_all.R e da checks/compare_runs.R)
-code/pipeline/          00_setup … 09_value_chain, 10_margins, 11_workbook (la pipeline)
+code/pipeline/          00_setup … 09_value_chain, 10_fao, 10_margins, 11_workbook (la pipeline)
 results_reference/      RESULTS_*.xlsx della run di riferimento (stesso codice, stessi archivi; v23 = cinque paesi)
 code/legacy/            v20 originale e ANALISI_semplice.R (5 ottobre), per riferimento
 checks/                 varmap.R, varmap2.R: ogni colonna usata, con l'etichetta del file
@@ -53,6 +56,11 @@ la ridistribuzione (`.gitignore` li esclude). Servono gli archivi in formato Sta
 | Malawi | IHS3 2010, IHS4 2016, IHS5 2019, IHS6 2024 | archivi `MWI_2010_IHS-III`, `MWI_2016_IHS-IV`, `MWI_2019_IHS-V`, `MWI_2024-2025_IHS-VI` |
 
 Nigeria 2018 (catalogo 3557) è esclusa: oggi non è scaricabile.
+
+Facoltativi, per il confronto con la FAO (`10_fao.R`; senza, la parte si salta da sola): dalla
+pagina FAOSTAT di ogni dominio, "Bulk Downloads" → Africa, nella stessa cartella degli archivi:
+`FoodBalanceSheets_E_Africa.zip` (Food Balances 2010-) e `FoodBalanceSheetsHistoric_E_Africa.zip`
+(Food Balances -2013, usato solo per la Tanzania 2008).
 
 ## Come si esegue
 

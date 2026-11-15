@@ -42,7 +42,9 @@ PROT <- tibble::tribble(
   "pork",        "kg",     250,
   "poultry",     "kg",     270,
   "meat_agg",    "kg",     255,
-  "fish",        "kg",     200,
+  ## v24: fish has quantities only in Tanzania and Nigeria, and dried fish has
+  ## about three times the protein of fresh: it stays out of the protein sums
+  "fish",        "kg",     NA_real_,
   "eggs",        "kg",     126,
   "eggs",        "piece",  6.9,     # a 55 g egg
   "milk",           "litre",  33,
@@ -52,10 +54,11 @@ PROT <- tibble::tribble(
   "cheese",      "kg",     200,
   "coffee",      "kg",     0        # a stimulant, not a protein source
 )
-## v21 (M5, decided 12 Nov 2026): fish OUT - the thesis is about livestock,
-## and only Nigeria had fish in the basket, so counts were not comparable.
+## v21 (M5, 12 Nov 2026): fish out. v24 (Paolo, 15 Nov 2026): fish back in,
+## now that every country records it (Ethiopia separately from 2015): it
+## enters the basket, variety and buying tables, not the protein sums (PROT).
 ANIMAL <- c("beef","goat_sheep","pork","poultry","eggs","milk",
-            "milk_processed","cheese")
+            "milk_processed","cheese","fish")
 
 deep_prep <- function(pf) {
   raw <- read.csv(pf, stringsAsFactors=FALSE)
@@ -66,6 +69,7 @@ deep_prep <- function(pf) {
            qty_pur = num(if ("purch_std" %in% names(.)) purch_std else purch_kg),
            qty_tot = num(if ("qty_std"   %in% names(.)) qty_std   else qty_kg),
            exp     = num(exp), uv = num(uv),
+           exp_conv = num(if ("exp_conv" %in% names(.)) exp_conv else NA),
            welfare = num(if ("welfare" %in% names(.)) welfare else nom_totcons_aeq),
            adulteq = pmax(num(adulteq), 1),
            weight  = num(if ("hhweight" %in% names(.)) hhweight else weight),
@@ -93,12 +97,18 @@ hh_level <- function(d) {
       ## v21 (M14): the cost of a gram is spending on purchases over the protein
       ## PURCHASED; dividing by all protein consumed mixed in own production
       asf_prot_pur = sum(coalesce(prot,0)*coalesce(qty_pur,0)),
+      ## v24 (M15): ... and the spending must be on the SAME purchases: only
+      ## purchases whose quantity converted (exp_conv) of products with a
+      ## protein content. Before, all spending was divided by the protein of
+      ## the converted purchases only: Ugandan chicken (never weighed) added
+      ## cost and no protein, and fish would have done the same.
+      asf_exp_pur_prot = sum(coalesce(exp_conv,0) * !is.na(prot)),
       hhi         = { s <- coalesce(exp,0); s <- s/ifelse(sum(s)>0,sum(s),NA)
                       sum(s^2, na.rm=TRUE) },              # basket concentration
       .groups="drop") %>%
     mutate(prot_ae_day = asf_prot/adulteq/7,
            asf_exp_ae  = asf_exp/adulteq,
-           cost_per_g  = ifelse(asf_prot_pur > 0, asf_exp/asf_prot_pur, NA_real_))
+           cost_per_g  = ifelse(asf_prot_pur > 0, asf_exp_pur_prot/asf_prot_pur, NA_real_))
 }
 
 for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE)) {
@@ -116,7 +126,9 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
   cat("\n--- 6.1 what the richest fifth eats, against the poorest ---\n")
   basket <- d %>% filter(product %in% ANIMAL, !is.na(qt)) %>%
     group_by(qt, product) %>%
-    summarise(pct_consuming = round(100*weighted.mean(coalesce(qty_tot,0) > 0,
+    ## v24: consumed = a converted quantity OR the consumed flag (Ugandan
+    ## chicken and fish are never weighed, and showed 0% consumers)
+    summarise(pct_consuming = round(100*weighted.mean(coalesce(qty_tot,0) > 0 | coalesce(consumed,0) == 1,
                                                       weight, na.rm=TRUE), 1),
               kg_per_ae_wk  = round(weighted.mean(coalesce(q_ae,0), weight, na.rm=TRUE), 3),
               share_of_asf_spend = NA_real_, .groups="drop")

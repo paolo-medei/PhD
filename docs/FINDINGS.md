@@ -160,9 +160,10 @@ valori di Tanzania e Nigeria coincidono con l'estratto WDI già usato).
   la slide dice "non ancora".
 - **Aperto: quantità estreme.** La regola dei prezzi (10 volte la mediana) tocca solo gli acquisti di
   Uganda e Malawi. Restano 89 righe con una quantità consumata oltre 100 volte la mediana della wave per
-  quel prodotto, quasi tutte senza spesa: 64 in Etiopia (soprattutto caffè 2011, fino a 400 kg a
-  settimana), 16 in Tanzania (pollo 2012: 8.500 unità), 7 in Nigeria (uova 2012), 1 in Uganda (maiale
-  2019: 10.000 kg), 1 in Malawi. Non toccano acquisti, valori unitari e margini; spostano le medie
-  descrittive di proteine e quantità (es. `UGA_21` 2019, terzo quintile, 103,9 g). Proposta: segnalarle
+  quel prodotto (29 senza spesa): 64 in Etiopia (soprattutto caffè 2011, fino a 400 kg a settimana),
+  16 in Tanzania (pollo 2012: 8.500 unità), 7 in Nigeria (uova 2012), 1 in Uganda (maiale 2019:
+  10.000 kg), 1 in Malawi. Nei modelli sui valori unitari il taglio all'1° e 99° percentile le esclude
+  quasi certamente; spostano invece le medie descrittive di proteine e quantità (es. `UGA_21` 2019, terzo
+  quintile, 103,9 g). Proposta: segnalarle
   in tutti i paesi come quantità non utilizzabili (da decidere).
 - **Da confermare (Paolo):** i pacchetti di latte fresco del Malawi letti come bustine (sezione E).

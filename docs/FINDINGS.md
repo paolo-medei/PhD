@@ -165,5 +165,79 @@ valori di Tanzania e Nigeria coincidono con l'estratto WDI già usato).
   10.000 kg), 1 in Malawi. Nei modelli sui valori unitari il taglio all'1° e 99° percentile le esclude
   quasi certamente; spostano invece le medie descrittive di proteine e quantità (es. `UGA_21` 2019, terzo
   quintile, 103,9 g). Proposta: segnalarle
-  in tutti i paesi come quantità non utilizzabili (da decidere).
+  in tutti i paesi come quantità non utilizzabili (da decidere). **Deciso il 20 novembre: regola M17,
+  sezione G.**
 - **Da confermare (Paolo):** i pacchetti di latte fresco del Malawi letti come bustine (sezione E).
+
+## G. v24 (15-20 novembre 2026): pesce, FAO e una regola unica per i valori estremi
+
+Confronto con i risultati provvisori v24 del 15 novembre (`RESULTS_v24_provvisorio_2026-11-15.xlsx`).
+
+**Pesce come prodotto a sé.** Traccia B in tutti i paesi, traccia A tranne l'Etiopia. Codici: Tanzania 808-810
+(2020 anche 8081-8084); Uganda 122, 123, 1221-1237, compreso 1234 (nkejje secco, aggiunto dopo la verifica);
+Malawi 502, 503, 513, 5021-5023, 5031-5033, 5121-5123 (mucchi e pezzi non convertiti, TRAP M7); Nigeria
+100-103 e 105-107 (lumache, 104, escluse); Etiopia 183 (2015) e 704 (2018, 2021). Pesce fuori dalle
+tabelle della filiera zootecnica (`09_value_chain.R`).
+
+**Copertura dei valori unitari (MIN_UV_SHARE).** Quantità e qualità del pesce solo dove almeno metà degli
+acquirenti ha un valore unitario: Tanzania 92%, Nigeria 94%. Non in Uganda (15%) né in Malawi (0,2%), dove
+il pesce si compra a mucchi e a pezzi; lì il pesce entra solo nella partecipazione e nelle quote di spesa.
+
+**M15, costo per grammo di proteine.** Spesa e proteine delle stesse righe acquistate (prima la spesa
+poteva venire da righe senza proteine). **M16, quinti.** Per famiglia, non per riga.
+
+**M17, una regola per i valori estremi in tutti e cinque i paesi (decisa da Paolo il 20 novembre).**
+1. Prezzo: un acquisto pagato più di 10 volte o meno di un decimo della mediana del prodotto nella wave
+   perde la quantità acquistata (conta come acquisto, non come valore unitario). Le altre fonti
+   (totale, autoproduzione, regali) la seguono solo se registrate nella stessa unità dell'acquisto, come
+   già in Malawi. Uova: un vassoio registrato come uovo è riportato a 30 uova dove le uova si contano a
+   pezzi. Prima valeva solo in Uganda e Malawi; altrove c'erano valori unitari fino a 5.700 volte la mediana.
+2. Quantità: oltre 100 volte la mediana di wave × prodotto × traccia, le quantità non si usano; la spesa resta.
+
+| | ETH | TZA | NGA | UGA | MWI |
+|---|---|---|---|---|---|
+| acquisti esclusi dal filtro sul prezzo | 566 | 127 | 357 | 7 | 286 |
+| altre fonti nella stessa unità, escluse | 528 | 105 | 349 | (unità unica) | (già prima) |
+| righe con quantità oltre 100 volte la mediana | 32 | 18 | 6 | 3 | 4 |
+
+Il filtro ha trovato un errore nella tabella ufficiale di conversione della Nigeria 2015: il latte in
+polvere in "bustina media" vale 0,4 kg e in "bustina grande" 0,9 kg, contro 0,012 kg della piccola; i prezzi
+dicono che la media pesa quanto la piccola (58 delle 69 bustine medie e 10 delle 11 grandi escluse). Per
+questo nel 2015 escono 133 dei 1.106 acquirenti di latte trasformato (12%).
+
+**Cosa cambia nei risultati.**
+- Tre margini della carne: praticamente nulla (Etiopia, quota della qualità da 7,3 a 8,0%; altri paesi
+  ±0,1). Il messaggio resta: entrata 47-63%, quantità 33-49%, qualità 3-8%.
+- Effetti fissi familiari, carne: Etiopia da −0,153 (p 0,15) a −0,055 (p 0,51); Tanzania da −0,001 a 0,018
+  (p 0,25); Nigeria da 0,041 a 0,033 (p 0,03); Uganda invariata (0,027). Resta: dentro la famiglia la qualità
+  sale (poco) solo in Uganda e Nigeria.
+- Elasticità della qualità per prodotto: si muovono in Etiopia e Nigeria. Etiopia manzo da 0,144 a 0,207,
+  capra e pecora da 0,081 (non significativa) a 0,168; Nigeria latte fresco da 0,116 a 0,074, latte
+  trasformato da 0,123 a 0,055. Carne in Etiopia per anno: 2011 da 0,040 a 0,114, 2018 da 0,049 a 0,105.
+  Le stime per anno in Etiopia dipendevano da pochi acquisti con l'unità sbagliata, nonostante il taglio
+  al 1° e 99° percentile.
+- Costo per grammo di proteine: Etiopia da 0,169 a 0,221; Nigeria da 0,046 a 0,035; Tanzania da 0,096 a
+  0,089; Uganda e Malawi invariati.
+- Caffè in Etiopia, effetti fissi: da −0,161 (p 0,001) a +0,047 (p 0,02). Il segno negativo veniva dagli
+  acquisti con l'unità sbagliata.
+- Proteine per quinto (`_21`): spariti i valori assurdi (Uganda 2019, terzo quinto, da 103,9 a 8,4 g;
+  Tanzania 2010, quarto quinto, da 42,6 a 16,3 g; Tanzania 2014 e 2020 nei quinti alti).
+- Quote di spesa (`_20`) e partecipazione: invariate (la regola tocca solo le quantità).
+- FAO_01: `kg_trim100` ora coincide con `kg_raw` ovunque (nessuna riga tagliata): la colonna resta come controllo.
+- Etiopia 2018: il formaggio scende sotto la soglia di acquirenti ed esce da `ETH_01`.
+
+**Verifica indipendente** (`checks/audit/v24/REPORT.md`): pesce ricostruito riga per riga dai file grezzi,
+99,9-100% di coincidenza su ogni colonna; regola di copertura, M16 e FAO_01 riprodotti. Corretti dopo la
+verifica: nkejje secco (1234) ora è pesce; ogni unità che dichiara i grammi nell'etichetta è convertita
+(prima "Nido Tin (400g)" sì e "Metallic plate (80g)" no); M15 con le stesse righe per spesa e proteine;
+filtro sul prezzo in tutti i paesi. Seconda verifica, solo delle parti cambiate: in corso.
+
+**Storia del repository.** Un file con identificativi familiari (`fish_mismatches.csv`, microdati) era stato
+pubblicato nel repository pubblico; con l'OK di Paolo è stato tolto da tutta la storia (20 novembre). GitHub
+può conservare in cache i commit vecchi: meglio rendere il repository privato.
+
+- **Aperto: spese estreme.** La regola M17 non tocca la spesa. Etiopia 2015: una famiglia dichiara 70.000 birr
+  per mezzo chilo di manzo (mediana 100). Da sola porta la quota del manzo nel terzo quinto (media delle
+  tre wave) da 51,5 a 63,7%: la "gobba" a metà distribuzione è questo errore. Righe con spesa oltre 100 volte
+  la mediana: 9 in Etiopia, 1 in Malawi, nessuna altrove. Proposta: stessa regola delle quantità, spesa
+  non usata, la famiglia resta acquirente (da decidere con Paolo).

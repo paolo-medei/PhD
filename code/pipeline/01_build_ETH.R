@@ -152,11 +152,16 @@ build_food_et <- function(w) {
   f$gift_kg  <- tokg(f, paste0(p,"06",s,"a"), paste0(p,"06",s,uk))
   f$exp      <- num(f[[paste0(p,"04")]])
   f$consumed <- as.numeric(num(f[[paste0(p,"01")]]) == 1)
+  U <- lapply(list(purch = "03", qty = "02", own = "05", gift = "06"),
+              function(k) num(f[[paste0(p, k, s, uk)]]))
 
   f <- f %>% select(hhid, product, consumed, qty_kg, purch_kg, own_kg, gift_kg, exp)
   ## v24 (M17): purchases priced beyond 10 x / 0.1 x the median lose their
-  ## quantity, as in Uganda and Malawi (each source has its own unit here)
+  ## quantity, as in Uganda and Malawi; each source has its own unit here, so
+  ## the other sources follow only when recorded in the purchase's unit
+  p0 <- f$purch_kg
   f <- flag_price_outliers(f, all_sources = FALSE, sfx = "kg")
+  f <- follow_purchase_unit(f, p0, U, sfx = "kg")
 
   ## Track B: disaggregated (waves 3-5 only)
   B <- f %>% mutate(track = "B",

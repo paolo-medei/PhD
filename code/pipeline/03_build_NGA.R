@@ -181,13 +181,21 @@ build_wave_ng <- function(w) {
     f$recall   <- "spend_7d"
   }
   f$consumed <- as.numeric(num(f[[paste0(p,"1")]]) == 1)
+  ## unit of each source (2018: own and gift are in the total's unit)
+  ucol <- function(k) { cn <- paste0(p, k, "b")
+    if (cn %in% names(f)) num(f[[cn]]) else rep(NA_real_, nrow(f)) }
+  U <- if (C$cvn) list(purch = ucol("9"), qty = ucol("2"), own = ucol("2"), gift = ucol("2")) else
+       list(purch = ucol("3"), qty = ucol("2"), own = ucol(C$own), gift = ucol(C$gift))
 
   geo <- intersect(c("zone","state","lga","ea","sector"), names(f))
   f <- f %>% select(hhid, product, consumed, qty_kg, purch_kg, own_kg, gift_kg,
                     exp, recall, all_of(geo))
   ## v24 (M17): purchases priced beyond 10 x / 0.1 x the median lose their
-  ## quantity, as in Uganda and Malawi (each source has its own unit here)
+  ## quantity, as in Uganda and Malawi; each source has its own unit here, so
+  ## the other sources follow only when recorded in the purchase's unit
+  p0 <- f$purch_kg
   f <- flag_price_outliers(f, all_sources = FALSE, sfx = "kg")
+  f <- follow_purchase_unit(f, p0, U, sfx = "kg")
 
   agg_by <- function(df, col) {
     df %>%

@@ -152,12 +152,17 @@ build_wave_tz <- function(w) {
   f$gift_std  <- g(v$q_gif, v$u_gif)
   f$exp       <- num(f[[v$spend]])
   f$consumed  <- as.numeric(num(f[[v$yn]]) == 1)
+  U <- lapply(list(purch = v$u_pur, qty = v$u_tot, own = v$u_own, gift = v$u_gif),
+              function(u) num(f[[u]]))
 
   f <- f %>% select(hhid, product, std, consumed,
                     qty_std, purch_std, own_std, gift_std, exp)
   ## v24 (M17): purchases priced beyond 10 x / 0.1 x the median lose their
-  ## quantity, as in Uganda and Malawi (each source has its own unit here)
+  ## quantity, as in Uganda and Malawi; each source has its own unit here, so
+  ## the other sources follow only when recorded in the purchase's unit
+  p0 <- f$purch_std
   f <- flag_price_outliers(f, all_sources = FALSE)
+  f <- follow_purchase_unit(f, p0, U)
 
   ## a component with spend but no convertible quantity would inflate the unit
   ## value, so its spend is excluded from the matched total (see Ethiopia).

@@ -189,6 +189,35 @@ flag_price_outliers <- function(f, all_sources = TRUE, sfx = "std") {
   pe  <- ifelse(f[[pc]] > 0 & f$exp > 0, f$exp / f[[pc]], NA)
   bad <- !is.na(pe) & (pe > 10 * med | pe < med / 10)
   f[bad, q4] <- NA
+  cat(sprintf("  price screen: %d purchases emptied, %d egg rows rescaled by 30\n",
+              sum(bad), sum(up | dn)))
+  f
+}
+
+## v24 (M17): where each source has its own unit, a source recorded in the SAME
+## unit as the purchase carries the same conversion error, so it follows the
+## purchase: emptied when the purchase was emptied, rescaled when it was
+## rescaled. Malawi does this inline with the unit text (TRAP M6); here for
+## Tanzania, Nigeria and Ethiopia. Example: Nigeria 2015, milk powder in a
+## "medium sachet", which the official table puts at 0.4 kg against 0.012 kg
+## for a small one; the price says it is about the same size.
+## p0: the purchased quantity before the screen; units: list(purch=, qty=,
+## own=, gift=) of unit codes, row by row, in the order of f.
+follow_purchase_unit <- function(f, p0, units, sfx = "std") {
+  pc  <- paste0("purch_", sfx)
+  cut <- !is.na(p0) & is.na(f[[pc]])
+  fac <- ifelse(!is.na(p0) & !is.na(f[[pc]]) & p0 > 0, f[[pc]] / p0, 1)
+  kp  <- as.character(units$purch)
+  n   <- 0
+  for (s in setdiff(names(units), "purch")) {
+    col  <- paste0(s, "_", sfx)
+    same <- !is.na(kp) & !is.na(units[[s]]) & as.character(units[[s]]) == kp
+    hit  <- same & cut & !is.na(f[[col]])
+    n    <- n + sum(hit)
+    f[[col]][hit] <- NA
+    f[[col]][same & !cut] <- f[[col]][same & !cut] * fac[same & !cut]
+  }
+  cat(sprintf("  price screen: %d other-source quantities in the purchase's unit emptied\n", n))
   f
 }
 

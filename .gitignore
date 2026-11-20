@@ -18,3 +18,7 @@ analisi_*/
 .DS_Store
 Thumbs.db
 ~$*
+
+# Intermediate files of the audits: household-level microdata (pickles) and Python caches
+*.pkl
+__pycache__/

@@ -10,7 +10,7 @@ for c in ['TZA','MWI','NGA','ETH','UGA']:
     for prod in M[M.country==c]['product']:
         f=p[(p['product']==prod)&(p.track=='A')]
         if c=='NGA': s=f[f.welfare>0]
-        elif c=='UGA': s=f[f.welfare>0].dropna(subset=['adulteq',wc,'region'])
+        elif c=='UGA': s=f[f.welfare>0].dropna(subset=['adulteq','head_age'])
         else: s=f[(f.welfare>0)].dropna(subset=['adulteq',wc,'region','head_age'])
         buy=(s.exp>0)|(s[pc[c]]>0)
         res={}
@@ -20,5 +20,5 @@ for c in ['TZA','MWI','NGA','ETH','UGA']:
             res[nm]=int(u.notna().sum()); res[nm+'_trim']=int((u.notna()&(u>=lo)&(u<=hi)).sum())
         mrow=M[(M.country==c)&(M['product']==prod)].iloc[0]
         rows.append(dict(country=c,product=prod,n_wb=mrow.n,n=len(s),buyers_wb=mrow.n_buyers,buyers=int(buy.sum()),nuv_wb=mrow.n_unit_values,**res,
-             cov_wb=mrow.n_unit_values/mrow.n_buyers,cov_uv_any=res['uv']/buy.sum(),P_wb=mrow.P,P=np.average(buy,weights=s[wc]),qty_reported=pd.notna(mrow.e_qty)))
+             cov_wb=mrow.n_unit_values/mrow.n_buyers,cov_uv_any=res['uv']/buy.sum(),P_wb=mrow.P,P=np.average(buy,weights=s[wc].fillna(0)),qty_reported=pd.notna(mrow.e_qty)))
 R=pd.DataFrame(rows); pd.set_option('display.width',250); print(R.round(4).to_string()); R.to_csv('margins_coverage_check.csv',index=False)

@@ -22,3 +22,5 @@ Thumbs.db
 # Intermediate files of the audits: household-level microdata (pickles) and Python caches
 *.pkl
 __pycache__/
+# Audit files that list single households (ids and values) are microdata too
+*mismatch*.csv

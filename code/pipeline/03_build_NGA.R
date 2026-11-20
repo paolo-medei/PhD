@@ -185,6 +185,9 @@ build_wave_ng <- function(w) {
   geo <- intersect(c("zone","state","lga","ea","sector"), names(f))
   f <- f %>% select(hhid, product, consumed, qty_kg, purch_kg, own_kg, gift_kg,
                     exp, recall, all_of(geo))
+  ## v24 (M17): purchases priced beyond 10 x / 0.1 x the median lose their
+  ## quantity, as in Uganda and Malawi (each source has its own unit here)
+  f <- flag_price_outliers(f, all_sources = FALSE, sfx = "kg")
 
   agg_by <- function(df, col) {
     df %>%
@@ -256,6 +259,7 @@ build_wave_ng <- function(w) {
 ## v22: zone/state/lga/sector keep their Stata value labels, which differ
 ## between waves; stacking them warned 8 times. Only the codes are used.
 panel_NG <- map_dfr(names(WAVES_NG), ~ zap_labels(build_wave_ng(.x)))
+panel_NG <- flag_extreme_qty(panel_NG, "kg")   # v24 (M17)
 write.csv(panel_NG, file.path(OUT_DIR, "panel_NGA.csv"), row.names=FALSE)
 
 ###############################################################################

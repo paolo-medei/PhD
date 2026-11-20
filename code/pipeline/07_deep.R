@@ -96,13 +96,14 @@ hh_level <- function(d) {
       asf_prot    = sum(coalesce(prot,0)*coalesce(qty_tot,0)),
       ## v21 (M14): the cost of a gram is spending on purchases over the protein
       ## PURCHASED; dividing by all protein consumed mixed in own production
-      asf_prot_pur = sum(coalesce(prot,0)*coalesce(qty_pur,0)),
+      asf_prot_pur = sum(coalesce(prot,0)*coalesce(qty_pur,0) *
+                         (coalesce(exp_conv,0) > 0)),   # v24 (audit): paired with spending
       ## v24 (M15): ... and the spending must be on the SAME purchases: only
       ## purchases whose quantity converted (exp_conv) of products with a
       ## protein content. Before, all spending was divided by the protein of
       ## the converted purchases only: Ugandan chicken (never weighed) added
       ## cost and no protein, and fish would have done the same.
-      asf_exp_pur_prot = sum(coalesce(exp_conv,0) * !is.na(prot)),
+      asf_exp_pur_prot = sum(coalesce(exp_conv,0) * !is.na(prot) * (coalesce(qty_pur,0) > 0)),
       hhi         = { s <- coalesce(exp,0); s <- s/ifelse(sum(s)>0,sum(s),NA)
                       sum(s^2, na.rm=TRUE) },              # basket concentration
       .groups="drop") %>%

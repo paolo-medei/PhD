@@ -169,21 +169,52 @@ val_labels <- labelled::val_labels
 ## Then, any product: a purchase still above 10 times or below a tenth of the
 ## wave's median for the product is a unit error and its quantities are
 ## emptied, so it counts as bought but not as a unit value.
-flag_price_outliers <- function(f, all_sources = TRUE) {
-  ## all_sources = FALSE where each source has its own unit (Malawi): only the
-  ## purchased quantity is rescaled or emptied
-  q4  <- if (all_sources) c("qty_std", "purch_std", "own_std", "gift_std") else "purch_std"
-  pe  <- ifelse(f$purch_std > 0 & f$exp > 0, f$exp / f$purch_std, NA)
+flag_price_outliers <- function(f, all_sources = TRUE, sfx = "std") {
+  ## all_sources = FALSE where each source has its own unit (Malawi, and from
+  ## v24 Tanzania, Nigeria, Ethiopia): only the purchased quantity is rescaled
+  ## or emptied. sfx: "std" or "kg", the suffix of the quantity columns.
+  ## v24 (M17, Paolo 20 Nov 2026): the same rule in all five countries (it was
+  ## Uganda and Malawi only; elsewhere unit values reached 5,700 x the median).
+  pc  <- paste0("purch_", sfx)
+  q4  <- if (all_sources) paste0(c("qty", "purch", "own", "gift"), "_", sfx) else pc
+  pe  <- ifelse(f[[pc]] > 0 & f$exp > 0, f$exp / f[[pc]], NA)
   med <- ave(pe, f$product, FUN = function(x) median(x, na.rm = TRUE))
   near <- function(p) !is.na(p) & p > med / 3 & p < 3 * med
-  up <- f$product == "eggs" & !is.na(pe) & pe > 10 * med & near(pe / 30)
-  dn <- f$product == "eggs" & !is.na(pe) & pe < med / 10 & near(pe * 30)
+  ## trays of 30 recorded as single eggs: only where eggs are counted in pieces
+  pcs <- if ("std" %in% names(f)) f$std == "piece" else rep(FALSE, nrow(f))
+  up <- f$product == "eggs" & pcs & !is.na(pe) & pe > 10 * med & near(pe / 30)
+  dn <- f$product == "eggs" & pcs & !is.na(pe) & pe < med / 10 & near(pe * 30)
   f[up, q4] <- f[up, q4] * 30
   f[dn, q4] <- f[dn, q4] / 30
-  pe  <- ifelse(f$purch_std > 0 & f$exp > 0, f$exp / f$purch_std, NA)
+  pe  <- ifelse(f[[pc]] > 0 & f$exp > 0, f$exp / f[[pc]], NA)
   bad <- !is.na(pe) & (pe > 10 * med | pe < med / 10)
   f[bad, q4] <- NA
   f
+}
+
+## v24 (M17, Paolo 20 Nov 2026): a quantity more than 100 times the median of
+## its round, product and track (among households with a positive quantity)
+## is a recording error - one Ugandan household bought 10,000 kg of pork in a
+## week with no spending. Its quantities are not used; spending stays. Applied
+## to the final panel of every country, before unit values are computed again.
+flag_extreme_qty <- function(p, sfx = "std") {
+  qc <- paste0(c("qty", "purch", "own", "gift"), "_", sfx)
+  qc <- intersect(qc, names(p))
+  tot <- paste0("qty_", sfx); pur <- paste0("purch_", sfx)
+  p <- p %>% group_by(year, product, track) %>%
+    mutate(.mt = median(.data[[tot]][.data[[tot]] > 0], na.rm = TRUE),
+           .mp = median(.data[[pur]][.data[[pur]] > 0], na.rm = TRUE)) %>%
+    ungroup() %>%
+    mutate(.x = coalesce(.data[[tot]] > 100 * .mt, FALSE) |
+                coalesce(.data[[pur]] > 100 * .mp, FALSE))
+  cat(sprintf("  M17: %d rows with a quantity > 100 x the median; quantities not used\n",
+              sum(p$.x)))
+  p[p$.x, qc] <- NA
+  p$exp_conv[p$.x] <- NA
+  p$unconv[p$.x & coalesce(p$exp, 0) > 0] <- 1
+  p$uv <- ifelse(coalesce(p[[pur]], 0) > 0 & coalesce(p$exp_conv, 0) > 0,
+                 p$exp_conv / p[[pur]], NA_real_)
+  p %>% select(-.mt, -.mp, -.x)
 }
 
 ## v24: products whose quantities are mostly not convertible (fish in Uganda

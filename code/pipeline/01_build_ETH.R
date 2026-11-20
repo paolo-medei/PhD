@@ -154,6 +154,9 @@ build_food_et <- function(w) {
   f$consumed <- as.numeric(num(f[[paste0(p,"01")]]) == 1)
 
   f <- f %>% select(hhid, product, consumed, qty_kg, purch_kg, own_kg, gift_kg, exp)
+  ## v24 (M17): purchases priced beyond 10 x / 0.1 x the median lose their
+  ## quantity, as in Uganda and Malawi (each source has its own unit here)
+  f <- flag_price_outliers(f, all_sources = FALSE, sfx = "kg")
 
   ## Track B: disaggregated (waves 3-5 only)
   B <- f %>% mutate(track = "B",
@@ -301,6 +304,7 @@ build_wave_et <- function(w) {
 }
 
 panel_ET <- map_dfr(names(WAVES_ET), build_wave_et)
+panel_ET <- flag_extreme_qty(panel_ET, "kg")   # v24 (M17)
 write.csv(panel_ET, file.path(OUT_DIR, "panel_ETH.csv"), row.names=FALSE)
 
 ###############################################################################

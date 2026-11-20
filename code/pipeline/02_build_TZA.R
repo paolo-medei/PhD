@@ -155,6 +155,9 @@ build_wave_tz <- function(w) {
 
   f <- f %>% select(hhid, product, std, consumed,
                     qty_std, purch_std, own_std, gift_std, exp)
+  ## v24 (M17): purchases priced beyond 10 x / 0.1 x the median lose their
+  ## quantity, as in Uganda and Malawi (each source has its own unit here)
+  f <- flag_price_outliers(f, all_sources = FALSE)
 
   ## a component with spend but no convertible quantity would inflate the unit
   ## value, so its spend is excluded from the matched total (see Ethiopia).
@@ -249,6 +252,7 @@ build_wave_tz <- function(w) {
 }
 
 panel_TZ <- map_dfr(names(WAVES_TZ), build_wave_tz)
+panel_TZ <- flag_extreme_qty(panel_TZ)   # v24 (M17)
 write.csv(panel_TZ, file.path(OUT_DIR, "panel_TZA.csv"), row.names=FALSE)
 
 ###############################################################################

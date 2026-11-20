@@ -29,7 +29,8 @@
 ##  - kg_trim100 leaves out quantities above 100 times the country-year-
 ##    product median among consumers (one Ugandan household's 10,000 kg of
 ##    pork in 2019 moves the national mean from 1.3 to 29.8 kg per person).
-##    The ratio uses kg_trim100. NOT yet applied in the rest of the pipeline.
+##    The ratio uses kg_trim100. Since v24 (M17) the builds already leave out
+##    such quantities, so kg_trim100 should equal kg_raw: kept as a check.
 ##  FAO producer prices were also checked and are not used: for these five
 ##  countries they stop before or early in the survey years (Nigeria 2008,
 ##  Tanzania 2004, Malawi 2017, Ethiopia 2018, nothing for Uganda).

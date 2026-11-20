@@ -132,7 +132,9 @@ ITEMS_UG <- tibble::tribble(
   1232,  "fish",           "kg",
   1235,  "fish",           "kg",
   1236,  "fish",           "kg",
-  1237,  "fish",           "kg"
+  1237,  "fish",           "kg",
+  ## v24 (audit 20 Nov): 1234 dried nkejje, a small lake fish, was missed
+  1234,  "fish",           "kg"
 )
 MEAT_UG <- c("beef","goat_sheep","pork","poultry")
 
@@ -141,7 +143,9 @@ conv_ug <- function(lab, std) {
   l <- tolower(gsub("\\s+", " ", trimws(lab)))
   g <- suppressWarnings(as.numeric(sub("^(packet|sacket|nido tin) ?\\(([0-9.]+) ?g\\).*$", "\\2", l)))
   lt <- suppressWarnings(as.numeric(sub("^.*\\(([0-9.]+) ?lt\\).*$", "\\1", l)))
-  ncg <- suppressWarnings(as.numeric(sub("^nice cup ?\\(([0-9.]+) ?g\\).*$", "\\1", l)))
+  ## v24 (audit 20 Nov): any label that states grams - "Nice cup(100g)",
+  ## "Metallic plate(80g)", "Nido Tin(400g)" - converts, for solids only
+  ncg <- suppressWarnings(as.numeric(sub("^.*\\(([0-9.]+) ?g\\).*$", "\\1", l)))
   dplyr::case_when(
     is.na(l)                                                ~ NA_real_,
     std == "piece" & grepl("^tray of 30", l)                ~ 30,
@@ -293,6 +297,7 @@ build_wave_ug <- function(w) {
 }
 
 panel_UG <- map_dfr(names(WAVES_UG), build_wave_ug)
+panel_UG <- flag_extreme_qty(panel_UG)   # v24 (M17)
 write.csv(panel_UG, file.path(OUT_DIR, "panel_UGA.csv"), row.names=FALSE)
 
 ###############################################################################

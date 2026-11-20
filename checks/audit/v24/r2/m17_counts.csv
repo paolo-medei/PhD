@@ -1,0 +1,6 @@
+country,rebuilt_rows,log,by_track,by_product
+ETH,32,32,"{'A': 24, 'B': 8}","{'cheese': 2, 'coffee': 28, 'meat_agg': 1, 'milk': 1}"
+TZA,18,18,"{'A': 9, 'B': 9}","{'fish': 6, 'goat_sheep': 2, 'meat_agg': 4, 'milk': 4, 'poultry': 2}"
+NGA,6,6,"{'A': 3, 'B': 3}","{'eggs': 4, 'fish': 2}"
+UGA,3,3,"{'A': 1, 'B': 2}","{'meat_agg': 1, 'milk_processed': 1, 'pork': 1}"
+MWI,4,4,"{'A': 2, 'B': 2}","{'meat_agg': 1, 'milk': 2, 'poultry': 1}"

@@ -230,14 +230,31 @@ questo nel 2015 escono 133 dei 1.106 acquirenti di latte trasformato (12%).
 99,9-100% di coincidenza su ogni colonna; regola di copertura, M16 e FAO_01 riprodotti. Corretti dopo la
 verifica: nkejje secco (1234) ora è pesce; ogni unità che dichiara i grammi nell'etichetta è convertita
 (prima "Nido Tin (400g)" sì e "Metallic plate (80g)" no); M15 con le stesse righe per spesa e proteine;
-filtro sul prezzo in tutti i paesi. Seconda verifica, solo delle parti cambiate: in corso.
+filtro sul prezzo in tutti i paesi.
+
+**Seconda verifica, solo delle parti cambiate** (`checks/audit/v24/REPORT_recheck.md`, 20 novembre, sul giro
+delle 20:36): conteggi del filtro sul prezzo identici al log in Etiopia, Tanzania, Nigeria e Uganda in ogni wave;
+pannelli identici cella per cella in quei quattro paesi (1,68 milioni di righe in tutto); in Malawi 14 celle
+diverse su 4,8 milioni, dovute alle conversioni che il controllore ha dovuto dedurre, non alla regola. Righe M17
+identiche in tutti e cinque i paesi. Pesce dell'Uganda con nkejje ed etichette in grammi: identico. Costo per
+grammo identico in quattro paesi; in Etiopia 0,2229 contro 0,221 (scarto dell'1%, già presente al primo giro,
+causa non trovata). Confermato l'errore della tabella nigeriana del latte in polvere. Due precisazioni: il caffè
+dell'Uganda non è mai convertito (il caffè si analizza solo in Etiopia: altrove entra solo con la spesa) e la
+"Nice cup" di latte a 0,5 litri è la regola decisa il 13 novembre sui prezzi. Il controllore ha trovato
+identificativi familiari in due file vecchi del repository (`checks/audit/TZA/match_rates.csv`,
+`checks/audit/UGA/dup2018.py`): tolti dai file attuali; restano nella storia finché il repository è pubblico.
 
 **Storia del repository.** Un file con identificativi familiari (`fish_mismatches.csv`, microdati) era stato
 pubblicato nel repository pubblico; con l'OK di Paolo è stato tolto da tutta la storia (20 novembre). GitHub
 può conservare in cache i commit vecchi: meglio rendere il repository privato.
 
-- **Aperto: spese estreme.** La regola M17 non tocca la spesa. Etiopia 2015: una famiglia dichiara 70.000 birr
-  per mezzo chilo di manzo (mediana 100). Da sola porta la quota del manzo nel terzo quinto (media delle
-  tre wave) da 51,5 a 63,7%: la "gobba" a metà distribuzione è questo errore. Righe con spesa oltre 100 volte
-  la mediana: 9 in Etiopia, 1 in Malawi, nessuna altrove. Proposta: stessa regola delle quantità, spesa
-  non usata, la famiglia resta acquirente (da decidere con Paolo).
+**M18, spese estreme (decisa da Paolo il 20 novembre: "elimina questi estremi").** La regola M17 non toccava
+la spesa. Etiopia 2015: una famiglia dichiara 70.000 birr per mezzo chilo di manzo (mediana 100). Da sola
+portava la quota del manzo nel terzo quinto (media delle tre wave) da 51,5 a 63,7%: la "gobba" a metà
+distribuzione era questo errore. Regola: una spesa oltre 100 volte la mediana di wave × prodotto × traccia
+(tra chi spende) non si usa: spesa, spesa convertita e valore unitario mancanti, le quantità restano. Righe:
+9 in Etiopia (latte 2011 e 2018, caffè 2013, manzo e carne 2015), 1 in Malawi (latte trasformato 2010),
+nessuna altrove. In 7 righe su 10 non resta nemmeno una quantità usabile, quindi la famiglia non conta più
+come acquirente di quel prodotto in quella wave (la partecipazione si muove al massimo di 0,1 punti: Etiopia, latte 2011). Effetto: in Etiopia la quota del
+manzo per quinto diventa 52,1 / 51,7 / 51,5 / 51,1 / 38,6%, senza gobba; tutto il resto praticamente invariato
+(tre margini entro 0,02 punti). Non coperta dalla seconda verifica (decisa dopo): 10 righe, elencate qui sopra.

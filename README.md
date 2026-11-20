@@ -26,6 +26,9 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 - 15 novembre, v24: il pesce torna come prodotto a sé (non carne) in tutti i paesi, deciso da Paolo;
   confronto con i bilanci alimentari FAO e quota importata dell'offerta (`10_fao.R`, serve
   FAOSTAT: vedi Dati); corretto il costo per grammo di proteina (M15). `docs/FINDINGS.md`, sezione G.
+- 20 novembre, v24 definitiva e nuovo riferimento (`results_reference/RESULTS_v24_2026-11-20.xlsx`): una regola
+  unica per i valori estremi in tutti e cinque i paesi, decisa da Paolo (filtro sul prezzo, quantità e spese
+  oltre 100 volte la mediana: M17, M18); seconda verifica indipendente in `checks/audit/v24/REPORT_recheck.md`.
 - Aperto: M11 (strumento per la spesa totale, da discutere con il Professore).
 - Informazioni su produzione zootecnica e caffè, per dopo: `docs/PRODUZIONE_E_CAFFE.md`.
 
@@ -35,7 +38,7 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 code/run_all.R          esegue i moduli in ordine e confronta il risultato con results_reference/
 code/compare_results.R  il confronto cella per cella (usato da run_all.R e da checks/compare_runs.R)
 code/pipeline/          00_setup … 09_value_chain, 10_fao, 10_margins, 11_workbook (la pipeline)
-results_reference/      RESULTS_*.xlsx della run di riferimento (stesso codice, stessi archivi; v23 = cinque paesi)
+results_reference/      RESULTS_*.xlsx della run di riferimento (stesso codice, stessi archivi; v24 = cinque paesi con pesce)
 code/legacy/            v20 originale e ANALISI_semplice.R (5 ottobre), per riferimento
 checks/                 varmap.R, varmap2.R: ogni colonna usata, con l'etichetta del file
                         compare_runs.R: confronto cella per cella tra due RESULTS_*.xlsx

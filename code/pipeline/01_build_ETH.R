@@ -309,7 +309,7 @@ build_wave_et <- function(w) {
 }
 
 panel_ET <- map_dfr(names(WAVES_ET), build_wave_et)
-panel_ET <- flag_extreme_qty(panel_ET, "kg")   # v24 (M17)
+panel_ET <- flag_extreme_values(panel_ET, "kg")   # v24 (M17, M18)
 write.csv(panel_ET, file.path(OUT_DIR, "panel_ETH.csv"), row.names=FALSE)
 
 ###############################################################################

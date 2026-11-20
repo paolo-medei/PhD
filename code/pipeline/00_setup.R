@@ -226,6 +226,23 @@ follow_purchase_unit <- function(f, p0, units, sfx = "std") {
 ## is a recording error - one Ugandan household bought 10,000 kg of pork in a
 ## week with no spending. Its quantities are not used; spending stays. Applied
 ## to the final panel of every country, before unit values are computed again.
+## v24 (M18, Paolo 20 Nov 2026): the same for spending. Spending more than 100
+## times the median of its round, product and track (among households that
+## spent) is not used - one Ethiopian household paid 70,000 birr for half a
+## kilo of beef (median 100), which alone lifted the beef share of the third
+## quintile from 51.5 to 63.7%. Spending, converted spending and unit value
+## become NA; quantities stay. Where no quantity is left either, the household
+## no longer counts as buying that product (7 of the 10 rows).
+flag_extreme_values <- function(p, sfx = "std") {
+  p <- p %>% group_by(year, product, track) %>%
+    mutate(.me = median(exp[exp > 0], na.rm = TRUE)) %>% ungroup() %>%
+    mutate(.xe = coalesce(exp > 100 * .me, FALSE))
+  cat(sprintf("  M18: %d rows with spending > 100 x the median; spending not used\n",
+              sum(p$.xe)))
+  p$exp[p$.xe] <- NA; p$exp_conv[p$.xe] <- NA
+  p <- p %>% select(-.me, -.xe)
+  flag_extreme_qty(p, sfx)
+}
 flag_extreme_qty <- function(p, sfx = "std") {
   qc <- paste0(c("qty", "purch", "own", "gift"), "_", sfx)
   qc <- intersect(qc, names(p))

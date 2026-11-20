@@ -267,7 +267,7 @@ build_wave_ng <- function(w) {
 ## v22: zone/state/lga/sector keep their Stata value labels, which differ
 ## between waves; stacking them warned 8 times. Only the codes are used.
 panel_NG <- map_dfr(names(WAVES_NG), ~ zap_labels(build_wave_ng(.x)))
-panel_NG <- flag_extreme_qty(panel_NG, "kg")   # v24 (M17)
+panel_NG <- flag_extreme_values(panel_NG, "kg")   # v24 (M17, M18)
 write.csv(panel_NG, file.path(OUT_DIR, "panel_NGA.csv"), row.names=FALSE)
 
 ###############################################################################

@@ -257,7 +257,7 @@ build_wave_tz <- function(w) {
 }
 
 panel_TZ <- map_dfr(names(WAVES_TZ), build_wave_tz)
-panel_TZ <- flag_extreme_qty(panel_TZ)   # v24 (M17)
+panel_TZ <- flag_extreme_values(panel_TZ)   # v24 (M17, M18)
 write.csv(panel_TZ, file.path(OUT_DIR, "panel_TZA.csv"), row.names=FALSE)
 
 ###############################################################################

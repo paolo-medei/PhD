@@ -295,7 +295,7 @@ build_wave_mw <- function(w) {
 }
 
 panel_MW <- map_dfr(names(WAVES_MW), build_wave_mw)
-panel_MW <- flag_extreme_qty(panel_MW)   # v24 (M17)
+panel_MW <- flag_extreme_values(panel_MW)   # v24 (M17, M18)
 write.csv(panel_MW, file.path(OUT_DIR, "panel_MWI.csv"), row.names=FALSE)
 
 ###############################################################################

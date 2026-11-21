@@ -420,3 +420,13 @@ latticini 78% delle proteine mangiate, 35% di quelle comprate.
 calcolato su tutti i prodotti insieme di un paese (chili, litri e pezzi mescolati): aggiungere i chili
 del pollo ugandese ha spostato di 0,1 punti tre quote ugandesi della VC_04. Andrebbe fatto prodotto per
 prodotto.
+
+**Run sul PC di Paolo (22 novembre).** Lanciata da una copia scaricata in Download ("ASF_completo (1).R",
+commit bbb7673): lo script cercava `results_reference/` accanto a Download e ha saltato il confronto.
+Confrontata qui con la run dello stesso codice: 86 tabelle su 88 identiche. FAO_01 differisce solo per
+celle vuote; MARGINS_01 per gli errori standard e gli intervalli bootstrap di Tanzania e Uganda (stime
+identiche): `split()` ordinava le famiglie secondo la lingua del computer e gli id con lettere o trattini
+cambiavano ordine, quindi lo stesso seme dava campioni diversi. Corretto (ordine "radix", uguale ovunque;
+qui non cambia nulla: 88 tabelle identiche). Il confronto ora cerca `results_reference/` anche accanto a
+`data/` e in Desktop/PhD_v21. Il riferimento si chiama ora `RESULTS_v25_2026-11-21.xlsx`.
+

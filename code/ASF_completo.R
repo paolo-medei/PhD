@@ -4765,7 +4765,12 @@ for (pf in list.files(OUT_DIR, pattern="^panel_[A-Z]{3}\\.csv$", full.names=TRUE
     e <- three(g, ctrl)
     ## bootstrap: si ricampionano le coppie famiglia-anno con reinserimento e si
     ## ristimano i tre margini MARGINS_B volte
-    rows <- split(seq_len(nrow(g)), paste(g$hhid, g$year))
+    ## v25: l'ordine delle famiglie non deve dipendere dalla lingua del computer
+    ## (sort "radix" = ordine C). Con l'ordine di Windows gli id con lettere o
+    ## trattini (Tanzania, Uganda) uscivano in un altro ordine e il bootstrap,
+    ## con lo stesso seme, dava intervalli un po' diversi (22 nov 2026).
+    key  <- paste(g$hhid, g$year)
+    rows <- split(seq_len(nrow(g)), factor(key, levels = sort(unique(key), method = "radix")))
     set.seed(42)
     bt <- t(replicate(MARGINS_B, {
       gb <- g[unlist(rows[sample.int(length(rows), replace = TRUE)], use.names = FALSE), ]
@@ -4988,7 +4993,17 @@ compare_workbooks <- function(old, new, pat = ".") {
   out[order(out$status != "IDENTICAL", out$sheet), ]
 }
 
-ref_dir <- file.path(dirname(CODE_DIR), "results_reference")
+## v25: results_reference sta accanto a code/. Se lo script e' stato lanciato da
+## un'altra cartella (per esempio Download) si guarda anche accanto a data/ e in
+## Desktop/PhD_v21 (22 nov 2026: un'esecuzione da Download aveva saltato il
+## confronto).
+ref_cands <- unique(c(file.path(dirname(CODE_DIR), "results_reference"),
+                      if (nzchar(DATA_ROOT)) file.path(dirname(normalizePath(DATA_ROOT, mustWork = FALSE)),
+                                                       "results_reference"),
+                      file.path(c(Sys.getenv("USERPROFILE"), path.expand("~")), "Desktop", "PhD_v21",
+                                "results_reference")))
+ref_dir <- Find(function(d) length(list.files(d, pattern = "^RESULTS_.*[.]xlsx$")) > 0, ref_cands,
+                nomatch = ref_cands[1])
 refs <- sort(list.files(ref_dir, pattern = "^RESULTS_.*[.]xlsx$", full.names = TRUE), decreasing = TRUE)
 new_xlsx <- file.path(RUN_DIR, paste0("RESULTS_", RUN_STAMP, ".xlsx"))
 if (!length(refs)) {

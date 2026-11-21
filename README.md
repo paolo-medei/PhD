@@ -32,6 +32,16 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 - 20 novembre, v24 definitiva e nuovo riferimento (`results_reference/RESULTS_v24_2026-11-20.xlsx`, dal 21 novembre `RESULTS_v24_2026-11-21.xlsx` con le tabelle VC_04-05): una regola
   unica per i valori estremi in tutti e cinque i paesi, decisa da Paolo (filtro sul prezzo, quantità e spese
   oltre 100 volte la mediana: M17, M18); seconda verifica indipendente in `checks/audit/v24/REPORT_recheck.md`.
+- 21 novembre, v25: la trasformazione misurata con le voci dei prodotti trasformati (PARTE 12, sezioni
+  13-15), proteine comprate contro mangiate, fattori di conversione ufficiali con fonte (pollo ugandese
+  1,3 kg, FAO; proteine FAO/INFOODS). Riferimento: `results_reference/RESULTS_v25_2026-11-21.xlsx`
+  (88 tabelle). `docs/FINDINGS.md`, sezioni J e K.
+- 22 novembre: la run di Paolo sul suo PC (Windows) coincide con quella di riferimento in 86 tabelle su 88;
+  le altre due differivano solo per gli intervalli bootstrap (ordine delle famiglie dipendente dalla lingua
+  del computer, corretto) e per celle vuote. Lo script ora trova `results_reference/` anche se lanciato da
+  un'altra cartella.
+- **Come si lancia:** aprire `code/ASF_completo.R` dalla cartella del progetto (non una copia in Download)
+  e premere *Source* (Ctrl+Maiusc+S).
 - Aperto: M11 (strumento per la spesa totale, da discutere con il Professore).
 - Informazioni su produzione zootecnica e caffè, per dopo: `docs/PRODUZIONE_E_CAFFE.md`.
 
@@ -39,7 +49,7 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 
 ```
 code/ASF_completo.R     TUTTO: dai file grezzi ai risultati, con le spiegazioni (PARTE 0-16; indice in cima)
-results_reference/      RESULTS_*.xlsx della run di riferimento (stesso codice, stessi archivi; v24 = cinque paesi con pesce)
+results_reference/      RESULTS_*.xlsx della run di riferimento (stesso codice, stessi archivi; il piu' recente per nome e' quello usato)
 code/legacy/            v20 originale e ANALISI_semplice.R (5 ottobre), per riferimento
 checks/                 varmap.R, varmap2.R: ogni colonna usata, con l'etichetta del file
                         compare_runs.R: confronto cella per cella tra due RESULTS_*.xlsx

@@ -312,3 +312,23 @@ usato anche nella PARTE 14) vale 1 per il codice "1": in Etiopia e Tanzania il c
 Nigeria il codice 1 è urbano, in Uganda e Malawi 1 è urbano (0/1). Come controllo è indifferente (cambia
 solo il segno del suo coefficiente, mai riportato), ma la variabile si chiama `urban` e in due paesi vuol
 dire rurale. La tabella VC_04 usa la definizione corretta paese per paese.
+
+### I.2 Composizione del paniere: spesa e consumo (21 novembre 2026)
+
+Altre due tabelle nella PARTE 12, solo aggiunte (78 identiche + 2 nuove; il riferimento ora ha 80
+tabelle). Il pesce resta fuori, come in tutta la PARTE 12.
+
+- **VC_06_basket_spending_by_quintile**: quota della spesa per acquisti di alimenti animali, per
+  prodotto e quinto (la stessa tabella del grafico VC_02, ora salvata).
+- **VC_07_basket_protein_by_quintile**: quota delle proteine animali CONSUMATE (comprate + autoprodotte
+  + regalate), per prodotto e quinto; proteine = quantità × valori standard di `PROT_VC`.
+
+Le due composizioni non coincidono, e la differenza è l'autoconsumo. Etiopia, quinto più povero:
+manzo 54% della spesa, ma latte e formaggio 75% delle proteine (latte comprato solo al 10%). Tanzania:
+pollame 4% della spesa e 24% delle proteine nel primo quinto; Malawi 8% e 36%. Salendo col reddito il
+consumo si sposta verso la carne comprata: in Etiopia manzo + ovicaprini 19 → 67% delle proteine,
+in Tanzania manzo 26 → 45%.
+
+Limiti: Uganda, pollo non pesato (quota proteica di pollame ~0, non reale); Malawi, pezzi di carne rossa
+non convertiti; Etiopia solo 2015-21 (traccia B), e il "formaggio" è ayib, un formaggio fresco con meno
+proteine dei 200 g/kg standard (la quota dei latticini etiopi è, semmai, un po' sovrastimata).

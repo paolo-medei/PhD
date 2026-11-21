@@ -3686,8 +3686,9 @@ if (length(perm_out)) {
 ##
 ##  Il pesce resta fuori: queste sono le tabelle della filiera ZOOTECNICA; il
 ##  pesce sta nelle tabelle della dieta (PARTE 10). Figure VC_01..VC_10 in cima
-##  alla cartella delle figure; tabelle VC_01..VC_05 del workbook (VC_04: da
-##  dove viene il cibo consumato, per quinto; VC_05: latte trasformato).
+##  alla cartella delle figure; tabelle VC_01..VC_07 del workbook (VC_04: da
+##  dove viene il cibo consumato, per quinto; VC_05: latte trasformato;
+##  VC_06-07: composizione del paniere per spesa e per proteine consumate).
 ##
 ###############################################################################
 ###############################################################################
@@ -4065,6 +4066,32 @@ cat("\n--- PROCESSED DAIRY, % of dairy spending, by quintile ---\n")
 print(as.data.frame(pdairy %>% select(-waves) %>%
         pivot_wider(names_from = qt, values_from = pct_processed, names_prefix = "Q")))
 write.csv(pdairy, file.path(TMPCSV, "VC_05_processed_dairy_by_quintile.csv"), row.names=FALSE)
+
+## ============ 12. COMPOSIZIONE DEL PANIERE: SPESA E CONSUMO (21 nov 2026) == #
+## COSA   VC_06: la composizione della SPESA per alimenti zootecnici per quinto
+##        (la stessa del grafico VC_02, ora anche come tabella). VC_07: la
+##        composizione del CONSUMO, cioe' di tutto quello che si mangia
+##        (comprato + autoprodotto + regalato), in grammi di PROTEINE: chili di
+##        latte, uova e carne non si possono sommare, grammi di proteine si'.
+##        Dentro l'anno, pesata, poi media sulle wave (M10). Pesce escluso, come
+##        in tutta la PARTE 12.
+## ATTENZIONE Il consumo conta solo le quantita' convertite in unita' standard:
+##        il pollo in Uganda non e' pesato e quindi manca; anche i pezzi di
+##        carne rossa non convertiti in Malawi mancano.
+write.csv(bk %>% mutate(share_spending = round(share, 1)) %>% select(-share),
+          file.path(TMPCSV, "VC_06_basket_spending_by_quintile.csv"), row.names=FALSE)
+bprot <- vc %>% filter(!is.na(qt)) %>%
+  mutate(pg = coalesce(qtot,0) * coalesce(prot,0) * weight) %>%
+  group_by(country, year, qt) %>% mutate(tot = sum(pg)) %>% ungroup() %>%
+  filter(tot > 0) %>%
+  group_by(country, year, qt, lab) %>%
+  summarise(s = 100*sum(pg)/first(tot), .groups="drop") %>%
+  group_by(country, qt, lab) %>%
+  summarise(share_protein = round(mean(s), 1), .groups="drop")
+cat("\n--- WHAT IS EATEN: % of animal protein consumed, Q1 and Q5 ---\n")
+print(as.data.frame(bprot %>% filter(qt %in% c(1, 5)) %>%
+        pivot_wider(names_from = qt, values_from = share_protein, names_prefix = "Q")))
+write.csv(bprot, file.path(TMPCSV, "VC_07_basket_protein_by_quintile.csv"), row.names=FALSE)
 message("value-chain figures written -> ", VCFIG)
 }
 ###############################################################################

@@ -1,40 +1,26 @@
 ###############################################################################
-##                                                                           ##
-##   ANIMAL-SOURCE FOOD & COFFEE DEMAND — ETHIOPIA AND TANZANIA               ##
-##   ONE SCRIPT: raw survey archives  ->  panels  ->  results  ->  comparison ##
-##                                                                           ##
-##   Just run it. It finds the .zip archives, extracts them once, builds both
-##   country panels, validates them, estimates, compares, and runs the
-##   advanced layer. Nothing to upload, nothing to run in sequence.
+## 00_setup.R - first module, run by code/run_all.R. Does no analysis itself.
 ##
-##   WHAT IT PRODUCES, in <archive folder>/OUTPUT
-##     panel_ETH.csv, panel_TZA.csv          harmonised household x product
-##     XXX_01_decomposition.csv              Deaton: quantity vs quality
-##     XXX_02_price_elasticities.csv         price response
-##     XXX_10..14_*.csv                      sources, total vs purchased,
-##                                           household fixed effects,
-##                                           instrumented selection, quintiles
-##     COMPARE_*.csv                         cross-country synthesis
-##     figures_ETH / figures_TZA / figures_COMPARE / figures_ADVANCED
+##   1  CONFIG    switches (RUN_NGA, RUN_MARGINS, MARGINS_B, ...)
+##   2  PACKAGES  installs and loads what the pipeline needs
+##   3  ARCHIVES  finds the *.zip of the five countries, extracts them once
+##   4  HELPERS   functions every later module uses: unit conversion, the
+##                rules for extreme values (flag_price_outliers,
+##                follow_purchase_unit, flag_extreme_values: M17, M18),
+##                household quintiles (hh_quintile, M16), MIN_UV_SHARE
 ##
-##   WHAT IT DOES, and why each step exists
-##     1  BUILD    every mapping verified against the survey's own variable and
-##                 value labels. Seven documented traps per country: sections
-##                 that move between waves, household ids that change meaning,
-##                 unit codes that flip, a sample that splits in two.
-##     2  VALIDATE six gates per country. The build is not trusted until the
-##                 household counts reconcile with the published aggregates and
-##                 the unit values track inflation.
-##     3  ESTIMATE Deaton decomposition with household-size and demographic
-##                 controls, a saturation test, and price elasticities from a
-##                 price the household itself did not choose.
-##     4  COMPARE  the countries on the income axis.
-##     5  ADVANCE  total consumption rather than purchases only; household
-##                 fixed effects; selection corrected with livestock ownership
-##                 as the exclusion restriction.
-##
-##   RUN TIME roughly 10-20 minutes the first time (extraction plus an 84 MB
-##   Ethiopian food module); a few minutes afterwards.
+## The modules after it, in the order run_all.R runs them:
+##   01-03  build    one country each: raw .dta -> OUTPUT/panel_XXX.csv
+##   04     estimate two-part model, Deaton quantity/quality decomposition
+##   05     compare  the countries side by side
+##   06     advanced total vs purchased, household fixed effects, selection
+##   07     deep     basket by quintile, protein, four margins
+##   08     permanent vs transitory expenditure
+##   09     value chain (fish excluded)
+##   10     fao      LSMS against FAO food balance sheets; margins: three
+##                   margins with bootstrap, panel intervals, coffee
+##   11     workbook every table in one RESULTS_*.xlsx
+## Rules and decisions: docs/FINDINGS.md.
 ###############################################################################
 
 ## ============================== CONFIG ==================================== #

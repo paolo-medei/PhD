@@ -378,3 +378,13 @@ comprate; VC_14 quota delle proteine mangiate che è comprata.
 
 **Conclusione.** H1a non supportata; H1b sì per i latticini in Nigeria (importati) e Malawi (latterie
 locali, importazioni al 4%), no altrove; per la carne non verificabile.
+
+**Uganda, pollo (aggiunta, 21 nov).** La VC_04 somma chili e in Uganda il pollo non è mai pesato
+(pezzi o polli interi), quindi la quota comprata mancava. Il questionario ugandese registra però il
+valore di ogni fonte (acquisti a casa e fuori, autoproduzione, regali): la nuova VC_15 calcola le quote
+sui valori. Pollo comprato, Q1 → Q5: 10 → 48% (per valore); 10 → 49% con le quantità nella stessa unità
+dentro ogni riga, media sulle famiglie. Controllo sui prodotti pesati: manzo 92 → 89% per valore contro
+91 → 90% in chili, uova 42 → 77% contro 38 → 77%; il latte esce più comprato per valore (36 → 71%
+contro 34 → 63%) perché l'autoprodotto è valutato al prezzo alla stalla. Il pollo ugandese resta fuori
+dalle proteine (servono i chili).
+

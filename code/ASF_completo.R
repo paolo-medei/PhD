@@ -3694,7 +3694,8 @@ if (length(perm_out)) {
 ##  dove viene il cibo consumato, per quinto; VC_05: latte trasformato;
 ##  VC_06-07: composizione del paniere per spesa e per proteine consumate;
 ##  v25: VC_08-12 prodotti trasformati e segni della filiera, letti dai file
-##  grezzi; VC_13-14: proteine comprate contro proteine mangiate).
+##  grezzi; VC_13-14: proteine comprate contro proteine mangiate; VC_15: Uganda,
+##  da dove viene il pollo, per valore).
 ##
 ###############################################################################
 ###############################################################################
@@ -4398,6 +4399,60 @@ v14 <- pp %>% group_by(country, year, qt) %>%
 cat("\n--- 14.2 % of animal protein eaten that is BOUGHT, by quintile ---\n")
 print(as.data.frame(v14 %>% pivot_wider(names_from = qt, values_from = pct_of_protein_eaten_that_is_bought, names_prefix = "Q")))
 write.csv(v14, file.path(TMPCSV, "VC_14_protein_share_bought.csv"), row.names = FALSE)
+
+## ============ 15. UGANDA: DA DOVE VIENE IL POLLO, PER VALORE (v25) ======== #
+## COSA   In Uganda il pollo non e' mai pesato (TRAP U3: pezzi o polli interi),
+##        quindi la VC_04, che somma i chili, non lo puo' dividere fra comprato,
+##        autoprodotto e regalato. Il questionario ugandese pero' chiede anche il
+##        VALORE di ogni fonte: acquisti a casa e fuori casa, autoproduzione,
+##        regali. Qui le quote si calcolano sui valori, dentro l'anno e pesate,
+##        poi media sulle wave (come la VC_04).
+## CONTROLLI Con lo stesso metodo manzo e uova danno quasi le stesse quote della
+##        VC_04 in chili; il latte un po' di piu' comprato, perche' l'autoprodotto
+##        e' valutato al prezzo alla stalla, piu' basso di quello al mercato.
+##        Secondo controllo: la quota comprata calcolata sulle quantita' nella
+##        stessa unita' dentro ogni riga (pezzi con pezzi), media sulle famiglie.
+## TABELLA VC_15
+UG_SRC <- list(
+  list(year=2010, hint="UGA_2010", stem="GSEC15b", id="hh",   item="itmcd", pv="h15bq5", av="h15bq7", ov="h15bq9", gv="h15bq11", pq="h15bq4", aq="h15bq6", oq="h15bq8", gq="h15bq10"),
+  list(year=2011, hint="UGA_2011", stem="GSEC15B", id="HHID", item="itmcd", pv="h15bq5", av="h15bq7", ov="h15bq9", gv="h15bq11", pq="h15bq4", aq="h15bq6", oq="h15bq8", gq="h15bq10"),
+  list(year=2013, hint="UGA_2013", stem="GSEC15B", id="hhid", item="itmcd", pv="h15bq5", av="h15bq7", ov="h15bq9", gv="h15bq11", pq="h15bq4", aq="h15bq6", oq="h15bq8", gq="h15bq10"),
+  list(year=2015, hint="UGA_2015", stem="gsec15b", id="hh",   item="itmcd", pv="h15bq5", av="h15bq7", ov="h15bq9", gv="h15bq11", pq="h15bq4", aq="h15bq6", oq="h15bq8", gq="h15bq10"),
+  list(year=2018, hint="UGA_2018", stem="GSEC15B", id="hhid", item="CEB01", pv="CEB07",  av="CEB09",  ov="CEB11",  gv="CEB013",  pq="CEB06",  aq="CEB08",  oq="CEB10",  gq="CEB012"),
+  list(year=2019, hint="UGA_2019", stem="gsec15b", id="hhid", item="CEB01", pv="CEB07",  av="CEB09",  ov="CEB11",  gv="CEB013",  pq="CEB06",  aq="CEB08",  oq="CEB10",  gq="CEB012"))
+UG_SRC_ITEMS <- c(`121`="Poultry", `1211`="Poultry", `1212`="Poultry", `1213`="Poultry", `1214`="Poultry",
+                  `117`="Beef", `124`="Eggs", `125`="Fresh milk")
+ugs <- map_dfr(UG_SRC, function(C) {
+  p <- find_dta(C$stem, C$hint)
+  if (is.na(p) || !grepl(C$hint, p)) return(NULL)
+  d <- haven::read_dta(p, col_select = any_of(c(C$id, C$item, C$pv, C$av, C$ov, C$gv, C$pq, C$aq, C$oq, C$gq)))
+  idv <- d[[C$id]]
+  tibble(country = "UGA", year = C$year,
+         hhid = if (is.numeric(idv)) sprintf("%.0f", idv) else trimws(as.character(idv)),
+         item = num(d[[C$item]]),
+         pv = num(d[[C$pv]]), av = num(d[[C$av]]), ov = num(d[[C$ov]]), gv = num(d[[C$gv]]),
+         pq = num(d[[C$pq]]), aq = num(d[[C$aq]]), oq = num(d[[C$oq]]), gq = num(d[[C$gq]])) %>%
+    filter(as.character(item) %in% names(UG_SRC_ITEMS))
+})
+if (nrow(ugs)) {
+ugs <- ugs %>% mutate(lab = unname(UG_SRC_ITEMS[as.character(item)]),
+                      across(c(pv, av, ov, gv, pq, aq, oq, gq), ~ ifelse(is.na(.x) | .x < 0, 0, .x))) %>%
+  inner_join(vc %>% filter(country == "UGA", !is.na(qt)) %>% distinct(country, year, hhid, weight, qt),
+             by = c("country", "year", "hhid"))
+v15v <- ugs %>% group_by(lab, year, qt) %>%
+  summarise(b = sum((pv + av) * weight), o = sum(ov * weight), g = sum(gv * weight), .groups = "drop") %>%
+  mutate(t = b + o + g) %>% filter(t > 0) %>%
+  group_by(lab, qt) %>%
+  summarise(pct_bought_value = round(mean(100*b/t), 1), pct_own_value = round(mean(100*o/t), 1),
+            pct_gift_value = round(mean(100*g/t), 1), .groups = "drop")
+v15q <- ugs %>% mutate(tq = pq + aq + oq + gq) %>% filter(tq > 0) %>%
+  group_by(lab, year, qt) %>% summarise(m = weighted.mean(100*(pq + aq)/tq, weight), .groups = "drop") %>%
+  group_by(lab, qt) %>% summarise(pct_bought_same_unit_hh_mean = round(mean(m), 1), .groups = "drop")
+v15 <- v15v %>% left_join(v15q, by = c("lab", "qt")) %>% mutate(country = "UGA", .before = 1)
+cat("\n--- 15. UGANDA: where chicken (and, as a check, beef, eggs, milk) comes from, BY VALUE ---\n")
+print(as.data.frame(v15))
+write.csv(v15, file.path(TMPCSV, "VC_15_uganda_sources_by_value.csv"), row.names = FALSE)
+}
 
 message("value-chain figures written -> ", VCFIG)
 }

@@ -131,7 +131,13 @@ composition('VC_06_basket_spending_by_quinti', 'share_spending', 'fig_spending_v
 composition('VC_07_basket_protein_by_quintil', 'share_protein', 'fig_protein_v24.png', star={'UGA'})
 
 # ---------- Figure 4: where milk, eggs and chicken come from, Q1 vs Q5
+# v25: Ugandan chicken is never weighed, so VC_04 (kilos) cannot split it; it comes from VC_15, the
+# survey's own VALUES of purchases, own production and gifts (hatched bars)
 s = X['VC_04_sources_by_quintile']; s = s[s.households == 'all']
+u15 = [X[n] for n in X if n.startswith('VC_15')][0]
+u15 = u15[u15.lab == 'Poultry'].rename(columns={'pct_bought_value': 'pct_purchased', 'pct_own_value': 'pct_own',
+                                                 'pct_gift_value': 'pct_gift'})
+plt.rcParams['hatch.linewidth'] = 0.8
 prods = [('Fresh milk', 'Fresh milk'), ('Eggs', 'Eggs'), ('Poultry', 'Chicken and other poultry')]
 src = [('pct_purchased', 'Bought', '#002060'), ('pct_own', 'Own production', '#0B7A39'), ('pct_gift', 'Gift', '#E08A2E')]
 fig, axs = plt.subplots(1, 3, figsize=(W, H), dpi=200, sharey=True)
@@ -139,15 +145,18 @@ for j, (lab, title) in enumerate(prods):
     ax = axs[j]; y = 0; ticks = []; tl = []
     for k, c in CC.items():
         for q in [1, 5]:
-            r = s[(s.country == k) & (s.lab == lab) & (s.qt == q)]
-            if len(r) and not (k == 'UGA' and lab == 'Poultry'):
+            byval = (k == 'UGA' and lab == 'Poultry')
+            r = u15[u15.qt == q] if byval else s[(s.country == k) & (s.lab == lab) & (s.qt == q)]
+            if len(r):
                 r = r.iloc[0]; tot = r.pct_purchased + r.pct_own + r.pct_gift; left = 0
                 for key, _, col in src:
                     w = r[key] / tot * 100
-                    ax.barh(-y, w, left=left, height=0.8, color=col, edgecolor='white', linewidth=1)
+                    ax.barh(-y, w, left=left, height=0.8, color=col, edgecolor='white', linewidth=1,
+                            hatch='/' if byval else None)
                     if key == 'pct_purchased' and w >= 14:
                         ax.text(left + w / 2, -y, f"{w:.0f}", ha='center', va='center', color='white',
-                                fontsize=15, fontweight='bold')
+                                fontsize=15, fontweight='bold',
+                                bbox=dict(facecolor=col, edgecolor='none', pad=1.5) if byval else None)
                     left += w
             else:
                 ax.text(50, -y, 'not weighed', ha='center', va='center', color=INK2, fontsize=14, style='italic')

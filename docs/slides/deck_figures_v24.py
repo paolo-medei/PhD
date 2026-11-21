@@ -1,8 +1,8 @@
-# Figures of the "Research Update" deck, v24 (21 November 2026): five countries, fish included,
-# and where households' animal foods come from.
+# Figures of the "Research Update" deck, v24 (21 November 2026): five countries, fish excluded,
+# what households buy and eat, and where their animal foods come from.
 # Every number is read from results_reference/RESULTS_v24_2026-11-21.xlsx (no number typed by hand):
-#   <C>_14_participation_quintile, MARGINS_01_three_margins, <C>_20_basket_by_quintile,
-#   VC_04_sources_by_quintile.
+#   <C>_14_participation_quintile, MARGINS_01_three_margins, VC_04_sources_by_quintile,
+#   VC_06_basket_spending_by_quintile, VC_07_basket_protein_by_quintile.
 # Run from the repository root: python3 docs/slides/deck_figures_v24.py  -> docs/slides/fig_*_v24.png
 import os
 import matplotlib
@@ -90,35 +90,44 @@ ax.legend(handles=[Patch(color=cols['e_entry'], label='Entry (new buyers)'),
           loc='lower center', bbox_to_anchor=(0.45, -0.13), ncol=3, frameon=False, fontsize=20, handlelength=1.1)
 fig.tight_layout(); fig.savefig(out('fig_margins_v24.png')); plt.close(fig)
 
-# ---------- Figure 3: composition of ASF spending, Q1 vs Q5, fish included
-cats = [('fish', 'Fish', '#1d8fb0'), ('poultry', 'Poultry', '#2a78d6'), ('beef', 'Beef', '#eb6834'),
-        ('goat_sheep', 'Goat & mutton', '#1baf7a'), ('pork', 'Pork', '#eda100'), ('eggs', 'Eggs', '#e87ba4'),
-        ('milk', 'Fresh milk', '#008300'), ('other', 'Other dairy', '#6250d6')]
-cats[1] = ('poultry', 'Poultry', '#3b4cc0')
-fig, ax = plt.subplots(figsize=(W, H), dpi=200)
-y = 0
-for k, c in CC.items():
-    b = X[f'{k}_20_basket_by_quintile']
-    for q in [1, 5]:
-        d = b[b.qt == q].set_index('product')['share_of_asf_spend'].to_dict()
-        d['other'] = d.pop('milk_processed', 0) + d.pop('cheese', 0)
-        tot = sum(v for v in d.values() if pd.notna(v)); left = 0
-        for key, lab, col in cats:
-            w = (d.get(key, 0) or 0) / tot * 100
-            ax.barh(-y, w, left=left, height=0.78, color=col, edgecolor='white', linewidth=1.5)
-            if w >= 9:
-                ax.text(left + w / 2, -y, f"{w:.0f}", ha='center', va='center',
-                        color=INK if key == 'pork' else 'white', fontsize=17, fontweight='bold')
-            left += w
-        ax.text(-1.5, -y, 'Q1 poorest' if q == 1 else 'Q5 richest', ha='right', va='center', fontsize=17, color=INK2)
-        y += 1
-    ax.text(-26, -(y - 1.5), c, ha='right', va='center', fontsize=21, color=INK, fontweight='bold')
-    y += 0.45
-ax.set_xlim(-50, 101); ax.set_ylim(-(y - 0.2), 1.0); ax.axis('off')
-ax.legend(handles=[Patch(color=col, label=lab) for k, lab, col in cats], loc='upper center',
-          bbox_to_anchor=(0.5, 1.07), ncol=8, frameon=False, fontsize=16, handlelength=0.9,
-          columnspacing=0.8, handletextpad=0.35)
-fig.tight_layout(); fig.savefig(out('fig_basket_v24.png')); plt.close(fig)
+# ---------- Figures 3a and 3b: composition of the animal-food basket, Q1 vs Q5, fish excluded
+#   3a = purchase spending (VC_06), 3b = protein consumed: bought + own production + gifts (VC_07)
+cats = [('Poultry', 'Poultry', '#3b4cc0'), ('Beef', 'Beef', '#eb6834'),
+        ('Goat & sheep', 'Goat & mutton', '#1baf7a'), ('Pork', 'Pork', '#eda100'), ('Eggs', 'Eggs', '#e87ba4'),
+        ('Fresh milk', 'Fresh milk', '#008300'), ('other', 'Other dairy', '#6250d6')]
+DARK_TEXT = {'Goat & sheep', 'Pork', 'Eggs'}      # light fills: navy numbers, not white
+
+
+def composition(sheet, col, fname, star=None):
+    b = X[sheet]
+    fig, ax = plt.subplots(figsize=(W, H), dpi=200)
+    y = 0
+    for k, c in CC.items():
+        for q in [1, 5]:
+            d = b[(b.country == k) & (b.qt == q)].set_index('lab')[col].to_dict()
+            d['other'] = d.pop('Milk, processed', 0) + d.pop('Cheese', 0)
+            tot = sum(v for v in d.values() if pd.notna(v)); left = 0
+            for key, lab, colr in cats:
+                w = (d.get(key, 0) or 0) / tot * 100
+                ax.barh(-y, w, left=left, height=0.78, color=colr, edgecolor='white', linewidth=1.5)
+                if w >= 9:
+                    ax.text(left + w / 2, -y, f"{w:.0f}", ha='center', va='center',
+                            color=INK if key in DARK_TEXT else 'white', fontsize=17, fontweight='bold')
+                left += w
+            ax.text(-1.5, -y, 'Q1 poorest' if q == 1 else 'Q5 richest', ha='right', va='center', fontsize=17, color=INK2)
+            y += 1
+        ax.text(-26, -(y - 1.5), c + ('*' if star and k in star else ''), ha='right', va='center',
+                fontsize=21, color=INK, fontweight='bold')
+        y += 0.45
+    ax.set_xlim(-50, 101); ax.set_ylim(-(y - 0.2), 1.0); ax.axis('off')
+    ax.legend(handles=[Patch(color=colr, label=lab) for k, lab, colr in cats], loc='upper center',
+              bbox_to_anchor=(0.5, 1.07), ncol=7, frameon=False, fontsize=16.5, handlelength=0.9,
+              columnspacing=0.9, handletextpad=0.35)
+    fig.tight_layout(); fig.savefig(out(fname)); plt.close(fig)
+
+
+composition('VC_06_basket_spending_by_quinti', 'share_spending', 'fig_spending_v24.png')
+composition('VC_07_basket_protein_by_quintil', 'share_protein', 'fig_protein_v24.png', star={'UGA'})
 
 # ---------- Figure 4: where milk, eggs and chicken come from, Q1 vs Q5
 s = X['VC_04_sources_by_quintile']; s = s[s.households == 'all']

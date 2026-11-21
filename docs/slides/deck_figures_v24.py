@@ -2,7 +2,8 @@
 # what households buy and eat, and where their animal foods come from.
 # Every number is read from results_reference/RESULTS_v24_2026-11-21.xlsx (no number typed by hand):
 #   <C>_14_participation_quintile, MARGINS_01_three_margins, VC_04_sources_by_quintile,
-#   VC_06_basket_spending_by_quintile, VC_07_basket_protein_by_quintile.
+#   VC_06_basket_spending_by_quintile, VC_07_basket_protein_by_quintile, and (v25) VC_08 processed
+#   animal foods, VC_12 processed dairy, VC_13 protein bought, VC_14 share of protein bought.
 # Run from the repository root: python3 docs/slides/deck_figures_v24.py  -> docs/slides/fig_*_v24.png
 import os
 import matplotlib
@@ -169,4 +170,74 @@ for k, c in CC.items():
     t = s[(s.country == k) & (s.lab == 'Fresh milk')].sort_values('qt')
     milk[c] = t.pct_purchased.tolist()
 lines_by_quintile(milk, 'Fresh milk consumed that is bought', 'fig_milk_bought_v24.png', ymax=100)
+
+
+def r0(v):
+    """Round half up (Python's format rounds 34.5 to 34): the slide text uses the same numbers."""
+    import math
+    return int(math.floor(v + 0.5))
+
+
+def sheet(prefix):
+    """Sheet whose name starts with prefix (Excel cuts names at 31 characters)."""
+    k = [n for n in X if n.startswith(prefix)]
+    assert len(k) == 1, prefix
+    return X[k[0]]
+
+
+# ---------- Figure 3b (v25): protein eaten vs protein bought, Q1 vs Q5, side by side
+def comp_panel(ax, b, col, title, star=None, labels=True):
+    y = 0
+    for k, c in CC.items():
+        for q in [1, 5]:
+            d = b[(b.country == k) & (b.qt == q)].set_index('lab')[col].to_dict()
+            d['other'] = d.pop('Milk, processed', 0) + d.pop('Cheese', 0)
+            tot = sum(v for v in d.values() if pd.notna(v)); left = 0
+            for key, lab, colr in cats:
+                w = (d.get(key, 0) or 0) / tot * 100
+                ax.barh(-y, w, left=left, height=0.78, color=colr, edgecolor='white', linewidth=1.2)
+                if w >= 13:
+                    ax.text(left + w / 2, -y, f"{r0(w)}", ha='center', va='center',
+                            color=INK if key in DARK_TEXT else 'white', fontsize=14, fontweight='bold')
+                left += w
+            if labels:
+                ax.text(-2, -y, 'Q1' if q == 1 else 'Q5', ha='right', va='center', fontsize=15, color=INK2)
+            y += 1
+        if labels:
+            ax.text(-16, -(y - 1.5), c + ('*' if star and k in star else ''), ha='right', va='center',
+                    fontsize=17, color=INK, fontweight='bold')
+        y += 0.45
+    ax.set_xlim(-1 if not labels else -62, 101); ax.set_ylim(-(y - 0.2), 0.9); ax.axis('off')
+    ax.set_title(title, fontsize=18, color=INK, fontweight='bold', loc='center', pad=4,
+                 x=0.5 if not labels else 0.69)
+
+
+fig, axs = plt.subplots(1, 2, figsize=(W, H), dpi=200, gridspec_kw={'width_ratios': [1.6, 1]})
+comp_panel(axs[0], X['VC_07_basket_protein_by_quintil'], 'share_protein', 'Eaten: all sources', star={'UGA'})
+comp_panel(axs[1], sheet('VC_13'), 'share_protein_bought', 'Bought', labels=False)
+fig.legend(handles=[Patch(color=colr, label=lab) for k, lab, colr in cats], loc='lower center', ncol=7,
+           frameon=False, fontsize=14, handlelength=0.9, columnspacing=0.8, handletextpad=0.3,
+           bbox_to_anchor=(0.5, -0.005))
+fig.tight_layout(rect=(0, 0.05, 1, 1), w_pad=0.6); fig.savefig(out('fig_protein_v25.png')); plt.close(fig)
+
+# ---------- Figure 3c (v25): processed animal foods by quintile: who buys, and share of spending
+v8 = sheet('VC_08'); v8 = v8[v8.cat_lab == 'All processed']
+fig, axs = plt.subplots(1, 2, figsize=(W, H), dpi=200)
+for ax, col, ttl, ymax in [(axs[0], 'pct_buying', 'Households buying (7 days)', 50),
+                           (axs[1], 'pct_of_asf_spending', 'Share of animal-food spending', 25)]:
+    ser = {c: v8[v8.country == k].sort_values('qt')[col].tolist() for k, c in CC.items()}
+    for c, v in ser.items():
+        ax.plot(range(1, 6), v, color=C[c], lw=3, marker='o', ms=7, mec='white', mew=1.3)
+    for name, yy in spread([(c, v[-1]) for c, v in ser.items()], ymax * 0.06):
+        ax.text(5.18, yy, f"{r0(ser[name][-1])}%", color=C[name], fontsize=17, fontweight='bold', va='center')
+    ax.set_xlim(0.7, 5.9); ax.set_ylim(0, ymax)
+    ax.set_xticks(range(1, 6)); ax.set_xticklabels(['Q1', 'Q2', 'Q3', 'Q4', 'Q5'], fontsize=16)
+    t = list(range(0, ymax + 1, 10 if ymax > 30 else 5))
+    ax.set_yticks(t); ax.set_yticklabels([f'{x}%' for x in t], fontsize=15)
+    ax.grid(axis='y', color='#E3E8EF', lw=1); ax.set_axisbelow(True)
+    for sp in ['top', 'right', 'left']: ax.spines[sp].set_visible(False)
+    ax.tick_params(length=0); ax.set_title(ttl, fontsize=18, color=INK, fontweight='bold', pad=8)
+fig.legend(handles=[plt.Line2D([], [], color=C[c], lw=4, label=c) for c in CC.values()], loc='lower center',
+           ncol=5, frameon=False, fontsize=16, bbox_to_anchor=(0.5, -0.01), handlelength=1.4)
+fig.tight_layout(rect=(0, 0.07, 1, 1), w_pad=2.5); fig.savefig(out('fig_processed_v25.png')); plt.close(fig)
 print('ok')

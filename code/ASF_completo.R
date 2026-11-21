@@ -2269,7 +2269,11 @@ cat("written ->", file.path(OUT_DIR, "panel_UGA.csv"), "\n")
 ##                                      + elasticita' della qualita'
 ##            dove la "qualita'" e' quanto il valore unitario sale col reddito:
 ##            a parita' di prezzi, chi paga di piu' al kg compra tagli migliori,
-##            prodotti piu' lavorati o confezionati.
+##            confezioni migliori o in negozi diversi. NON misura la
+##            trasformazione: i prodotti trasformati (latte in polvere, carne in
+##            scatola...) hanno voci proprie nel questionario, e uno spostamento
+##            verso di loro cambia la composizione, non il prezzo al kg (v25:
+##            misurati nella PARTE 12, sezione 13).
 ##  COME      Per ogni paese x anno x prodotto, fra chi ha comprato (con un
 ##            valore unitario):
 ##              log(valore unitario) = b_qual  * log(benessere) + controlli
@@ -3686,9 +3690,11 @@ if (length(perm_out)) {
 ##
 ##  Il pesce resta fuori: queste sono le tabelle della filiera ZOOTECNICA; il
 ##  pesce sta nelle tabelle della dieta (PARTE 10). Figure VC_01..VC_10 in cima
-##  alla cartella delle figure; tabelle VC_01..VC_07 del workbook (VC_04: da
+##  alla cartella delle figure; tabelle VC_01..VC_14 del workbook (VC_04: da
 ##  dove viene il cibo consumato, per quinto; VC_05: latte trasformato;
-##  VC_06-07: composizione del paniere per spesa e per proteine consumate).
+##  VC_06-07: composizione del paniere per spesa e per proteine consumate;
+##  v25: VC_08-12 prodotti trasformati e segni della filiera, letti dai file
+##  grezzi; VC_13-14: proteine comprate contro proteine mangiate).
 ##
 ###############################################################################
 ###############################################################################
@@ -4092,6 +4098,307 @@ cat("\n--- WHAT IS EATEN: % of animal protein consumed, Q1 and Q5 ---\n")
 print(as.data.frame(bprot %>% filter(qt %in% c(1, 5)) %>%
         pivot_wider(names_from = qt, values_from = share_protein, names_prefix = "Q")))
 write.csv(bprot, file.path(TMPCSV, "VC_07_basket_protein_by_quintile.csv"), row.names=FALSE)
+## ============ 13. PRODOTTI TRASFORMATI E SEGNI DELLA FILIERA (v25, 21 nov 2026) #
+## COSA   Il valore unitario (PARTE 7) non vede la trasformazione: nei
+##        questionari i prodotti trasformati hanno quasi sempre una VOCE PROPRIA
+##        (latte in polvere, in scatola, yogurt, carne in scatola...), quindi chi
+##        passa dal latte fresco al latte in polvere cambia la composizione del
+##        paniere, non il prezzo al kg del latte fresco. Qui si leggono dai file
+##        grezzi tutte le voci di prodotti animali trasformati o pronti da
+##        mangiare, e le voci che separano il prodotto della filiera commerciale
+##        da quello di villaggio (uova "agric" in Nigeria, uova a tuorlo bianco e
+##        polli broiler/ovaiole a fine ciclo in Uganda).
+## PERCHE' Per dire "il reddito non sposta la domanda verso i prodotti
+##        trasformati" serve una misura della trasformazione: il valore unitario
+##        non lo e'. (Paolo, 21 nov 2026.)
+## COME   Per ogni paese x wave si legge il modulo alimentare (le stesse domande
+##        della PARTE 2-6: consumato si'/no, spesa per acquisti) e si tengono solo
+##        le voci di PROC_ITEMS. Regola sulla spesa come M18: una spesa oltre 100
+##        volte la mediana della voce nella wave non si usa. Le famiglie, i pesi,
+##        il benessere, la regione e i quinti vengono da `vc`, cosi' sono gli
+##        stessi delle altre tabelle; il denominatore della quota e' la spesa per
+##        prodotti freschi di `vc` (manzo, ovicaprini, maiale, pollame, uova, latte
+##        fresco) + la spesa per i trasformati letti qui. Solo traccia B (Etiopia
+##        2015-21). Le quantita' non si convertono: barattoli, buste e porzioni
+##        non hanno tabelle di conversione, quindi si misurano spesa e acquisto.
+## TABELLE VC_08 trasformati per quinto (chi compra, quota della spesa)
+##        VC_09 effetto del reddito sulla probabilita' di comprare (come la Q1)
+##        VC_10 segni della filiera commerciale per quinto
+##        VC_11 Uganda: carne, latte e uova comprati e mangiati FUORI casa
+##        VC_12 latticini trasformati come quota della spesa per latticini (tutte
+##              le voci: sostituisce la VC_05, che in Tanzania non aveva il latte
+##              in scatola/polvere 903 e in Malawi e Uganda solo il latte in
+##              polvere o fermentato)
+## ATTENZIONE La Tanzania mette insieme la carne fresca e le salsicce (voci 802 e
+##        803): la carne trasformata li' non si vede. Il 902 della Tanzania
+##        ("panna, formaggio, yogurt") e il latte fermentato ugandese (bongo)
+##        possono essere anche artigianali (il bongo e' per il 40% autoprodotto: sta
+##        fra i tradizionali). In Uganda i trasformati esistono solo nel 2018-19,
+##        con poche famiglie; in Malawi le salsicce solo nel 2024.
+##        La voce del Malawi "carne o pesce in scatola" (512) resta fuori: non
+##        separa la carne dal pesce. Latte per neonati sempre escluso.
+PROC_ITEMS <- tibble::tribble(
+  ~country, ~from, ~to,  ~item, ~cat,         ~what,
+  ## Nigeria (le voci 114-115 cambiano significato fra il 2010 e il 2012)
+  "NGA", 2010, 2015,   95, "meat_proc",  "canned / corned beef",
+  "NGA", 2012, 2015,   29, "ready",      "meat pie / sausage roll",
+  "NGA", 2010, 2015,  111, "dairy_ind",  "milk powder",
+  "NGA", 2010, 2015,  113, "dairy_ind",  "tinned milk",
+  "NGA", 2010, 2010,  114, "dairy_ind",  "other milk products",
+  "NGA", 2012, 2015,  115, "dairy_ind",  "other milk products",
+  "NGA", 2012, 2015,  114, "dairy_trad", "wara (local cheese)",
+  ## Malawi
+  "MWI", 2010, 2024,  702, "dairy_ind",  "powdered milk",
+  "MWI", 2010, 2024,  704, "dairy_ind",  "butter",
+  "MWI", 2010, 2024,  706, "dairy_ind",  "yoghurt",
+  "MWI", 2010, 2024,  707, "dairy_ind",  "cheese",
+  "MWI", 2010, 2024,  705, "dairy_trad", "chambiko (soured milk)",
+  "MWI", 2024, 2024,  517, "meat_proc",  "sausage, minced meat, meat balls",
+  "MWI", 2010, 2024,  824, "ready",      "chicken from vendors",
+  "MWI", 2010, 2024,  825, "ready",      "meat from vendors",
+  ## Tanzania
+  "TZA", 2008, 2020,  902, "dairy_ind",  "milk products (cream, cheese, yoghurt)",
+  "TZA", 2008, 2020,  903, "dairy_ind",  "canned milk / milk powder",
+  ## Uganda
+  "UGA", 2018, 2019, 1251, "dairy_ind",  "milk powder",
+  "UGA", 2018, 2019, 1252, "dairy_trad", "fermented milk (bongo)",   # ~40% autoprodotto
+  "UGA", 2018, 2019, 1253, "dairy_ind",  "ice cream",
+  "UGA", 2018, 2019, 1254, "dairy_ind",  "yoghurt",
+  "UGA", 2018, 2019, 1281, "dairy_ind",  "cheese",
+  "UGA", 2010, 2019,  128, "dairy_trad", "ghee",
+  "UGA", 2018, 2019, 1174, "meat_proc",  "sausages",
+  ## Etiopia (formaggio = ayib; burro chiarificato = kibe)
+  "ETH", 2015, 2015,   20, "dairy_trad", "cheese (ayib)",
+  "ETH", 2015, 2015,  201, "dairy_trad", "butter / ghee",
+  "ETH", 2018, 2021,  706, "dairy_trad", "cheese (ayib)",
+  "ETH", 2018, 2021,  707, "dairy_trad", "butter / ghee"
+)
+## voci che separano filiera commerciale e villaggio: (variante commerciale, altra)
+CHAIN_ITEMS <- tibble::tribble(
+  ~country, ~from, ~to,  ~item, ~marker,              ~variant,
+  "NGA", 2010, 2015,   83, "eggs",                 "commercial",   # "agricultural eggs"
+  "NGA", 2010, 2015,   84, "eggs",                 "local",
+  "UGA", 2018, 2019, 1211, "chicken",              "commercial",   # ovaiola a fine ciclo
+  "UGA", 2018, 2019, 1212, "chicken",              "commercial",   # broiler
+  "UGA", 2018, 2019, 1213, "chicken",              "local",        # kroiler (razza migliorata, da cortile)
+  "UGA", 2018, 2019, 1214, "chicken",              "local"
+)
+## NON usati come segni della filiera (verificato, 21 nov 2026): in Uganda le voci
+## 1241-1243 (uova per colore del tuorlo), 1173/1193/1201/1215 (carni arrosto) e
+## 1291 (burro) esistono nell'elenco ma sono vuote; in Malawi il pollo "a pezzi"
+## (522) lo comprano di piu' i poveri (porzioni piccole): non e' un segno di
+## filiera commerciale. In Tanzania la domanda "dove l'ha comprato" (hh_j04_1,
+## solo 2014) e' vuota.
+## Uganda: voci di prodotti animali per la spesa fuori casa (VC_11)
+UG_ASF_AWAY <- c(117, 118, 1181, 119, 120, 121, 1211:1215, 124, 1241:1243, 125,
+                 1171:1174, 1191:1193, 1201, 1251:1254, 1281, 1291, 128)
+
+PROC_WAVES <- list(
+  list(cc="ETH", year=2015, hint="ETH_2015", stem="sect5a_hh_w3", id="household_id2", item="item_cd",  yn="hh_s5aq01", spend="hh_s5aq04"),
+  list(cc="ETH", year=2018, hint="ETH_2018", stem="sect6a_hh_w4", id="household_id",  item="item_cd",  yn="s6aq01",    spend="s6aq04"),
+  list(cc="ETH", year=2021, hint="ETH_2021", stem="sect6a_hh_w5", id="household_id",  item="item_cd",  yn="s6aq01",    spend="s6aq04"),
+  list(cc="TZA", year=2008, hint="TZA_2008", stem="SEC_K1",       id="hhid",          item="skcode",   yn="skq1",      spend="skq4"),
+  list(cc="TZA", year=2010, hint="TZA_2010", stem="HH_SEC_K1",    id="y2_hhid",       item="itemcode", yn="hh_k01_2",  spend="hh_k04"),
+  list(cc="TZA", year=2012, hint="TZA_2012", stem="HH_SEC_J1",    id="y3_hhid",       item="itemcode", yn="hh_j01",    spend="hh_j04"),
+  list(cc="TZA", year=2014, hint="TZA_2014", stem="hh_sec_j1",    id="y4_hhid",       item="itemcode", yn="hh_j01",    spend="hh_j04"),
+  list(cc="TZA", year=2020, hint="TZA_2020", stem="hh_sec_ja1",   id="y5_hhid",       item="itemcode", yn="hh_ja01",   spend="hh_ja04"),
+  list(cc="MWI", year=2010, hint="MWI_2010_IHS-III.*Full_Sample", stem="hh_mod_g1", id="case_id", item="hh_g02", yn="hh_g01", spend="hh_g05"),
+  list(cc="MWI", year=2016, hint="MWI_2016_IHS-IV",      stem="hh_mod_g1", id="case_id", item="hh_g02", yn="hh_g01", spend="hh_g05"),
+  list(cc="MWI", year=2019, hint="MWI_2019_IHS-V",       stem="hh_mod_g1", id="case_id", item="hh_g02", yn="hh_g01", spend="hh_g05"),
+  list(cc="MWI", year=2024, hint="MWI_2024-2025_IHS-VI", stem="hh_mod_g1", id="case_id", item="hh_g02", yn="hh_g01", spend="hh_g05"),
+  list(cc="NGA", year=2010, hint="NGA_2010", stem="sect10b_harvestw1", id="hhid", item="item_cd", yn="s10bq1", spend="s10bq4"),
+  list(cc="NGA", year=2012, hint="NGA_2012", stem="sect10b_harvestw2", id="hhid", item="item_cd", yn="s10bq1", spend="s10bq4"),
+  list(cc="NGA", year=2015, hint="NGA_2015", stem="sect10b_harvestw3", id="hhid", item="item_cd", yn="s10bq1", spend="s10bq4"),
+  list(cc="UGA", year=2010, hint="UGA_2010", stem="GSEC15b", id="hh",   item="itmcd", yn="h15bq3a", spend="h15bq5", away="h15bq7"),
+  list(cc="UGA", year=2011, hint="UGA_2011", stem="GSEC15B", id="HHID", item="itmcd", yn="h15bq3a", spend="h15bq5", away="h15bq7"),
+  list(cc="UGA", year=2013, hint="UGA_2013", stem="GSEC15B", id="hhid", item="itmcd", yn="h15bq3a", spend="h15bq5", away="h15bq7"),
+  list(cc="UGA", year=2015, hint="UGA_2015", stem="gsec15b", id="hh",   item="itmcd", yn="h15bq3a", spend="h15bq5", away="h15bq7"),
+  list(cc="UGA", year=2018, hint="UGA_2018", stem="GSEC15B", id="hhid", item="CEB01", yn="CEB03",   spend="CEB07",  away="CEB09"),
+  list(cc="UGA", year=2019, hint="UGA_2019", stem="gsec15b", id="hhid", item="CEB01", yn="CEB03",   spend="CEB07",  away="CEB09")
+)
+
+## legge una wave: una riga per famiglia x voce, solo le voci che servono
+proc_read <- function(W) {
+  p <- find_dta(W$stem, W$hint)
+  if (is.na(p) || !grepl(sub("\\.\\*.*", "", W$hint), p)) return(NULL)
+  keep <- c(PROC_ITEMS$item[PROC_ITEMS$country == W$cc], CHAIN_ITEMS$item[CHAIN_ITEMS$country == W$cc],
+            if (W$cc == "UGA") UG_ASF_AWAY)
+  d <- haven::read_dta(p, col_select = any_of(c(W$id, W$item, W$yn, W$spend, W$away)))
+  idv <- d[[W$id]]
+  tibble(country = W$cc, year = W$year,
+         hhid  = if (is.numeric(idv)) sprintf("%.0f", idv) else trimws(as.character(idv)),
+         item  = num(d[[W$item]]),
+         yn    = num(d[[W$yn]]),
+         exp   = num(d[[W$spend]]),
+         away  = if (!is.null(W$away)) num(d[[W$away]]) else NA_real_) %>%
+    filter(item %in% keep) %>%
+    mutate(exp = ifelse(exp > 0, exp, NA_real_), away = ifelse(away > 0, away, NA_real_),
+           consumed = as.integer(yn %in% 1 | coalesce(exp, 0) > 0 | coalesce(away, 0) > 0)) %>%
+    group_by(item) %>%
+    ## come M18: una spesa oltre 100 volte la mediana della voce non si usa
+    mutate(exp  = ifelse(exp  > 100 * median(exp,  na.rm = TRUE), NA_real_, exp),
+           away = ifelse(away > 100 * median(away, na.rm = TRUE), NA_real_, away)) %>%
+    ungroup() %>% select(-yn)
+}
+praw <- map_dfr(PROC_WAVES, proc_read)
+
+if (nrow(praw)) {
+## famiglie, pesi, benessere, regione e quinti dalle tabelle della filiera
+hh0 <- vc %>% filter(!is.na(qt), welfare > 0) %>%
+  distinct(country, year, hhid, welfare, weight, region, adulteq, qt)
+fresh <- vc %>% filter(product %in% c("beef","goat_sheep","pork","poultry","eggs","milk")) %>%
+  group_by(country, year, hhid) %>% summarise(fresh = sum(coalesce(exp, 0)), .groups = "drop")
+cat("\n--- 13. processed items: share of food-module households found in vc ---\n")
+print(as.data.frame(praw %>% distinct(country, year, hhid) %>%
+  left_join(hh0 %>% transmute(country, year, hhid, ok = 1L), by = c("country","year","hhid")) %>%
+  group_by(country, year) %>% summarise(households = n(), pct_matched = round(100*mean(!is.na(ok)), 1), .groups = "drop")))
+
+## una riga per famiglia x categoria, solo dove la categoria e' chiesta quell'anno
+asked <- PROC_ITEMS %>% distinct(country, from, to, cat) %>%
+  inner_join(hh0 %>% distinct(country, year), by = "country", relationship = "many-to-many") %>%
+  filter(year >= from, year <= to) %>% distinct(country, year, cat)
+pcat <- praw %>% inner_join(PROC_ITEMS, by = c("country","item"), relationship = "many-to-many") %>%
+  filter(year >= from, year <= to) %>%
+  group_by(country, year, hhid, cat) %>%
+  summarise(exp_c = sum(exp, na.rm = TRUE), buys = as.integer(any(coalesce(exp, 0) > 0)),
+            eats = as.integer(any(consumed == 1)), .groups = "drop")
+ph <- hh0 %>% inner_join(asked, by = c("country","year"), relationship = "many-to-many") %>%
+  left_join(pcat, by = c("country","year","hhid","cat")) %>%
+  mutate(across(c(exp_c, buys, eats), ~ coalesce(.x, 0))) %>%
+  left_join(fresh, by = c("country","year","hhid")) %>%
+  mutate(fresh = coalesce(fresh, 0)) %>%
+  group_by(country, year, hhid) %>% mutate(asf = first(fresh) + sum(exp_c)) %>% ungroup()
+PCAT <- c(dairy_ind = "Industrial dairy", dairy_trad = "Traditional dairy",
+          meat_proc = "Processed meat", ready = "Ready-to-eat meat")
+ph$cat_lab <- unname(PCAT[ph$cat])
+
+## VC_08: per quinto, dentro l'anno e pesato, poi media sulle wave in cui la voce c'e'
+v8 <- ph %>% group_by(country, cat_lab, year, qt) %>%
+  summarise(buy = 100*weighted.mean(buys, weight), eat = 100*weighted.mean(eats, weight),
+            sh = 100*sum(exp_c*weight)/sum(asf*weight), .groups = "drop") %>%
+  group_by(country, cat_lab, qt) %>%
+  summarise(pct_buying = round(mean(buy), 1), pct_eating = round(mean(eat), 1),
+            pct_of_asf_spending = round(mean(sh), 1),
+            rounds = paste(sort(unique(year)), collapse = " "), .groups = "drop")
+## tutti i trasformati insieme (industriali + tradizionali + carne + pronti)
+v8all <- ph %>% group_by(country, year, hhid, qt, weight, asf) %>%
+  summarise(exp_c = sum(exp_c), buys = max(buys), eats = max(eats), .groups = "drop") %>%
+  group_by(country, year, qt) %>%
+  summarise(buy = 100*weighted.mean(buys, weight), eat = 100*weighted.mean(eats, weight),
+            sh = 100*sum(exp_c*weight)/sum(asf*weight), .groups = "drop") %>%
+  group_by(country, qt) %>%
+  summarise(pct_buying = round(mean(buy), 1), pct_eating = round(mean(eat), 1),
+            pct_of_asf_spending = round(mean(sh), 1),
+            rounds = paste(sort(unique(year)), collapse = " "), .groups = "drop") %>%
+  mutate(cat_lab = "All processed")
+v8 <- bind_rows(v8, v8all) %>% arrange(country, cat_lab, qt)
+cat("\n--- 13.1 PROCESSED ANIMAL FOODS: % of households buying, and % of animal-food spending, Q1 and Q5 ---\n")
+print(as.data.frame(v8 %>% filter(qt %in% c(1, 5)) %>%
+  select(country, cat_lab, qt, pct_buying, pct_of_asf_spending, rounds) %>%
+  pivot_wider(names_from = qt, values_from = c(pct_buying, pct_of_asf_spending))))
+write.csv(v8, file.path(TMPCSV, "VC_08_processed_by_quintile.csv"), row.names = FALSE)
+
+## VC_12: latticini trasformati come quota della spesa per latticini
+milk_exp <- vc %>% filter(product == "milk") %>% group_by(country, year, hhid) %>%
+  summarise(milk = sum(coalesce(exp, 0)), .groups = "drop")
+v12 <- ph %>% filter(cat %in% c("dairy_ind", "dairy_trad")) %>%
+  select(country, year, hhid, qt, weight, cat, exp_c) %>%
+  pivot_wider(names_from = cat, values_from = exp_c, values_fill = 0) %>%
+  left_join(milk_exp, by = c("country","year","hhid")) %>%
+  mutate(milk = coalesce(milk, 0),
+         dairy_ind  = if ("dairy_ind"  %in% names(.)) dairy_ind  else 0,
+         dairy_trad = if ("dairy_trad" %in% names(.)) dairy_trad else 0,
+         dairy = milk + dairy_ind + dairy_trad) %>%
+  group_by(country, year, qt) %>%
+  summarise(ind = 100*sum(dairy_ind*weight)/sum(dairy*weight),
+            trad = 100*sum(dairy_trad*weight)/sum(dairy*weight), .groups = "drop") %>%
+  group_by(country, qt) %>%
+  summarise(industrial_pct_of_dairy_spending = round(mean(ind), 1),
+            traditional_pct_of_dairy_spending = round(mean(trad), 1),
+            rounds = paste(sort(unique(year)), collapse = " "), .groups = "drop")
+cat("\n--- 13.1b PROCESSED DAIRY, % of dairy spending (all items), by quintile ---\n")
+print(as.data.frame(v12))
+write.csv(v12, file.path(TMPCSV, "VC_12_processed_dairy_all_items.csv"), row.names = FALSE)
+
+## VC_09: effetto del reddito sulla probabilita' di comprare (modello lineare,
+## effetti regione x anno, pesi, errori robusti; elasticita' = coefficiente /
+## quota che compra), come la Q1
+v9 <- ph %>% filter(asf >= 0) %>%
+  bind_rows(ph %>% group_by(country, year, hhid, welfare, weight, region, adulteq, qt) %>%
+              summarise(buys = max(buys), .groups = "drop") %>% mutate(cat_lab = "All processed")) %>%
+  group_by(country, cat_lab) %>% group_modify(function(g, ...) {
+    P <- weighted.mean(g$buys, g$weight)
+    m <- try(feols(buys ~ log(welfare) + log(adulteq) | region^year, g, weights = ~weight, vcov = "hetero"), silent = TRUE)
+    if (inherits(m, "try-error") || P <= 0) return(tibble(n = nrow(g), pct_buying = round(100*P, 1)))
+    b <- unname(coef(m)["log(welfare)"]); s <- unname(se(m)["log(welfare)"])
+    tibble(n = nrow(g), pct_buying = round(100*P, 2), slope = round(b, 4),
+           elasticity_entry = round(b/P, 2), p_value = signif(unname(pvalue(m)["log(welfare)"]), 3))
+  }) %>% ungroup()
+cat("\n--- 13.2 INCOME AND BUYING PROCESSED ANIMAL FOODS (linear probability, region x round effects) ---\n")
+print(as.data.frame(v9))
+write.csv(v9, file.path(TMPCSV, "VC_09_processed_income_effect.csv"), row.names = FALSE)
+
+## VC_10: segni della filiera commerciale
+chn <- praw %>% inner_join(CHAIN_ITEMS, by = c("country","item"), relationship = "many-to-many") %>%
+  filter(year >= from, year <= to) %>%
+  group_by(country, year, hhid, marker, variant) %>%
+  summarise(exp = sum(exp, na.rm = TRUE), eats = as.integer(any(consumed == 1)), .groups = "drop") %>%
+  pivot_wider(names_from = variant, values_from = c(exp, eats), values_fill = 0) %>%
+  inner_join(hh0, by = c("country","year","hhid"))
+v10 <- chn %>% group_by(country, marker, year, qt) %>%
+  summarise(eat_comm = 100*weighted.mean(eats_commercial, weight),
+            eat_local = 100*weighted.mean(eats_local, weight),
+            sh = 100*sum(exp_commercial*weight)/sum((exp_commercial + exp_local)*weight), .groups = "drop") %>%
+  group_by(country, marker, qt) %>%
+  summarise(pct_eating_commercial = round(mean(eat_comm), 1), pct_eating_local = round(mean(eat_local), 1),
+            commercial_pct_of_spending = round(mean(sh, na.rm = TRUE), 1),
+            rounds = paste(sort(unique(year)), collapse = " "), .groups = "drop")
+cat("\n--- 13.3 COMMERCIAL vs VILLAGE VARIANTS (eggs, chicken), by quintile ---\n")
+print(as.data.frame(v10))
+write.csv(v10, file.path(TMPCSV, "VC_10_commercial_variants_by_quintile.csv"), row.names = FALSE)
+
+## VC_11: Uganda, prodotti animali comprati e mangiati fuori casa
+ua <- praw %>% filter(country == "UGA", item %in% UG_ASF_AWAY) %>%
+  group_by(country, year, hhid) %>%
+  summarise(home = sum(exp, na.rm = TRUE), away = sum(away, na.rm = TRUE), .groups = "drop") %>%
+  right_join(hh0 %>% filter(country == "UGA"), by = c("country","year","hhid")) %>%
+  mutate(across(c(home, away), ~ coalesce(.x, 0)))
+v11 <- ua %>% group_by(country, year, qt) %>%
+  summarise(any_away = 100*weighted.mean(away > 0, weight),
+            sh = 100*sum(away*weight)/sum((home + away)*weight), .groups = "drop") %>%
+  group_by(country, qt) %>%
+  summarise(pct_households_eating_asf_away = round(mean(any_away), 1),
+            away_pct_of_asf_purchases = round(mean(sh), 1), .groups = "drop")
+cat("\n--- 13.4 UGANDA: animal foods bought and eaten AWAY from home, by quintile ---\n")
+print(as.data.frame(v11))
+write.csv(v11, file.path(TMPCSV, "VC_11_uganda_away_from_home.csv"), row.names = FALSE)
+} else message("13. no raw food modules found: processed-food tables skipped")
+
+## ============ 14. PROTEINE COMPRATE CONTRO PROTEINE MANGIATE (v25) ========= #
+## COSA   La VC_07 conta tutto quello che si mangia; qui si conta solo quello che
+##        si COMPRA, nella stessa unita' (grammi di proteine). La differenza fra le
+##        due e' solo il mercato: e' il consumo acquistato che arriva alla filiera
+##        commerciale (Paolo, 21 nov 2026). VC_13: composizione delle proteine
+##        comprate per quinto; VC_14: quota delle proteine animali mangiate che e'
+##        comprata. Stessi limiti della VC_07 (pollo ugandese, pezzi in Malawi).
+pp <- vc %>% filter(!is.na(qt)) %>%
+  mutate(pe = coalesce(qtot,0) * coalesce(prot,0) * weight,
+         pb = coalesce(qpur,0) * coalesce(prot,0) * weight)
+v13 <- pp %>% group_by(country, year, qt) %>% mutate(tot = sum(pb)) %>% ungroup() %>%
+  filter(tot > 0) %>% group_by(country, year, qt, lab) %>%
+  summarise(s = 100*sum(pb)/first(tot), .groups = "drop") %>%
+  group_by(country, qt, lab) %>% summarise(share_protein_bought = round(mean(s), 1), .groups = "drop")
+cat("\n--- 14.1 WHAT IS BOUGHT, in protein: % of animal protein bought, Q1 and Q5 ---\n")
+print(as.data.frame(v13 %>% filter(qt %in% c(1, 5)) %>%
+        pivot_wider(names_from = qt, values_from = share_protein_bought, names_prefix = "Q")))
+write.csv(v13, file.path(TMPCSV, "VC_13_protein_bought_by_quintile.csv"), row.names = FALSE)
+v14 <- pp %>% group_by(country, year, qt) %>%
+  summarise(s = 100*sum(pb)/sum(pe), .groups = "drop") %>% filter(is.finite(s)) %>%
+  group_by(country, qt) %>% summarise(pct_of_protein_eaten_that_is_bought = round(mean(s), 1), .groups = "drop")
+cat("\n--- 14.2 % of animal protein eaten that is BOUGHT, by quintile ---\n")
+print(as.data.frame(v14 %>% pivot_wider(names_from = qt, values_from = pct_of_protein_eaten_that_is_bought, names_prefix = "Q")))
+write.csv(v14, file.path(TMPCSV, "VC_14_protein_share_bought.csv"), row.names = FALSE)
+
 message("value-chain figures written -> ", VCFIG)
 }
 ###############################################################################

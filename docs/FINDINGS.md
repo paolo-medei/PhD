@@ -332,3 +332,49 @@ in Tanzania manzo 26 → 45%.
 Limiti: Uganda, pollo non pesato (quota proteica di pollame ~0, non reale); Malawi, pezzi di carne rossa
 non convertiti; Etiopia solo 2015-21 (traccia B), e il "formaggio" è ayib, un formaggio fresco con meno
 proteine dei 200 g/kg standard (la quota dei latticini etiopi è, semmai, un po' sovrastimata).
+
+## J. v25 (21 novembre 2026): trasformazione misurata davvero, comprato contro mangiato
+
+**Perché.** Paolo: il valore unitario non è la trasformazione industriale. Nei questionari i prodotti
+trasformati hanno quasi sempre una voce propria, quindi uno spostamento verso di loro cambia la
+composizione del paniere, non il prezzo al kg del prodotto fresco. La conclusione rigorosa della Q2
+diventa: *poco aumento del valore al kg dentro un prodotto* (H1a); lo spostamento verso i trasformati
+(H1b) si misura a parte. Il commento della PARTE 7 che chiamava la qualità "prodotti più lavorati o
+confezionati" è stato corretto.
+
+**Inventario delle voci (verificato sui file, tutte le wave).**
+
+| Paese | Latticini industriali | Latticini tradizionali | Carne trasformata | Carne pronta | Segni della filiera |
+|---|---|---|---|---|---|
+| Nigeria | polvere 111, scatola 113, altri 114 (2010) / 115 | wara 114 (2012-15) | corned beef 95 | meat pie/sausage roll 29 (2012-15) | uova "agric" 83 contro locali 84 |
+| Malawi | polvere 702, burro 704, yogurt 706, formaggio 707 | chambiko 705 | salsicce/macinato 517 (solo 2024) | pollo 824 e carne 825 dai venditori | — |
+| Tanzania | 902 panna/formaggio/yogurt, **903 latte in scatola/polvere** | — | nascosta in 802-803 | — | — |
+| Uganda | polvere 1251, gelato 1253, yogurt 1254, formaggio 1281 (2018-19) | ghee 128, bongo 1252 (40% autoprodotto) | salsicce 1174 (2018-19) | — | polli broiler/ovaiole 1211-1212 contro locali |
+| Etiopia | — | ayib 20/706, burro/ghee 201/707 | — | — | — |
+
+Voci esistenti ma vuote o inutili, verificate: Uganda 1241-1243 (uova per tuorlo), 1173/1193/1201/1215
+(carni arrosto), 1291 (burro); Malawi 522 (pollo a pezzi: lo comprano di più i poveri, sono porzioni
+piccole, non filiera); Malawi 512 (carne O pesce in scatola); Tanzania 2014 hh_j04_1 "dove l'ha
+comprato" (vuota). **Errore trovato:** la VC_05 della Tanzania non conteneva la voce 903 (latte in
+scatola/polvere); la nuova VC_12 la include (Q1 24% → Q5 26%, non 24% → 16%).
+
+**Tabelle nuove (PARTE 12, sezioni 13-14), solo aggiunte.** VC_08 trasformati per quinto; VC_09
+effetto del reddito sull'acquisto; VC_10 varianti commerciali; VC_11 Uganda fuori casa; VC_12
+latticini trasformati sulla spesa per latticini (tutte le voci); VC_13 composizione delle proteine
+comprate; VC_14 quota delle proteine mangiate che è comprata.
+
+**Risultati.**
+- Famiglie che comprano trasformati, Q1 → Q5: Nigeria 7 → 48%, Malawi 2 → 35%, Etiopia 3 → 23%
+  (solo tradizionali), Tanzania 2 → 14%, Uganda 2 → 10%. Quota della spesa per alimenti animali:
+  Nigeria 4 → 15%, Malawi 5 → 15%, Tanzania 3 → 5%, Uganda 1 → 3%; Etiopia 20 → 12% (scende).
+- Latticini industriali sulla spesa per latticini: Nigeria 35 → 95%, Malawi 25 → 59%, Tanzania 24 → 26%,
+  Uganda 0 → 5% (2018-19). Etiopia: ayib e burro sono il 55-64% della spesa per latticini.
+- Carne trasformata: al massimo l'1,5% delle famiglie in Nigeria e Uganda; Malawi 2024: 0 → 7%.
+- Uova "agric" in Nigeria: 63 → 96% della spesa per uova.
+- Uganda, prodotti animali comprati e mangiati fuori casa: meno dell'1% degli acquisti (i pasti al
+  ristorante sono una voce a parte, quindi è una sottostima).
+- Proteine animali mangiate che sono comprate, Q1 → Q5: Etiopia 29 → 70%, Tanzania 41 → 75%, Malawi
+  54 → 80%, Uganda 70 → 79% (troppo alto: manca il pollo, non pesato), Nigeria 90 → 91%.
+
+**Conclusione.** H1a non supportata; H1b sì per i latticini in Nigeria (importati) e Malawi (latterie
+locali, importazioni al 4%), no altrove; per la carne non verificabile.

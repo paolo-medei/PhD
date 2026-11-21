@@ -1209,8 +1209,8 @@ cat("written ->", file.path(OUT_DIR, "panel_TZA.csv"), "\n")
 ##  TRAP M3  Le unita' si convertono col loro significato metrico (kg, grammo,
 ##           litro, millilitro) e, per i pezzi di pollo e le bustine e i
 ##           cucchiai di latte, con la tabella di conversione 2020 della Banca
-##           Mondiale (kg per unita', per regione; un pollo intero pesa 1,27-1,48
-##           kg). Il "pezzo" di manzo, capra o maiale NON si converte: la tabella
+##           Mondiale (kg per unita', per regione; un pollo intero pesa 1,27-1,30
+##           kg, 1,26 se indicato in "altro"). Il "pezzo" di manzo, capra o maiale NON si converte: la tabella
 ##           da' 0,036 kg al Nord e 0,25 kg al Centro e al Sud per la stessa
 ##           voce, che non e' una misura. Nemmeno i pezzi di "altro pollame"
 ##           (509) e i cucchiaini di latte in polvere, smentiti dai prezzi, ne'
@@ -1915,9 +1915,14 @@ cat("written ->", file.path(OUT_DIR, "panel_NGA.csv"), "\n")
 ##           (1251-1254, 1281).
 ##  TRAP U3  Il pollo NON e' mai pesato: "Piece-Big/Small" (2010-15) o "Whole
 ##           chicken big/medium/small" (2018-19), con kg per pochi broiler.
-##           L'indagine non da' il peso di un pollo, quindi queste quantita' sono
-##           SEGNALATE come non convertibili, mai indovinate (come in Tanzania e
-##           Nigeria). La spesa per il pollo conta comunque come acquisto di carne.
+##           L'indagine non da' il peso di un pollo. v25 (Paolo, 21 nov 2026): si
+##           usa un peso fisso UFFICIALE, 1,3 kg di carcassa per capo: FAO (2005),
+##           ripreso per l'Uganda da Behnke (IGAD LPI Working Paper, tabella 10);
+##           FAOSTAT da' 1,297 kg per capo per l'Uganda nel 2015-19 (resa/peso
+##           della carcassa, "carne di pollo"). Il "pezzo" del 2010-15 e' un pollo
+##           intero: costa 8.000-18.000 scellini come il "pollo intero" del
+##           2018-19, contro 13.000-14.500 al kg. Grande, medio e piccolo hanno lo
+##           stesso peso: la fonte non li distingue (KG_PER_CHICKEN_UG).
 ##  TRAP U4  Il codice di unita' 54 vuol dire "Packet (unspecified)" nel
 ##           2010-2015 e "Packet (125g)" nel 2018-2019. Le unita' si convertono
 ##           quindi dalla loro ETICHETTA in ogni wave, e solo quando l'etichetta
@@ -2042,6 +2047,9 @@ ITEMS_UG <- tibble::tribble(
 )
 MEAT_UG <- c("beef","goat_sheep","pork","poultry")
 
+## kg di carcassa per pollo (TRAP U3): FAO 2005; FAOSTAT 1,297 kg (Uganda 2015-19)
+KG_PER_CHICKEN_UG <- 1.3
+
 ## moltiplicatore dall'ETICHETTA dell'unita' all'unita' standard del prodotto
 ## (TRAP U4)
 conv_ug <- function(lab, std) {
@@ -2094,7 +2102,11 @@ build_wave_ug <- function(w) {
   hh_all <- unique(f$hhid)                  # tutte le famiglie del modulo alimentare
   f <- f %>% inner_join(ITEMS_UG, by = "item") %>%
     mutate(.k = conv_ug(.ulab, std),
-           .k = ifelse(product == "coffee", NA_real_, .k))      # TRAP U9
+           .k = ifelse(product == "coffee", NA_real_, .k),      # TRAP U9
+           ## v25 (TRAP U3): pollo a pezzi o intero -> 1,3 kg per capo (FAO)
+           .k = ifelse(product == "poultry" & is.na(.k) &
+                         grepl("^(piece|whole chicken)", tolower(trimws(.ulab))),
+                       KG_PER_CHICKEN_UG, .k))
 
   q <- function(x) num(f[[x]])
   f$purch_std <- q(v$q_pur) * f$.k
@@ -3139,25 +3151,36 @@ FIGD <- FIGDIAG
 
 ## ---- contenuto di proteine, valori standard delle tabelle di composizione -- #
 ## grammi di proteine per unita' standard del prodotto, come registrata nel
-## pannello.
+## pannello. v25 (21 nov 2026): valori UFFICIALI con fonte, al posto di valori
+## standard senza fonte (che erano quelli della carne cotta: 250-270 g/kg).
+## Fonte: FAO/INFOODS, West African Food Composition Table (2012), proteine per
+## 100 g di parte edibile, cruda: manzo 15-20% grasso 18,4 (07_002); capra 17,5
+## (07_046) e agnello/montone 16,5 (07_004) -> 17,0; maiale ~20% grasso 16,8
+## (07_006); pollo con pelle, carne chiara 19,5 (07_036) e scura 16,7 (07_030)
+## -> 18,1; uovo 12,6 (08_001) per 0,88 di parte edibile (il guscio); latte
+## intero 3,4 (10_001); latte in polvere intero 25,9 (10_002); yogurt 3,8
+## (10_005). Formaggio = ayib etiopico, 14,7% di proteine (FAO 1990, "The
+## technology of traditional milk products in developing countries", da
+## O'Mahony e Peters 1987). L'osso della carne NON si toglie: la quota non e'
+## nota e cambia da mercato a mercato. Uovo: 55 g (TRAP 6) x 0,88 x 12,6%.
 PROT <- tibble::tribble(
   ~product,      ~std,     ~prot,
-  "beef",        "kg",     260,
-  "goat_sheep",  "kg",     250,
-  "pork",        "kg",     250,
-  "poultry",     "kg",     270,
-  "meat_agg",    "kg",     255,
+  "beef",        "kg",     184,
+  "goat_sheep",  "kg",     170,
+  "pork",        "kg",     168,
+  "poultry",     "kg",     181,
+  "meat_agg",    "kg",     178,     # media di manzo, ovicaprini e pollo (Etiopia 2011-13)
   ## v24: il pesce ha quantita' solo in Tanzania e Nigeria, e il pesce secco ha
   ## circa il triplo delle proteine di quello fresco: resta fuori dalle somme
   ## di proteine
   "fish",        "kg",     NA_real_,
-  "eggs",        "kg",     126,
-  "eggs",        "piece",  6.9,     # un uovo da 55 g
-  "milk",           "litre",  33,
-  "milk",           "kg",     33,
-  "milk_processed", "kg",    250,   # domina la polvere; quello in scatola ne ha meno
-  "milk_processed", "litre", 33,    # v21: il 902 della Tanzania (panna, yogurt) e' liquido
-  "cheese",      "kg",     200,
+  "eggs",        "kg",     111,     # 126 x 0,88 (guscio)
+  "eggs",        "piece",  6.1,     # un uovo da 55 g
+  "milk",           "litre",  34,
+  "milk",           "kg",     34,
+  "milk_processed", "kg",    259,   # domina la polvere; quello in scatola ne ha meno
+  "milk_processed", "litre", 38,    # v21: il 902 della Tanzania (panna, yogurt) e' liquido: yogurt
+  "cheese",      "kg",     147,     # ayib
   "coffee",      "kg",     0        # uno stimolante, non una fonte di proteine
 )
 ## v21 (M5, 12 nov 2026): pesce fuori. v24 (Paolo, 15 nov 2026): il pesce
@@ -3710,12 +3733,13 @@ THV <- theme_minimal(base_size=10) +
         panel.grid.minor=element_blank(), strip.text=element_text(face="bold"),
         legend.position="bottom")
 
-## proteine per unita' standard (come nella PARTE 10)
+## proteine per unita' standard (come nella PARTE 10; v25: valori FAO/INFOODS
+## con fonte, vedi la PARTE 10)
 PROT_VC <- tibble::tribble(
   ~product,      ~prot,
-  "beef",260, "goat_sheep",250, "pork",250, "poultry",270, "meat_agg",255,
-  "fish",200, "eggs_kg",126, "eggs",6.9, "milk",33, "milk_processed",250,
-  "cheese",200, "coffee",0)
+  "beef",184, "goat_sheep",170, "pork",168, "poultry",181, "meat_agg",178,
+  "fish",200, "eggs_kg",111, "eggs",6.1, "milk",34, "milk_processed",259,
+  "cheese",147, "coffee",0)
 ## v21 (M5): pesce fuori. v24: resta fuori qui - sono le tabelle della filiera
 ## zootecnica (Step II); il pesce e' nelle tabelle della dieta (PARTE 10)
 ANIM <- c("beef","goat_sheep","pork","poultry","eggs","milk","milk_processed",
@@ -3763,10 +3787,10 @@ vc_load <- function(pf) {
     mutate(weight = ifelse(is.na(weight) | weight <= 0, 1, weight)) %>%
     filter(track == "B", product %in% ANIM) %>%
     left_join(PROT_VC %>% rename(prot = prot), by="product") %>%
-    mutate(prot = ifelse(product=="eggs" & std=="kg", 126, prot),
+    mutate(prot = ifelse(product=="eggs" & std=="kg", 111, prot),
            ## v21 (D17): i prodotti del latte della Tanzania (panna, yogurt) sono
            ## in litri
-           prot = ifelse(product=="milk_processed" & std=="litre", 33, prot),
+           prot = ifelse(product=="milk_processed" & std=="litre", 38, prot),
            ## si taglia lo 0,1% piu' alto di ogni flusso: una famiglia che dichiara
            ## tonnellate puo' decidere la media di un anno intero
            across(c(qtot,qpur,own,gift,exp), ~ pmin(.x, quantile(.x, .999, na.rm=TRUE)))) %>%

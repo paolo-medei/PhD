@@ -388,3 +388,35 @@ dentro ogni riga, media sulle famiglie. Controllo sui prodotti pesati: manzo 92 
 contro 34 → 63%) perché l'autoprodotto è valutato al prezzo alla stalla. Il pollo ugandese resta fuori
 dalle proteine (servono i chili).
 
+
+## K. v25 (21 novembre 2026): fattori di conversione ufficiali, con fonte
+
+**Pollo in Uganda.** Non è mai pesato ("Piece-Big/Small" 2010-15, "Whole chicken big/medium/small"
+2018-19). Ora vale **1,3 kg per capo**: peso della carcassa FAO (2005), usato per l'Uganda da Behnke
+(IGAD LPI Working Paper, tabella 10); FAOSTAT dà 1,297 kg per capo (Uganda 2015-19). Il "pezzo" del
+2010-15 è un pollo intero: costa 8.000-18.000 scellini come il "pollo intero" del 2018-19 (13.000-14.500
+al kg). Controllo: con 1,3 kg il pollo dichiarato dalle famiglie è il 99% dell'offerta di pollo dei
+bilanci FAO (FAO_01). Pollo comprato, Q1 → Q5: 8 → 48% in chili, 10 → 48% sui valori (VC_15).
+
+**Proteine.** I valori di prima (manzo 260, ovicaprini 250, maiale 250, pollo 270 g/kg) non avevano una
+fonte ed erano quelli della carne cotta. Ora: FAO/INFOODS West African Food Composition Table (2012),
+crudo, parte edibile — manzo 18,4 g/100 g (07_002), capra 17,5 (07_046) e montone 16,5 (07_004) → 17,0,
+maiale 16,8 (07_006), pollo con pelle 19,5/16,7 → 18,1 (07_036, 07_030), uovo 12,6 × 0,88 di parte
+edibile (08_001), latte 3,4 (10_001), latte in polvere 25,9 (10_002), yogurt 3,8 (10_005); ayib 14,7%
+(FAO 1990, "The technology of traditional milk products in developing countries"). L'osso non si toglie.
+Le altre conversioni restano, con la loro fonte: tabelle ufficiali di Etiopia (Food_CF) e Nigeria
+(food_conv_w2ph, food_conv_w3), tabella 2020 di NSO/Banca Mondiale per il Malawi (pollo 1,26-1,30 kg;
+il "pezzo" di carne rossa resta non convertito: 0,036 kg al Nord, 0,25 kg altrove), 55 g per uovo in
+Tanzania 2020 (mediana di 425 famiglie che danno pezzi e grammi).
+
+**Effetti (88 tabelle: 53 identiche, 35 cambiate).** I pannelli di Etiopia, Tanzania, Nigeria e Malawi
+sono identici byte per byte; cambia solo quello dell'Uganda (pollo). Risultati principali invariati: tre
+margini della carne 47-63 / 33-49 / 3-8%, significativi in 22 di 23 wave; Uganda 57/38/5 → 54/40/5.
+Cambiano le tabelle sulle proteine: quota delle proteine animali mangiate che è comprata, Q1 → Q5,
+Etiopia 26 → 70%, Tanzania 38 → 75%, Malawi 54 → 81%, Uganda 57 → 73%, Nigeria 89 → 91%; Etiopia, Q1:
+latticini 78% delle proteine mangiate, 35% di quelle comprate.
+
+**Da sistemare (vecchio, piccolo).** Nella PARTE 12 il taglio dello 0,1% più alto di ogni flusso è
+calcolato su tutti i prodotti insieme di un paese (chili, litri e pezzi mescolati): aggiungere i chili
+del pollo ugandese ha spostato di 0,1 punti tre quote ugandesi della VC_04. Andrebbe fatto prodotto per
+prodotto.

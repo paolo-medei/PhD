@@ -128,15 +128,12 @@ def composition(sheet, col, fname, star=None):
 
 
 composition('VC_06_basket_spending_by_quinti', 'share_spending', 'fig_spending_v24.png')
-composition('VC_07_basket_protein_by_quintil', 'share_protein', 'fig_protein_v24.png', star={'UGA'})
+composition('VC_07_basket_protein_by_quintil', 'share_protein', 'fig_protein_v24.png')
 
 # ---------- Figure 4: where milk, eggs and chicken come from, Q1 vs Q5
-# v25: Ugandan chicken is never weighed, so VC_04 (kilos) cannot split it; it comes from VC_15, the
-# survey's own VALUES of purchases, own production and gifts (hatched bars)
+# v25: Ugandan chicken, never weighed, now counts 1.3 kg per bird (FAO carcass weight), so VC_04
+# covers it like the other countries; VC_15 (the survey's values) is the check, not plotted
 s = X['VC_04_sources_by_quintile']; s = s[s.households == 'all']
-u15 = [X[n] for n in X if n.startswith('VC_15')][0]
-u15 = u15[u15.lab == 'Poultry'].rename(columns={'pct_bought_value': 'pct_purchased', 'pct_own_value': 'pct_own',
-                                                 'pct_gift_value': 'pct_gift'})
 plt.rcParams['hatch.linewidth'] = 0.8
 prods = [('Fresh milk', 'Fresh milk'), ('Eggs', 'Eggs'), ('Poultry', 'Chicken and other poultry')]
 src = [('pct_purchased', 'Bought', '#002060'), ('pct_own', 'Own production', '#0B7A39'), ('pct_gift', 'Gift', '#E08A2E')]
@@ -145,8 +142,8 @@ for j, (lab, title) in enumerate(prods):
     ax = axs[j]; y = 0; ticks = []; tl = []
     for k, c in CC.items():
         for q in [1, 5]:
-            byval = (k == 'UGA' and lab == 'Poultry')
-            r = u15[u15.qt == q] if byval else s[(s.country == k) & (s.lab == lab) & (s.qt == q)]
+            byval = False
+            r = s[(s.country == k) & (s.lab == lab) & (s.qt == q)]
             if len(r):
                 r = r.iloc[0]; tot = r.pct_purchased + r.pct_own + r.pct_gift; left = 0
                 for key, _, col in src:
@@ -222,7 +219,7 @@ def comp_panel(ax, b, col, title, star=None, labels=True):
 
 
 fig, axs = plt.subplots(1, 2, figsize=(W, H), dpi=200, gridspec_kw={'width_ratios': [1.6, 1]})
-comp_panel(axs[0], X['VC_07_basket_protein_by_quintil'], 'share_protein', 'Eaten: all sources', star={'UGA'})
+comp_panel(axs[0], X['VC_07_basket_protein_by_quintil'], 'share_protein', 'Eaten: all sources')
 comp_panel(axs[1], sheet('VC_13'), 'share_protein_bought', 'Bought', labels=False)
 fig.legend(handles=[Patch(color=colr, label=lab) for k, lab, colr in cats], loc='lower center', ncol=7,
            frameon=False, fontsize=14, handlelength=0.9, columnspacing=0.8, handletextpad=0.3,

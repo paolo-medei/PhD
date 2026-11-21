@@ -29,7 +29,7 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 - 15 novembre, v24: il pesce torna come prodotto a sé (non carne) in tutti i paesi, deciso da Paolo;
   confronto con i bilanci alimentari FAO e quota importata dell'offerta (oggi PARTE 13, serve
   FAOSTAT: vedi Dati); corretto il costo per grammo di proteina (M15). `docs/FINDINGS.md`, sezione G.
-- 20 novembre, v24 definitiva e nuovo riferimento (`results_reference/RESULTS_v24_2026-11-20.xlsx`): una regola
+- 20 novembre, v24 definitiva e nuovo riferimento (`results_reference/RESULTS_v24_2026-11-20.xlsx`, dal 21 novembre `RESULTS_v24_2026-11-21.xlsx` con le tabelle VC_04-05): una regola
   unica per i valori estremi in tutti e cinque i paesi, decisa da Paolo (filtro sul prezzo, quantità e spese
   oltre 100 volte la mediana: M17, M18); seconda verifica indipendente in `checks/audit/v24/REPORT_recheck.md`.
 - Aperto: M11 (strumento per la spesa totale, da discutere con il Professore).

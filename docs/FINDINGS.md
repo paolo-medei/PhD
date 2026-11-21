@@ -289,3 +289,26 @@ Le sezioni precedenti di questo registro citano i moduli; la corrispondenza è:
 
 I nomi delle variabili, i messaggi stampati nella console e i nomi dei fogli del workbook restano in
 inglese: cambiarli avrebbe cambiato il codice e i risultati da confrontare.
+
+## I. Da dove viene il cibo consumato (21 novembre 2026)
+
+Due tabelle nuove nella PARTE 12, solo aggiunte: le 76 tabelle di prima restano identiche (il riferimento
+diventa `RESULTS_v24_2026-11-21.xlsx`, con 78 tabelle).
+
+- **VC_04_sources_by_quintile**: quota della quantità consumata comprata, autoprodotta o regalata, per
+  paese × prodotto × quinto; dentro l'anno, pesata, media sulle wave. Anche solo per le famiglie rurali.
+- **VC_05_processed_dairy_by_quintile**: latte trasformato come quota della spesa per latticini, per quinto.
+
+Latte fresco comprato, dal quinto più povero al più ricco: Etiopia 10 → 53%, Tanzania 19 → 71%, Uganda
+34 → 63%, Malawi 43 → 87%, Nigeria 60 → 86%. Solo famiglie rurali: 8 → 20%, 18 → 46%, 33 → 48%, 41 → 75%,
+57 → 71%: il gradiente resta, più debole; una parte è urbanizzazione. Uova: 20-67% → 70-93%; pollame:
+7-40% → 52-84% (Uganda: pollo non pesato); manzo già comprato all'80-99% in ogni quinto. Latte
+trasformato sulla spesa per latticini: Nigeria 36 → 95%, Malawi 28 → 50%, Tanzania 24 → 16%, Uganda
+6 → 9% (solo 2018-19). Dai bilanci FAO, la Nigeria importa il 64-72% del latte disponibile; gli altri
+paesi meno del 3% (Malawi 4-23%, in calo).
+
+**Codici urbano/rurale (nota, nessun effetto sulle stime).** Il controllo `urban` di `prep()` (PARTE 7,
+usato anche nella PARTE 14) vale 1 per il codice "1": in Etiopia e Tanzania il codice 1 è RURALE, in
+Nigeria il codice 1 è urbano, in Uganda e Malawi 1 è urbano (0/1). Come controllo è indifferente (cambia
+solo il segno del suo coefficiente, mai riportato), ma la variabile si chiama `urban` e in due paesi vuol
+dire rurale. La tabella VC_04 usa la definizione corretta paese per paese.

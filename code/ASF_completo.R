@@ -3686,7 +3686,8 @@ if (length(perm_out)) {
 ##
 ##  Il pesce resta fuori: queste sono le tabelle della filiera ZOOTECNICA; il
 ##  pesce sta nelle tabelle della dieta (PARTE 10). Figure VC_01..VC_10 in cima
-##  alla cartella delle figure; tabelle VC_01..VC_03 del workbook.
+##  alla cartella delle figure; tabelle VC_01..VC_05 del workbook (VC_04: da
+##  dove viene il cibo consumato, per quinto; VC_05: latte trasformato).
 ##
 ###############################################################################
 ###############################################################################
@@ -3742,7 +3743,14 @@ vc_load <- function(pf) {
     welfare = num(g("welfare","nom_totcons_aeq")),
     adulteq = pmax(num(g("adulteq")), 1),
     weight  = num(g("hhweight","weight")),
-    region  = as.character(g("region"))
+    region  = as.character(g("region")),
+    ## v24 (21 nov): famiglia rurale, per la tabella VC_04. I codici cambiano da
+    ## paese a paese: 1 = rurale in Etiopia e Tanzania, 2 = rurale in Nigeria,
+    ## 0 = rurale in Uganda e Malawi (verificato sulle etichette dei file)
+    rural   = { ur <- trimws(as.character(g("urban", "urban_code")))
+                ifelse(is.na(ur) | ur %in% c("", "NA"), NA,
+                       if (cc %in% c("ETH", "TZA")) ur %in% c("1", "1.0") else
+                       if (cc == "NGA") ur %in% c("2", "2.0") else ur %in% c("0", "0.0")) }
   ) %>%
     mutate(weight = ifelse(is.na(weight) | weight <= 0, 1, weight)) %>%
     filter(track == "B", product %in% ANIM) %>%
@@ -4010,6 +4018,53 @@ if (requireNamespace("patchwork", quietly=TRUE)) {
 
 cat("\n--- DESCRIPTIVE STATISTICS (head) ---\n")
 print(as.data.frame(head(desc, 15)))
+
+## ============ 11. DA DOVE VIENE IL CIBO, PER QUINTO (v24, 21 nov 2026) ===== #
+## COSA   Per paese x prodotto x quinto: quota della quantita' consumata che e'
+##        comprata, autoprodotta o ricevuta in regalo. Dentro ogni anno, pesata
+##        sulla popolazione, poi media sulle wave (come M10). Tabella VC_04.
+## PERCHE' Non basta sapere quanto cresce il consumo: conta quanta parte della
+##        domanda in piu' passa dal mercato. Il latte autoprodotto non crea
+##        lavoro fuori dall'azienda; quello comprato si'.
+## COME   Le stesse quote anche solo per le famiglie RURALI (households =
+##        "rural"): in citta' quasi nessuno alleva, quindi il gradiente per
+##        quinto puo' essere in parte urbanizzazione invece che reddito. Solo le
+##        quantita' convertite in unita' standard: dove un prodotto non si pesa
+##        (pollo in Uganda, pezzi di carne in Malawi) quelle righe non entrano.
+src_q <- function(d) d %>% filter(!is.na(qt)) %>%
+  mutate(p = coalesce(qpur,0) * weight, o = coalesce(own,0) * weight,
+         g = coalesce(gift,0) * weight) %>%
+  group_by(country, lab, year, qt) %>%
+  summarise(tot = sum(p + o + g), pct_purchased = 100*sum(p)/tot,
+            pct_own = 100*sum(o)/tot, pct_gift = 100*sum(g)/tot, .groups="drop") %>%
+  filter(tot > 0) %>%
+  group_by(country, lab, qt) %>%
+  summarise(across(c(pct_purchased, pct_own, pct_gift), ~ round(mean(.x), 1)),
+            waves = n(), .groups="drop")
+sq <- bind_rows(src_q(vc) %>% mutate(households = "all"),
+                src_q(vc %>% filter(rural %in% TRUE)) %>% mutate(households = "rural"))
+cat("\n--- WHERE THE FOOD COMES FROM: % purchased, by quintile ---\n")
+print(as.data.frame(sq %>% filter(households == "all") %>%
+        select(country, lab, qt, pct_purchased) %>%
+        pivot_wider(names_from = qt, values_from = pct_purchased, names_prefix = "Q")))
+write.csv(sq, file.path(TMPCSV, "VC_04_sources_by_quintile.csv"), row.names=FALSE)
+
+## Latte trasformato (polvere, in scatola, yogurt, panna) come quota della spesa
+## per latticini, per quinto, negli anni in cui il questionario lo separa dal
+## latte fresco: Nigeria, Malawi, Tanzania; Uganda solo 2018-19; Etiopia mai.
+## Stesso metodo: dentro l'anno, pesato, media sulle wave. Tabella VC_05.
+pdairy <- vc %>% filter(!is.na(qt), product %in% c("milk","milk_processed","cheese")) %>%
+  group_by(country, year) %>% filter(any(product == "milk_processed")) %>% ungroup() %>%
+  mutate(e = coalesce(exp,0) * weight) %>%
+  group_by(country, year, qt) %>%
+  summarise(tot = sum(e), proc = sum(e[product == "milk_processed"]), .groups="drop") %>%
+  filter(tot > 0) %>% mutate(pct_processed = 100*proc/tot) %>%
+  group_by(country, qt) %>%
+  summarise(pct_processed = round(mean(pct_processed), 1), waves = n(), .groups="drop")
+cat("\n--- PROCESSED DAIRY, % of dairy spending, by quintile ---\n")
+print(as.data.frame(pdairy %>% select(-waves) %>%
+        pivot_wider(names_from = qt, values_from = pct_processed, names_prefix = "Q")))
+write.csv(pdairy, file.path(TMPCSV, "VC_05_processed_dairy_by_quintile.csv"), row.names=FALSE)
 message("value-chain figures written -> ", VCFIG)
 }
 ###############################################################################

@@ -258,3 +258,34 @@ nessuna altrove. In 7 righe su 10 non resta nemmeno una quantità usabile, quind
 come acquirente di quel prodotto in quella wave (la partecipazione si muove al massimo di 0,1 punti: Etiopia, latte 2011). Effetto: in Etiopia la quota del
 manzo per quinto diventa 52,1 / 51,7 / 51,5 / 51,1 / 38,6%, senza gobba; tutto il resto praticamente invariato
 (tre margini entro 0,02 punti). Non coperta dalla seconda verifica (decisa dopo): 10 righe, elencate qui sopra.
+
+## H. Un solo file (21 novembre 2026)
+
+Su richiesta di Paolo, i 15 moduli di `code/pipeline/`, `code/run_all.R` e `code/compare_results.R` sono
+diventati un file solo, `code/ASF_completo.R`, con tutti i commenti in italiano (cosa si fa, perché, come)
+e un indice in cima. Il codice non è cambiato: il codice analizzato da R (`parse`, senza commenti) delle
+parti 1-15 è identico, espressione per espressione, a quello dei 15 moduli; solo l'avvio (PARTE 0) e il
+confronto finale (PARTE 16) sono riscritti, perché non devono più cercare i moduli. Una run completa dello
+script unico coincide cella per cella con `results_reference/RESULTS_v24_2026-11-20.xlsx`.
+`checks/compare_runs.R` e `checks/dump_panel_ids.R` prendono le funzioni dallo script unico.
+
+Le sezioni precedenti di questo registro citano i moduli; la corrispondenza è:
+
+| modulo di prima | parte dello script unico |
+|---|---|
+| `run_all.R` (avvio) | PARTE 0 |
+| `00_setup.R` | PARTE 1 |
+| `01_build_ETH.R`, `02_build_TZA.R`, `03_build_MWI.R`, `03_build_NGA.R`, `03_build_UGA.R` | PARTI 2, 3, 4, 5, 6 |
+| `04_estimate.R` | PARTE 7 |
+| `05_compare.R` | PARTE 8 |
+| `06_advanced.R` | PARTE 9 |
+| `07_deep.R` | PARTE 10 |
+| `08_permanent_transitory.R` | PARTE 11 |
+| `09_value_chain.R` | PARTE 12 |
+| `10_fao.R` | PARTE 13 |
+| `10_margins.R` | PARTE 14 |
+| `11_workbook.R` | PARTE 15 |
+| `run_all.R` (confronto) e `compare_results.R` | PARTE 16 |
+
+I nomi delle variabili, i messaggi stampati nella console e i nomi dei fogli del workbook restano in
+inglese: cambiarli avrebbe cambiato il codice e i risultati da confrontare.

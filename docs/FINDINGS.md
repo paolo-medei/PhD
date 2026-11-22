@@ -430,3 +430,95 @@ cambiavano ordine, quindi lo stesso seme dava campioni diversi. Corretto (ordine
 qui non cambia nulla: 88 tabelle identiche). Il confronto ora cerca `results_reference/` anche accanto a
 `data/` e in Desktop/PhD_v21. Il riferimento si chiama ora `RESULTS_v25_2026-11-21.xlsx`.
 
+
+
+## L. v26 (22 novembre 2026): prove di robustezza dei tre margini (PARTE 14b, ROB_01)
+
+**Cosa.** I tre margini della carne (anche latte e uova) rifatti con dieci specificazioni oltre alla
+base: S1 spesa ALIMENTARE come benessere (la prova prevista nel piano), S2 altra scala (per persona /
+per adulto equivalente), S3 effetti cluster × anno (toglie i prezzi locali dal valore al kg), S4 taglio
+dei valori unitari al 5-95%, S5 nessun taglio, S6 senza pesi, S7 solo rurali, S8 solo urbani (codici
+grezzi: 1 = rurale in Etiopia e Tanzania, 2 in Nigeria, 0 in Malawi e Uganda), S9 variabile
+strumentale (spesa della wave precedente della stessa famiglia; solo paesi panel), S10 solo manzo.
+Errori standard raggruppati per cluster. La spesa alimentare si trova per il 100% delle famiglie; la
+wave precedente per il 48-72% (Tanzania 48%, Etiopia 52%, Nigeria 65%, Uganda 72%).
+
+**Risultato (carne, quota del valore al kg, %).**
+
+| Spec | ETH | MWI | NGA | TZA | UGA |
+|---|---|---|---|---|---|
+| S0 base | 8.0 | 4.0 | 3.4 | 5.1 | 5.2 |
+| S1 spesa alimentare | 7.1 | 4.0 | 2.8 | 4.3 | 5.0 |
+| S2 altra scala | 8.3 | 4.0 | 3.4 | 5.1 | 5.2 |
+| S3 cluster | 5.1 | 3.5 | 2.6 | 3.7 | 4.2 |
+| S4 taglio 5-95 | 4.6 | 3.2 | 2.4 | 4.2 | 3.9 |
+| S5 senza taglio | 6.4 | 4.3 | 4.3 | 6.0 | 6.1 |
+| S6 senza pesi | 6.8 | 3.8 | 3.7 | 4.6 | 5.4 |
+| S7 rurali | 9.7 | 3.7 | 3.9 | 5.7 | 5.6 |
+| S8 urbani | 3.5 | 5.5 | 2.9 | 3.7 | 4.5 |
+| S9 IV | 5.4 | — | 6.0 | 6.3 | 6.0 |
+| S10 solo manzo | 12.7 | 2.1 | 2.2 | 3.8 | 3.7 |
+
+Nuovi compratori 39-81%, più chili 17-58% in tutte le specificazioni. S0 coincide con MARGINS_01.
+Etiopia IV: e_qual 0,112 (p = 0,32). Latte: quota del valore al kg da −1,7 a 12,1%; uova da −5,8 a 6,3%.
+**H1a non supportata, e la conclusione regge**: il valore al kg resta fra 2 e 10% (13% solo per il manzo
+in Etiopia). Nota: la colonna `urban` di prep() vale 1 per il codice "1", che in Etiopia e Tanzania è
+RURALE; come controllo nelle regressioni non cambia nulla (cambia solo il segno), ma non va letta come
+"urbano". Le parti che separano rurali e urbani (VC_04, S7-S8, PARTE 14c) usano il codice grezzo.
+
+
+## M. v26: la trasformazione si verifica solo sui latticini (slide 16-17)
+
+Detto esplicitamente nel deck (Paolo, 22 nov). Motivi, dai dati della J: (1) solo i latticini hanno
+voci trasformate separate e comprate da abbastanza famiglie (latte in polvere e in scatola, yogurt,
+formaggio, burro: 7-45% delle famiglie del quinto più ricco); (2) la carne trasformata quasi non c'è
+nei questionari (corned beef in Nigeria, salsicce in Uganda 2018-19 e Malawi 2024; nessuna in Etiopia; in
+Tanzania le salsicce stanno con manzo e maiale freschi) ed è comprata da al massimo l'1,5% delle
+famiglie (Malawi 2024: 7% nel Q5); (3) per la carne il passaggio commerciale è l'acquisto stesso
+(macellazione → macellaio → compratore): manzo comprato 78-99% a ogni reddito, pollo 7-40% (Q1) →
+48-84% (Q5); (4) le uova non hanno forma trasformata (unico segno: uova "agric" in Nigeria 63 → 96%);
+(5) i pasti fuori casa non sono elencati (Uganda: meno dell'1%), quindi la carne pronta è un limite
+inferiore. H1b diventa "verificabile sui latticini": sì in Nigeria e Malawi, no altrove.
+
+
+## N. v26: Step II, parte A — il lato del produttore (PARTE 14c, S2A_01-03)
+
+**Dati.** I moduli zootecnici delle stesse 23 wave: latte e uova prodotti, venduti, incasso, acquirente.
+Le domande cambiano; le scelte, paese per paese, sono nel commento della PARTE 14c. In breve: Etiopia
+2011-13 sezione 8C (12 mesi, con unità), 2015 sezione 8.6 e 2018-21 sezione 8.4 (litri per capo al
+giorno × capi munti; venduto e incasso alla settimana; uova: covate × uova × galline, vendite in 12 o 3
+mesi); Tanzania 2008-10 modulo dei prodotti, 2012-20 sezioni 6 (latte, al giorno) e 8 (uova); Malawi
+modulo S; Nigeria sezione 11K del post-semina (poche famiglie); Uganda AGSEC8 (2010) e 8B/8C (2011-19).
+Abbinamento al pannello: 93-100% delle famiglie per wave. 7.849 vendite con un prezzo. Prezzi fuori da
+1/10-10 volte la mediana (errori di unità) tolti. Quando l'incasso comprende latticini (Tanzania
+2012-20, Uganda 2013-19) il prezzo si calcola solo per chi non vende latticini.
+
+**Scelte e controlli.** Uganda: l'incasso del latte 2013-19 è per tutto il periodo di mungitura, non al
+giorno (al giorno darebbe 2.400 scellini al litro contro 1.000 pagati dai compratori). Uganda 2011: le
+uova vendute e l'incasso si leggono sugli stessi 3 mesi (l'etichetta dell'incasso dice 12 mesi, ma il
+prezzo implicito, 300 scellini, è quello del consumatore). Malawi: l'acquirente si usa solo nel 2024; nel
+2016 e 2019 il codice non ha etichette e la distribuzione non corrisponde a quella del 2024. Tanzania
+2008-14 e Malawi 2010: l'acquirente rimanda al registro dei contatti, non usato. Uova di Etiopia e
+Nigeria: dal lato del consumatore sono in kg, quindi niente rapporto dei prezzi.
+
+**Risultati.**
+- Prezzo alla stalla in % del prezzo pagato da chi compra (mediana delle wave), latte: Uganda 82%,
+  Tanzania 71%, Etiopia 67%, Nigeria 83% (pochi casi), **Malawi 36%** (21% nel 2024). Uova: Uganda 90%,
+  Malawi 84%, Tanzania 67%. Contro i soli compratori rurali: 80-85% (Malawi 46%).
+- Lettura: filiere corte per latte crudo e uova; in Malawi il latte arriva al consumatore dalle
+  latterie, confezionato (è il paese dove i latticini industriali salgono al 59% della spesa nel Q5).
+- Produttori di latte che vendono, Q1 → Q5: Tanzania 17 → 57%, Uganda 35 → 58%, Malawi 44 → 61%,
+  Etiopia 28 → 31% (il latte diventa burro in casa). Quota venduta della produzione: 5-27% in Etiopia,
+  Tanzania, Uganda. Uova in Uganda, Q5: 80% venduto (galline ovaiole).
+- A chi si vende: commercianti, negozi o latterie per il 35-54% dei venditori di latte (Uganda 35%,
+  Tanzania 2020 39%, Malawi 2024 54%) e per il 55% dei venditori di uova in Uganda; vicini e parenti la
+  gran parte del resto.
+
+**Cautele.** Le quantità prodotte sono meno precise dei prezzi (ricordo su 12 mesi, mesi × media al
+giorno); la quota venduta è indicativa, il prezzo e la quota di chi vende sono le misure solide. Il
+prezzo del consumatore è il valore unitario a 7 giorni, quello del produttore la media dell'anno.
+Nigeria: meno di 50 venditori per wave in due wave su tre. Prossimo (parte B): chi rifornisce il
+mercato, produzione locale o importazioni (FAOSTAT), e il valore aggiunto per stadio (SAM IFPRI).
+
+**Riferimento.** `results_reference/RESULTS_v26_2026-11-22.xlsx`, 92 tabelle (le 88 di prima identiche +
+ROB_01, S2A_01, S2A_02, S2A_03). Figure del deck: `docs/slides/deck_figures_v26.py`.

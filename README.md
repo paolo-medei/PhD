@@ -40,9 +40,16 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
   le altre due differivano solo per gli intervalli bootstrap (ordine delle famiglie dipendente dalla lingua
   del computer, corretto) e per celle vuote. Lo script ora trova `results_reference/` anche se lanciato da
   un'altra cartella.
+- 22 novembre, v26: **Step I chiuso** con le prove di robustezza (PARTE 14b, ROB_01: dieci specificazioni,
+  il valore al kg resta fra 2 e 10% della risposta della carne); la trasformazione si verifica **solo sui
+  latticini**, detto e motivato nel deck; **Step II, parte A**: il lato del produttore dagli stessi
+  sondaggi (PARTE 14c: prezzo alla stalla contro prezzo al consumo, chi vende, quanto, a chi; S2A_01-03).
+  Riferimento: `results_reference/RESULTS_v26_2026-11-22.xlsx` (92 tabelle). `docs/FINDINGS.md`, sezioni L-N.
 - **Come si lancia:** aprire `code/ASF_completo.R` dalla cartella del progetto (non una copia in Download)
   e premere *Source* (Ctrl+Maiusc+S).
-- Aperto: M11 (strumento per la spesa totale, da discutere con il Professore).
+- Aperto: M11 (strumento per la spesa totale: la variabile strumentale con la spesa della wave precedente è
+  ora una prova di robustezza, S9; resta da discutere con il Professore); EASI; taglio dello 0,1% prodotto per
+  prodotto nella PARTE 12 (FINDINGS K); Step II parti B-C (FAOSTAT, SAM IFPRI, UNIDO).
 - Informazioni su produzione zootecnica e caffè, per dopo: `docs/PRODUZIONE_E_CAFFE.md`.
 
 ## Struttura

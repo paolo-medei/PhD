@@ -5,7 +5,7 @@
 ##   Script unico: dai file grezzi della Banca Mondiale ai risultati
 ##
 ##   Paolo Medei - Dottorato AGRISYSTEM, Universita' Cattolica del Sacro Cuore
-##   Versione v24 (20 novembre 2026). Registro di ogni scelta: docs/FINDINGS.md
+##   Versione v26 (22 novembre 2026). Registro di ogni scelta: docs/FINDINGS.md
 ##
 ###############################################################################
 ###############################################################################
@@ -66,6 +66,9 @@
 ##    PARTE 12  filiera: mercatizzazione, paniere, spesa contro proteine
 ##    PARTE 13  confronto con i bilanci alimentari FAO
 ##    PARTE 14  tre margini (entrata, quantita', qualita') con bootstrap; caffe'
+##    PARTE 14b prove di robustezza dei tre margini (dieci specificazioni)
+##    PARTE 14c Step II, parte A: il lato del produttore (prezzo alla stalla, chi
+##              vende, quanto vende, a chi), latte e uova
 ##    PARTE 15  un solo workbook con tutte le tabelle
 ##    PARTE 16  confronto con i risultati di riferimento
 ##
@@ -169,6 +172,8 @@ RUN_UGA   <- TRUE    # FALSE = salta l'Uganda (saltato comunque se mancano i suo
 RUN_MWI   <- TRUE    # FALSE = salta il Malawi (saltato comunque se mancano i suoi archivi)
 RUN_VC    <- TRUE    # FALSE = salta la PARTE 12 (filiera)
 RUN_MARGINS <- TRUE  # FALSE = salta la PARTE 14 (tre margini, intervalli panel, caffe')
+RUN_ROB   <- TRUE    # FALSE = salta la PARTE 14b (prove di robustezza)
+RUN_S2A   <- TRUE    # FALSE = salta la PARTE 14c (Step II A, lato del produttore)
 MARGINS_B <- 100     # ripetizioni del bootstrap dei tre margini (100 = pochi minuti)
 
 ## ============================== PACCHETTI ================================= #
@@ -4892,6 +4897,596 @@ if (file.exists(pe)) {
 }
 }
 ###############################################################################
+
+
+###############################################################################
+###############################################################################
+##
+##  PARTE 14b - PROVE DI ROBUSTEZZA DEI TRE MARGINI (v26, 22 nov 2026)
+##
+##  COSA FA   Rifà i tre margini della PARTE 14 (entrata, chili, valore al kg)
+##            per carne, latte e uova con dieci specificazioni diverse, per
+##            vedere se il risultato principale regge: il valore al kg spiega
+##            una parte piccola della risposta al reddito (H1a).
+##              S0  base: come la PARTE 14 (stime puntuali)
+##              S1  benessere = SPESA ALIMENTARE per adulto equivalente (per
+##                  persona in Malawi e Nigeria) invece della spesa totale: e'
+##                  la prova prevista nel piano (Paolo). Si legge come
+##                  un'elasticita' condizionata al bilancio alimentare (bilancio
+##                  in due stadi). Fonti: food_cons_ann (Etiopia), foodbevR o
+##                  foodINR+foodOUTR (Tanzania), rexp_cat011 (Malawi), somma
+##                  delle voci fd* (Nigeria), somma dei valori del modulo
+##                  alimentare (Uganda, che non ha la parte alimentare
+##                  nell'aggregato).
+##              S2  altra scala: per persona dove la base e' per adulto
+##                  equivalente, e viceversa
+##              S3  effetti CLUSTER x anno invece di regione x anno: toglie le
+##                  differenze di prezzo locali dal valore al kg
+##              S4  valori unitari tagliati al 5-95% invece che all'1-99%
+##              S5  valori unitari senza taglio
+##              S6  senza pesi dell'indagine
+##              S7  solo famiglie rurali
+##              S8  solo famiglie urbane
+##              S9  variabile strumentale: il log della spesa e' strumentato con
+##                  quello della wave precedente della stessa famiglia (errori
+##                  di misura della spesa; solo i paesi panel, solo famiglie viste
+##                  due volte)
+##              S10 manzo invece di tutta la carne: il valore al kg dentro UN
+##                  prodotto, senza lo spostamento fra carni (traccia B)
+##            Errori standard raggruppati per cluster (piu' prudenti di quelli
+##            della PARTE 14). Tabella ROB_01, figura ROB_01.
+##
+###############################################################################
+###############################################################################
+if (exists("RUN_ROB") && !RUN_ROB) message("PART 14b skipped") else {
+
+## ---- 14b.0 spesa alimentare della famiglia -------------------------------- #
+ROB_FOOD <- list(
+  ETH = list(list(2011, "cons_agg_w1", "ETH_2011", "household_id"),
+             list(2013, "cons_agg_w2", "ETH_2013", "household_id2"),
+             list(2015, "cons_agg_w3", "ETH_2015", "household_id2"),
+             list(2018, "cons_agg_w4", "ETH_2018", "household_id"),
+             list(2021, "cons_agg_w5", "ETH_2021", "household_id")),
+  TZA = list(list(2008, "TZY1.HH.Consumption", "TZA_2008", "hhid"),
+             list(2010, "TZY2.HH.Consumption", "TZA_2010", "y2_hhid"),
+             list(2012, "ConsumptionNPS3",     "TZA_2012", "y3_hhid"),
+             list(2014, "consumptionNPS4",     "TZA_2014", "y4_hhid"),
+             list(2020, "consumption_real_y5", "TZA_2020", "y5_hhid")),
+  MWI = list(list(2010, "ihs3fc2M_consumption",       "MWI_2010_IHS-III.*Full_Sample", "case_id"),
+             list(2016, "ihs4 consumption aggregate", "MWI_2016_IHS-IV",               "case_id"),
+             list(2019, "ihs5_consumption_aggregate", "MWI_2019_IHS-V",                "case_id"),
+             list(2024, "ihs6_consumptionaggregates", "MWI_2024-2025_IHS-VI",          "case_id")),
+  NGA = list(list(2010, "cons_agg_wave1_visit2", "NGA_2010", "hhid"),
+             list(2012, "cons_agg_wave2_visit2", "NGA_2012", "hhid"),
+             list(2015, "cons_agg_wave3_visit2", "NGA_2015", "hhid")),
+  UGA = list(list(2010, "GSEC15b", "UGA_2010", "hh",   c("h15bq5","h15bq7","h15bq9","h15bq11")),
+             list(2011, "GSEC15B", "UGA_2011", "HHID", c("h15bq5","h15bq7","h15bq9","h15bq11")),
+             list(2013, "GSEC15B", "UGA_2013", "hhid", c("h15bq5","h15bq7","h15bq9","h15bq11")),
+             list(2015, "gsec15b", "UGA_2015", "hh",   c("h15bq5","h15bq7","h15bq9","h15bq11")),
+             list(2018, "GSEC15B", "UGA_2018", "hhid", c("CEB07","CEB09","CEB11","CEB013")),
+             list(2019, "gsec15b", "UGA_2019", "hhid", c("CEB07","CEB09","CEB11","CEB013"))))
+rob_id <- function(v) if (is.numeric(v)) sprintf("%.0f", v) else trimws(as.character(v))
+food_spend <- function(cc) {
+  map_dfr(ROB_FOOD[[cc]], function(W) {
+    p <- find_dta(W[[2]], W[[3]])
+    if (is.na(p) || !grepl(sub("\\.\\*.*", "", W[[3]]), p)) return(NULL)
+    d <- haven::read_dta(p)
+    if (!(W[[4]] %in% names(d))) return(NULL)
+    f <- if (cc == "ETH") num(d$food_cons_ann) else
+         if (cc == "TZA") { if ("foodbevR" %in% names(d)) num(d$foodbevR) else
+                              num(d$foodINR_pae) + coalesce(num(d$foodOUTR_pae), 0) } else
+         if (cc == "MWI") num(d$rexp_cat011) else
+         if (cc == "NGA") rowSums(sapply(grep("^fd", names(d), value = TRUE), function(k) num(d[[k]])), na.rm = TRUE) else
+         rowSums(sapply(intersect(W[[5]], names(d)), function(k) pmax(num(d[[k]]), 0)), na.rm = TRUE)
+    tibble(year = W[[1]], hhid = rob_id(d[[W[[4]]]]), food = f) %>%
+      group_by(year, hhid) %>% summarise(food = sum(food, na.rm = TRUE), .groups = "drop")
+  })
+}
+
+## ---- 14b.1 una specificazione: entrata, chili, valore al kg --------------- #
+## g: famiglie x un prodotto; x = variabile del benessere da usare; fe = effetti
+## fissi; tr = taglio dei valori unitari; w = pesi; iv = strumento (o NULL)
+rob_fit <- function(g, x, ctrl, fe, tr, w, iv = NULL) {
+  g$l_xx <- log(g[[x]]); g <- g[is.finite(g$l_xx), ]
+  if (!is.null(iv)) { g$l_iv <- log(g[[iv]]); g <- g[is.finite(g$l_iv), ] }
+  if (sum(g$buys) < 100) return(NULL)
+  rhs <- function(y) if (is.null(iv)) as.formula(paste(y, "~ l_xx +", ctrl, "|", fe)) else
+                     as.formula(paste(y, "~", ctrl, "|", fe, "| l_xx ~ l_iv"))
+  est <- function(f, dd) {
+    m <- try(suppressMessages(feols(f, dd, weights = if (w) ~weight else NULL,
+                                    vcov = ~cluster)), silent = TRUE)
+    nm <- if (is.null(iv)) "l_xx" else "fit_l_xx"
+    if (inherits(m, "try-error") || !(nm %in% names(coef(m)))) return(c(NA, NA, NA))
+    c(unname(coef(m)[nm]), unname(se(m)[nm]), unname(pvalue(m)[nm]))
+  }
+  P  <- if (w) weighted.mean(g$buys, g$weight) else mean(g$buys)
+  en <- est(rhs("buys"), g)
+  b  <- g %>% filter(uv > 0, qty > 0, unconv == 0)
+  if (tr > 0) b <- b %>% group_by(year) %>%
+    filter(uv >= quantile(uv, tr), uv <= quantile(uv, 1 - tr)) %>% ungroup()
+  ok <- nrow(b) >= 200
+  qn <- if (ok) est(rhs("log(qty)"), b) else c(NA, NA, NA)
+  ql <- if (ok) est(rhs("log(uv)"), b)  else c(NA, NA, NA)
+  e  <- c(en[1] / P, qn[1], ql[1]); tot <- sum(e)
+  tibble(n = nrow(g), n_uv = nrow(b), P = P,
+         e_entry = e[1], e_qty = e[2], e_qual = e[3], se_qual = ql[2], p_qual = ql[3],
+         sh_entry = e[1] / tot, sh_qty = e[2] / tot, sh_qual = e[3] / tot)
+}
+
+## ---- 14b.2 tutte le specificazioni, paese per paese ----------------------- #
+rob <- list()
+for (pf in list.files(OUT_DIR, pattern = "^panel_[A-Z]{3}\\.csv$", full.names = TRUE)) {
+  cc  <- str_match(basename(pf), "panel_([A-Z]{3})")[, 2]
+  raw <- read.csv(pf, stringsAsFactors = FALSE)
+  d0  <- prep(raw)
+  cv  <- c("l_ae", "urban")
+  for (v in c("share_child","share_elderly","head_age","head_female"))
+    if (v %in% names(raw) && mean(!is.na(raw[[v]])) > .5) { d0[[v]] <- as.numeric(raw[[v]]); cv <- c(cv, v) }
+  ctrl <- paste(cv, collapse = " + ")
+  d0 <- d0 %>% filter(welfare > 0) %>% filter(if_all(all_of(cv), ~ !is.na(.x))) %>%
+    mutate(ry = paste(as.character(region), year, sep = "_"),
+           cy = paste(cluster, year, sep = "_"),
+           buys = as.integer(coalesce(qty > 0, FALSE) | coalesce(exp > 0, FALSE)),
+           cluster = ifelse(is.na(cluster) | cluster == "", paste0("h", hhid), cluster))
+  ## benessere alternativo: spesa alimentare sulla stessa scala della spesa totale
+  fs <- food_spend(cc)
+  hh <- d0 %>% distinct(year, hhid, hhsize, adulteq)
+  if (nrow(fs)) {
+    sc <- if (cc %in% c("MWI", "NGA")) "hhsize" else "adulteq"
+    hh <- hh %>% left_join(fs, by = c("year", "hhid")) %>%
+      mutate(w_food = food / pmax(.data[[sc]], 1))
+  } else hh$w_food <- NA_real_
+  ## altra scala: per persona <-> per adulto equivalente
+  hh <- hh %>% mutate(conv = if (cc %in% c("MWI", "NGA")) pmax(hhsize, 1) / pmax(adulteq, 1)
+                             else pmax(adulteq, 1) / pmax(hhsize, 1))
+  ## spesa della wave precedente della stessa famiglia (paesi panel)
+  pid <- if (cc != "MWI") try(panel_ids(cc), silent = TRUE) else NULL
+  lagw <- NULL
+  if (!is.null(pid) && !inherits(pid, "try-error") && nrow(pid)) {
+    lagw <- d0 %>% distinct(wave, year, hhid, welfare) %>%
+      inner_join(pid %>% distinct(wave, hhid, .keep_all = TRUE), by = c("wave", "hhid")) %>%
+      arrange(pid, year) %>% group_by(pid) %>%
+      mutate(w_lag = lag(welfare)) %>% ungroup() %>% select(year, hhid, w_lag)
+  }
+  d0 <- d0 %>% left_join(hh %>% select(year, hhid, w_food, conv), by = c("year", "hhid")) %>%
+    mutate(w_scale = welfare * conv)
+  d0 <- if (!is.null(lagw)) d0 %>% left_join(lagw, by = c("year", "hhid")) else d0 %>% mutate(w_lag = NA_real_)
+  cat(sprintf("\n14b. %s: food spending found for %.0f%% of households; previous round for %.0f%%\n", cc,
+              100 * mean(!is.na(d0$w_food) & d0$w_food > 0), 100 * mean(!is.na(d0$w_lag))))
+
+  specs <- list(
+    S0_base       = list(x = "welfare", fe = "ry", tr = .01, w = TRUE),
+    S1_food_spend = list(x = "w_food",  fe = "ry", tr = .01, w = TRUE),
+    S2_other_scale= list(x = "w_scale", fe = "ry", tr = .01, w = TRUE),
+    S3_cluster_fe = list(x = "welfare", fe = "cy", tr = .01, w = TRUE),
+    S4_trim_5_95  = list(x = "welfare", fe = "ry", tr = .05, w = TRUE),
+    S5_no_trim    = list(x = "welfare", fe = "ry", tr = 0,   w = TRUE),
+    S6_unweighted = list(x = "welfare", fe = "ry", tr = .01, w = FALSE),
+    S7_rural      = list(x = "welfare", fe = "ry", tr = .01, w = TRUE, sub = "rural"),
+    S8_urban      = list(x = "welfare", fe = "ry", tr = .01, w = TRUE, sub = "urban"),
+    S9_iv_lag     = list(x = "welfare", fe = "ry", tr = .01, w = TRUE, iv = "w_lag"))
+  for (p in c("meat_agg", "milk", "eggs", "beef")) {
+    g0 <- d0 %>% filter(product == p, track == if (p == "beef") "B" else "A")
+    if (sum(g0$buys) < 100) next
+    sp <- if (p == "beef") specs["S0_base"] else specs
+    for (s in names(sp)) {
+      S <- sp[[s]]; g <- g0
+      ## urbano/rurale: urban = 1 urbano (prep); in Etiopia e Tanzania la
+      ## colonna e' un indicatore rurale (vedi la nota della PARTE 12), quindi
+      ## qui si usa il codice grezzo come nella PARTE 12
+      if (!is.null(S$sub)) {
+        ur <- trimws(as.character(g$urban_r))
+        rural <- if (cc %in% c("ETH", "TZA")) ur %in% c("1", "1.0") else
+                 if (cc == "NGA") ur %in% c("2", "2.0") else ur %in% c("0", "0.0")
+        g <- g[if (S$sub == "rural") rural else !rural & !is.na(ur) & nzchar(ur), ]
+      }
+      if (!is.null(S$iv)) g <- g[!is.na(g$w_lag) & g$w_lag > 0, ]
+      ctl <- if (!is.null(S$sub)) sub("urban", "1", ctrl) else ctrl
+      r <- rob_fit(g, S$x, ctl, S$fe, S$tr, S$w, S$iv)
+      if (is.null(r)) next
+      rob[[paste(cc, p, s)]] <- r %>% mutate(country = cc, product = if (p == "beef") "beef (S10)" else p,
+                                             spec = if (p == "beef") "S10_beef_only" else s, .before = 1)
+    }
+  }
+}
+if (length(rob)) {
+  rb <- bind_rows(rob) %>% mutate(across(where(is.numeric) & !c(n, n_uv), ~ round(.x, 4)))
+  cat("\n--- 14b. ROBUSTNESS: share of the income response due to VALUE PER KILO (meat), by specification ---\n")
+  print(as.data.frame(rb %>% filter(product %in% c("meat_agg", "beef (S10)")) %>%
+          mutate(sh_qual = round(100 * sh_qual, 1)) %>%
+          select(country, spec, sh_qual) %>% pivot_wider(names_from = country, values_from = sh_qual)))
+  write.csv(rb, file.path(TMPCSV, "ROB_01_three_margins_robustness.csv"), row.names = FALSE)
+  pr <- rb %>% filter(product %in% c("meat_agg", "beef (S10)"), !is.na(sh_qual)) %>%
+    mutate(country = factor(country, intersect(c("MWI", "ETH", "UGA", "TZA", "NGA"), unique(country))))
+  gr <- ggplot(pr, aes(100 * sh_qual, spec)) + geom_vline(xintercept = 0, colour = "grey70") +
+    geom_point(size = 2) + facet_wrap(~country, nrow = 1) +
+    labs(title = "Meat: share of the income response due to value per kilo, eleven specifications",
+         x = "% of the income elasticity of spending", y = NULL) + theme_minimal(base_size = 10)
+  ggsave(file.path(FIGDIR, "ROB_01_value_per_kilo_share.png"), gr, width = 12, height = 4, dpi = 200)
+}
+}
+
+
+###############################################################################
+###############################################################################
+##
+##  PARTE 14c - STEP II, PARTE A: IL LATO DEL PRODUTTORE (v26, 22 nov 2026)
+##
+##  COSA FA   Legge i moduli zootecnici delle stesse indagini (latte e uova:
+##            quanto si produce, quanto si vende, a quanto, a chi) e li mette
+##            accanto al lato del consumatore della PARTE 12.
+##              S2A_01  prezzo alla stalla (vendite / quantita' venduta) contro
+##                      prezzo pagato da chi compra (valore unitario della
+##                      PARTE 1), per paese, anno e prodotto
+##              S2A_02  quante famiglie producono, quante vendono, che quota
+##                      della produzione vendono, per quinto di benessere
+##              S2A_03  a chi vendono (dove il questionario lo chiede)
+##  PERCHE'   La Step I mostra che con il reddito una parte crescente del latte
+##            e delle uova consumati e' COMPRATA. Lo Step II chiede chi la
+##            fornisce e quanto valore si aggiunge fra la stalla e il
+##            consumatore. Il rapporto fra i due prezzi e' la prima misura del
+##            margine della filiera (trasporto, commercio, vendita).
+##  ATTENZIONE Le domande cambiano fra paesi e wave; ogni scelta e' scritta
+##            sotto, paese per paese. Le quantita' prodotte sono meno precise
+##            dei prezzi: il prezzo alla stalla e la quota di chi vende sono le
+##            misure solide, la quota venduta della produzione e' indicativa.
+##            Il latte e' in litri, le uova in pezzi. Le uova di Etiopia e
+##            Nigeria non hanno il rapporto dei prezzi: dal lato del
+##            consumatore sono in kg.
+##
+###############################################################################
+###############################################################################
+if (exists("RUN_S2A") && !RUN_S2A) message("PART 14c skipped") else {
+
+idstr <- function(x) if (is.numeric(x)) sprintf("%.0f", x) else trimws(as.character(x))
+n0    <- function(x) { x <- num(x); ifelse(is.na(x), 0, x) }
+wmed  <- function(x, w) { k <- !is.na(x) & !is.na(w); x <- x[k]; w <- w[k]
+  if (!length(x)) return(NA_real_); o <- order(x); x <- x[o]; w <- w[o]
+  x[which(cumsum(w) / sum(w) >= 0.5)[1]] }
+lab_txt <- function(x) tolower(trimws(as.character(haven::as_factor(x))))
+## legge un modulo e si ferma se manca (meglio fermarsi che perdere un paese)
+s2a_need <- function(stem, hint) { d <- grab(stem, hint)
+  if (is.null(d)) stop("Step II A: missing ", stem, " (", hint, ")"); d }
+
+## ---- 14c.1 un record per famiglia x prodotto: prodotto, venduto, incasso --- #
+## Ogni funzione restituisce: hhid, product (milk/eggs), prod_q (anno), sold_q
+## (anno), sold_v (anno, valuta locale), p_q e p_v (quantita' e incasso dello
+## STESSO periodo, per il prezzo; NA se il prezzo non e' pulito), buyer.
+S2A_REC <- function(hhid, product, prod_q, sold_q, sold_v, p_q = sold_q,
+                    p_v = sold_v, buyer = NA_character_)
+  tibble(hhid = hhid, product = product, prod_q = prod_q, sold_q = sold_q,
+         sold_v = sold_v, p_q = p_q, p_v = p_v, buyer = buyer)
+
+S2A_READ <- list(
+
+  ## ETIOPIA. 2011-2013: sezione 8C, prodotto e venduto negli ultimi 12 mesi
+  ## con l'unita' (1 litro, 3 numero). 2015: sezione 8.6, per tipo di animale:
+  ## capi munti in media x litri per capo al giorno x mesi; venduto e incasso
+  ## nello stesso periodo (la settimana). 2018-2021: sezione 8.4, come il 2015
+  ## ma i capi munti sono q02. Uova 2015: covate x uova per covata x galline,
+  ## vendita e incasso nei 12 mesi; 2018-2021 vendita e incasso negli ultimi 3
+  ## mesi (x 4); la produzione e' su un altro periodo, quindi la quota venduta
+  ## delle uova non si calcola. I file sono per CONDUTTORE: si somma per famiglia.
+  ETH = list(
+    `2011` = function() { d <- s2a_need("sect8c_ls_w1", "ETH_2011")
+      d <- d %>% mutate(code = num(ls_s8cq00),
+        pq = n0(ls_s8cq06a) + n0(ls_s8cq06b) / 1000, pu = num(ls_s8cq06c),
+        sq = n0(ls_s8cq07a) + n0(ls_s8cq07b) / 1000, su = num(ls_s8cq07c),
+        sv = n0(ls_s8cq08a) + n0(ls_s8cq08b) / 100) %>% filter(code %in% c(1, 6))
+      d %>% mutate(product = ifelse(code == 1, "milk", "eggs"), ok = ifelse(code == 1, 1, 3)) %>%
+        transmute(hhid = idstr(household_id), product,
+                  prod_q = ifelse(pu == ok, pq, NA), sold_q = ifelse(su == ok, sq, NA),
+                  sold_v = sv) %>%
+        mutate(sold_q = ifelse(is.na(sold_q) & sold_v == 0, 0, sold_q)) %>%
+        { S2A_REC(.$hhid, .$product, .$prod_q, .$sold_q, .$sold_v) } },
+    `2013` = function() { d <- s2a_need("sect8c_ls_w2", "ETH_2013")
+      d <- d %>% mutate(code = num(ls_s8cq00), pq = n0(ls_s8cq06b), pu = num(ls_s8cq06a),
+        sq = n0(ls_s8cq07b), su = num(ls_s8cq07a), sv = n0(ls_s8cq08a)) %>% filter(code %in% c(1, 6))
+      d %>% mutate(product = ifelse(code == 1, "milk", "eggs"), ok = ifelse(code == 1, 1, 3)) %>%
+        transmute(hhid = idstr(household_id2), product,
+                  prod_q = ifelse(pu == ok, pq, NA), sold_q = ifelse(su == ok, sq, NA),
+                  sold_v = sv) %>%
+        mutate(sold_q = ifelse(is.na(sold_q) & sold_v == 0, 0, sold_q)) %>%
+        { S2A_REC(.$hhid, .$product, .$prod_q, .$sold_q, .$sold_v) } },
+    `2015` = function() { d <- s2a_need("sect8_6_ls_w3", "ETH_2015")
+      m <- d %>% filter(!is.na(num(ls_sec_8_6aq04)), n0(ls_sec_8_6aq01) > 0) %>%
+        mutate(perday = n0(ls_sec_8_6aq03) * num(ls_sec_8_6aq04),
+               wk_s = n0(ls_sec_8_6aq09), wk_v = n0(ls_sec_8_6aq10), mo = num(ls_sec_8_6aq02))
+      e <- d %>% filter(!is.na(num(ls_sec_8_6bq16)) | !is.na(num(ls_sec_8_6bq18))) %>%
+        mutate(pq = n0(ls_sec_8_6bq14) * n0(ls_sec_8_6bq15) * n0(ls_sec_8_6bq16),
+               sq = n0(ls_sec_8_6bq18), sv = n0(ls_sec_8_6bq19))
+      bind_rows(
+        S2A_REC(idstr(m$household_id2), "milk", m$perday * 7, m$wk_s, m$wk_v),
+        S2A_REC(idstr(e$household_id2), "eggs", ifelse(e$pq > 0, e$pq, NA), e$sq, e$sv)) },
+    `2018` = function() eth_s84("sect8_4_ls_w4", "ETH_2018"),
+    `2021` = function() eth_s84("sect8_4_ls_w5", "ETH_2021")),
+
+  ## TANZANIA. 2008-2010: un modulo dei prodotti (1-2 latte tradizionale e
+  ## migliorato, 3-4 uova): prodotto al mese x mesi; venduto e incasso nei 12
+  ## mesi, con l'unita' (1 litri, 3 pezzi). 2012-2020: latte nella sezione 6
+  ## (capi munti x litri per capo al giorno x mesi x 30; venduto al giorno;
+  ## incasso al giorno di latte E latticini: il prezzo si calcola solo se non
+  ## si vendono latticini), uova nella sezione 8 come nel 2008. A chi si vende:
+  ## solo nel 2020 la risposta e' un codice; prima rimanda al registro dei
+  ## contatti, che qui non si usa.
+  TZA = list(
+    `2008` = function() tz_prod(s2a_need("SEC_10B", "TZA_2008"), "hhid", "lvstkprod",
+                                c(1, 2), c(3, 4), "s10bq2", "s10bq3_meas", "s10bq3_meat",
+                                "s10bq5_1", "s10bq5_2", "s10bq6"),
+    `2010` = function() tz_prod(s2a_need("AG_SEC10B", "TZA_2010"), "y2_hhid", "itemcode",
+                                c(1, 2), c(3, 4), "ag10b_02", "ag10b_03_1", "ag10b_03_2",
+                                "ag10b_05_1", "ag10b_05_2", "ag10b_06"),
+    `2012` = function() tz_lf("TZA_2012", "y3_hhid", "lvstckcat"),
+    `2014` = function() tz_lf("TZA_2014", "y4_hhid", "lvstckcat"),
+    `2020` = function() tz_lf("TZA_2020", "y5_hhid", "lvstckid")),
+
+  ## MALAWI. Modulo S, tutte le wave: 401 latte di vacca, 402 uova di gallina;
+  ## prodotto al mese x mesi, venduto e incasso nei 12 mesi, con l'unita'
+  ## (1 litro, 3 pezzo). A chi si vende: solo il 2024 ha un codice con le
+  ## etichette. Nel 2016 e nel 2019 il codice non ha etichette e la sua
+  ## distribuzione non e' quella del 2024 (molti 3-5, che nel 2024 sarebbero
+  ## capo villaggio e autorita' tradizionale): non si usa. Il 2010 rimanda al
+  ## registro dei contatti, non usato.
+  MWI = list(
+    `2010` = function() mw_s("MWI_2010_IHS-III.*Full_Sample", NULL),
+    `2016` = function() mw_s("MWI_2016_IHS-IV", NULL),
+    `2019` = function() mw_s("MWI_2019_IHS-V", NULL),
+    `2024` = function() mw_s("MWI_2024-2025_IHS-VI", "ag_s08")),
+
+  ## NIGERIA. Sezione 11K del post-semina: 1 latte, 2 uova; prodotto al mese x
+  ## mesi; venduto e incasso con l'unita' (litri; pezzi; nel 2010 anche la
+  ## cassa da 30). Poche famiglie: si riporta il prezzo, con il numero di casi.
+  NGA = list(
+    `2010` = function() ng_11k("NGA_2010", c(litre = 1, piece = 4, crate = 5)),
+    `2012` = function() ng_11k("NGA_2012", c(litre = 3, piece = 16)),
+    `2015` = function() ng_11k("NGA_2015", c(litre = 3, piece = 80, piece = 81, piece = 82))),
+
+  ## UGANDA. 2010: un modulo dei prodotti (1-2 latte di vacca e di capra, 5
+  ## uova): prodotto e venduto al mese x mesi (unita' 2 litri, 4 numeri, 3
+  ## vassoi da 30). 2011: latte = capi munti x giorni x litri al giorno,
+  ## venduto e incasso nei 12 mesi; uova prodotte e vendute in 3 mesi (x 4).
+  ## 2013-2019: latte venduto AL GIORNO x mesi x 30; l'incasso e' per tutto il
+  ## periodo e comprende i latticini: prezzo solo se non si vendono latticini.
+  ## Uova in 3 mesi. A chi si vende: tutte le wave.
+  UGA = list(
+    `2010` = function() { d <- s2a_need("AGSEC8", "UGA_2010")
+      d <- d %>% mutate(code = num(a8q2), u = num(a8q5), mo = num(a8q3),
+                        k = case_when(u == 2 ~ 1, u == 4 ~ 1, u == 3 ~ 30, TRUE ~ NA_real_)) %>%
+        filter(code %in% c(1, 2, 5)) %>%
+        mutate(product = ifelse(code == 5, "eggs", "milk"),
+               k = ifelse((product == "milk" & u != 2) | (product == "eggs" & !u %in% c(3, 4)), NA, k))
+      S2A_REC(idstr(d$HHID), d$product, num(d$a8q4) * d$k * d$mo, n0(d$a8q6) * d$k * d$mo,
+              n0(d$a8q7) * d$mo, buyer = lab_txt(d$a8q10)) },
+    `2011` = function() {
+      m <- s2a_need("AGSEC8B", "UGA_2011") %>% filter(n0(a8bq1) > 0)
+      e <- s2a_need("AGSEC8C", "UGA_2011") %>% filter(!is.na(num(a8cq2)))
+      bind_rows(
+        S2A_REC(idstr(m$HHID), "milk", n0(m$a8bq1) * num(m$a8bq2) * num(m$a8bq3),
+                n0(m$a8bq7), n0(m$a8bq9), buyer = lab_txt(m$a8bq8)),
+        S2A_REC(idstr(e$HHID), "eggs", 4 * num(e$a8cq2), 4 * n0(e$a8cq3), 4 * n0(e$a8cq5),
+                buyer = lab_txt(e$a8cq4))) },
+    `2013` = function() ug_milk_eggs("UGA_2013", "hh", "a8b", "a8c", c("q1","q2","q3","q5_1","q7","q8","q9"),
+                                     c("q2","q3","q4","q5")),
+    `2015` = function() ug_milk_eggs("UGA_2015", "hh", "a8b", "a8c", c("q1","q2","q3","q5_1","q7","q8","q9"),
+                                     c("q2","q3","q4","q5")),
+    `2018` = function() ug_milk_eggs("UGA_2018", "hhid", "s8b", "s8c", c("q01","q02","q03","q05a","q07","q08","q09"),
+                                     c("q02","q03","q04","q05")),
+    `2019` = function() ug_milk_eggs("UGA_2019", "hhid", "s8b", "s8c", c("q01","q02","q03","q05a","q07","q08","q09"),
+                                     c("q02","q03","q04","q05")))
+)
+
+## Etiopia 2018-2021, sezione 8.4
+eth_s84 <- function(stem, hint) { d <- s2a_need(stem, hint)
+  m <- d %>% filter(!is.na(num(ls_s8_4q04)), n0(ls_s8_4_q02) > 0) %>%
+    mutate(perday = n0(ls_s8_4_q02) * num(ls_s8_4q04), wk_s = n0(ls_s8_4q09), wk_v = n0(ls_s8_4q10))
+  e <- d %>% filter(!is.na(num(ls_s8_4q18)) | !is.na(num(ls_s8_4q16)))
+  bind_rows(
+    S2A_REC(idstr(m$household_id), "milk", m$perday * 7, m$wk_s, m$wk_v),
+    S2A_REC(idstr(e$household_id), "eggs", NA_real_, 4 * n0(e$ls_s8_4q18), 4 * n0(e$ls_s8_4q19))) }
+
+## Tanzania 2008-2010, modulo dei prodotti
+tz_prod <- function(d, idv, codev, milk, eggs, mo, pq, pu, sq, su, sv) {
+  d <- d %>% mutate(code = num(.data[[codev]])) %>% filter(code %in% c(milk, eggs)) %>%
+    mutate(product = ifelse(code %in% milk, "milk", "eggs"), ok = ifelse(product == "milk", 1, 3),
+           prod_q = ifelse(num(.data[[pu]]) == ok, num(.data[[pq]]) * num(.data[[mo]]), NA),
+           sold_q = ifelse(num(.data[[su]]) == ok, num(.data[[sq]]), NA),
+           sold_v = n0(.data[[sv]]),
+           sold_q = ifelse(is.na(sold_q) & sold_v == 0 & !is.na(prod_q), 0, sold_q)) %>%
+    filter(!is.na(prod_q) | sold_v > 0)
+  S2A_REC(idstr(d[[idv]]), d$product, d$prod_q, d$sold_q, d$sold_v) }
+
+## Tanzania 2012-2020, sezioni 6 (latte) e 8 (uova)
+tz_lf <- function(hint, idv, catv) {
+  m <- s2a_need("lf_sec_06", hint) %>% filter(n0(lf06_01) > 0)
+  e <- s2a_need("lf_sec_08", hint) %>% filter(num(productid) == 1, num(lf08_01) == 1)
+  days <- 30 * num(m$lf06_02)
+  only_milk <- n0(m$lf06_10) == 0
+  buyer <- if ("lf06_12a" %in% names(m)) lab_txt(m$lf06_12a) else NA_character_
+  ep  <- ifelse(num(e$lf08_03_2) == 3, num(e$lf08_03_1) * num(e$lf08_02), NA)
+  es  <- ifelse(num(e$lf08_05_2) == 3, num(e$lf08_05_1), NA)
+  ev  <- n0(e$lf08_06); es <- ifelse(is.na(es) & ev == 0, 0, es)
+  bind_rows(
+    S2A_REC(idstr(m[[idv]]), "milk", n0(m$lf06_01) * num(m$lf06_03) * days,
+            n0(m$lf06_08) * days, n0(m$lf06_11) * days,
+            p_q = ifelse(only_milk, n0(m$lf06_08) * days, NA),
+            p_v = ifelse(only_milk, n0(m$lf06_11) * days, NA), buyer = buyer),
+    S2A_REC(idstr(e[[idv]]), "eggs", ep, es, ev)) }
+
+## Malawi, modulo S
+mw_s <- function(hint, buyv) {
+  d <- s2a_need("ag_mod_s", hint) %>% mutate(code = num(ag_s0a)) %>%
+    filter(code %in% c(401, 402), num(ag_s01) == 1) %>%
+    mutate(product = ifelse(code == 401, "milk", "eggs"), ok = ifelse(code == 401, 1, 3),
+           prod_q = ifelse(num(ag_s03b) == ok, num(ag_s03a) * num(ag_s02), NA),
+           sold_q = ifelse(num(ag_s05b) == ok, num(ag_s05a), NA),
+           sold_v = n0(ag_s06),
+           sold_q = ifelse(is.na(sold_q) & sold_v == 0, 0, sold_q))
+  b <- if (!is.null(buyv) && buyv %in% names(d)) MW_BUYER[as.character(num(d[[buyv]]))] else NA_character_
+  S2A_REC(idstr(d$case_id), d$product, d$prod_q, d$sold_q, d$sold_v, buyer = unname(b)) }
+MW_BUYER <- c(`1`="relative", `2`="friend/neighbor", `7`="main farm/plot", `8`="roadside",
+              `9`="mobile market", `10`="local market", `11`="private trader in local market",
+              `12`="local merchant/grocery", `13`="main market", `14`="private trader in main market",
+              `15`="auction in main market", `16`="private company/business person",
+              `17`="employer", `26`="agricultural cooperative", `28`="ngo", `33`="other")
+
+## Nigeria, sezione 11K
+ng_11k <- function(hint, U) {
+  d <- s2a_need("sect11k_plantingw[123]", hint) %>% mutate(code = num(prod_cd)) %>%
+    filter(code %in% c(1, 2), num(s11kq1) == 1) %>%
+    mutate(product = ifelse(code == 1, "milk", "eggs"),
+           kp = ifelse(product == "milk", ifelse(num(s11kq3b) == U[["litre"]], 1, NA),
+                       ifelse(num(s11kq3b) %in% U[names(U) == "piece"], 1,
+                              ifelse("crate" %in% names(U) & num(s11kq3b) == U["crate"], 30, NA))),
+           ks = ifelse(product == "milk", ifelse(num(s11kq5b) == U[["litre"]], 1, NA),
+                       ifelse(num(s11kq5b) %in% U[names(U) == "piece"], 1,
+                              ifelse("crate" %in% names(U) & num(s11kq5b) == U["crate"], 30, NA))),
+           prod_q = num(s11kq3a) * kp * num(s11kq2), sold_q = num(s11kq5a) * ks, sold_v = n0(s11kq6),
+           sold_q = ifelse(is.na(sold_q) & sold_v == 0, 0, sold_q))
+  S2A_REC(idstr(d$hhid), d$product, d$prod_q, d$sold_q, d$sold_v) }
+
+## Uganda 2013-2019
+ug_milk_eggs <- function(hint, idv, mp, ep, mq, eq) {
+  M <- grab(if (mp == "a8b") "AGSEC8B" else "AGSEC8B", hint)
+  E <- grab("agsec8c", hint); if (is.null(E)) E <- grab("AGSEC8C", hint)
+  if (is.null(M) || is.null(E)) stop("Step II A: missing Uganda module ", hint)
+  v <- function(d, p, q) num(d[[paste0(p, q)]])
+  M <- M %>% filter(n0(.data[[paste0(mp, mq[1])]]) > 0)
+  days <- 30 * v(M, mp, mq[2])
+  milk_only <- is.na(v(M, mp, mq[5])) | v(M, mp, mq[5]) == 0
+  sq <- ifelse(is.na(v(M, mp, mq[4])), 0, v(M, mp, mq[4])) * days
+  sv <- ifelse(is.na(v(M, mp, mq[7])), 0, v(M, mp, mq[7]))
+  E <- E %>% filter(!is.na(num(.data[[paste0(ep, eq[1])]])))
+  bind_rows(
+    S2A_REC(idstr(M[[idv]]), "milk", n0(M[[paste0(mp, mq[1])]]) * v(M, mp, mq[3]) * days, sq, sv,
+            p_q = ifelse(milk_only, sq, NA), p_v = ifelse(milk_only, sv, NA),
+            buyer = lab_txt(M[[paste0(mp, mq[6])]])),
+    S2A_REC(idstr(E[[idv]]), "eggs", 4 * v(E, ep, eq[1]), 4 * n0(E[[paste0(ep, eq[2])]]),
+            4 * n0(E[[paste0(ep, eq[4])]]), buyer = lab_txt(E[[paste0(ep, eq[3])]]))) }
+
+## categorie di acquirente, uguali per tutti i paesi. "Mercato" mette insieme
+## le risposte che non dicono se al mercato compra un consumatore o un
+## commerciante (Uganda: "consumatore al mercato"; Malawi: mercato locale o
+## mobile; Tanzania: mercato).
+buyer_cat <- function(b) {
+  b <- tolower(ifelse(is.na(b), "", b))
+  case_when(b == "" ~ NA_character_,
+    str_detect(b, "trader|merchant|business|company|grocery|abattoir|abattori|factory|auction|cooperative|union") ~ "pct_traders_shops_processors",
+    str_detect(b, "market|roadside|main farm") ~ "pct_at_a_market",
+    str_detect(b, "neighbo|relative|friend") ~ "pct_neighbours_relatives",
+    TRUE ~ "pct_other")
+}
+
+## ---- 14c.2 lettura e unione con il pannello -------------------------------- #
+cat("\n--- 14c. STEP II A: PRODUCER SIDE (milk, eggs) ---\n")
+S2A <- list(); CONS <- list()
+for (cc in names(S2A_READ)) {
+  pf  <- file.path(OUT_DIR, sprintf("panel_%s.csv", cc))
+  raw <- read.csv(pf, stringsAsFactors = FALSE, colClasses = c(hhid = "character"))
+  pnl <- prep(raw)
+  hh  <- pnl %>% filter(!is.na(welfare)) %>% distinct(year, hhid, .keep_all = TRUE) %>%
+    select(year, hhid, weight, welfare)
+  hh  <- hh %>% group_by(year) %>% mutate(qt = ntile(welfare, 5)) %>% ungroup()
+  ## prezzo del consumatore: valore unitario degli acquisti (gia' pulito nella PARTE 1)
+  ## famiglie rurali con il codice grezzo, come nella PARTE 12 (1 = rurale in
+  ## Etiopia e Tanzania, 2 in Nigeria, 0 in Malawi e Uganda): la colonna urban
+  ## di prep() vale 1 per il codice "1" e qui non si puo' usare
+  pnl$rural <- { ur <- trimws(as.character(pnl$urban_r))
+    if (cc %in% c("ETH", "TZA")) ur %in% c("1", "1.0") else
+    if (cc == "NGA") ur %in% c("2", "2.0") else ur %in% c("0", "0.0") }
+  CONS[[cc]] <- pnl %>% filter(product %in% c("milk", "eggs"), qty > 0, !is.na(uv), uv > 0) %>%
+    group_by(year, product) %>%
+    summarise(cons_price = wmed(uv, weight), cons_price_rural = wmed(uv[rural], weight[rural]),
+              n_buyers = n(), .groups = "drop") %>% mutate(country = cc)
+  for (yr in names(S2A_READ[[cc]])) {
+    r <- tryCatch(S2A_READ[[cc]][[yr]](), error = function(e) { message("  ", cc, " ", yr, ": ", conditionMessage(e)); NULL })
+    if (is.null(r) || !nrow(r)) next
+    ## somma per famiglia (piu' animali, piu' conduttori, latte di vacca e di capra)
+    b <- r %>% filter(!is.na(buyer), buyer != "") %>% group_by(hhid, product) %>%
+      slice_max(sold_v, n = 1, with_ties = FALSE) %>% ungroup() %>% select(hhid, product, buyer)
+    r <- r %>% group_by(hhid, product) %>%
+      summarise(prod_q = if (all(is.na(prod_q))) NA_real_ else sum(prod_q, na.rm = TRUE),
+                sold_q = if (all(is.na(sold_q))) NA_real_ else sum(sold_q, na.rm = TRUE),
+                sold_v = sum(sold_v, na.rm = TRUE),
+                p_q = if (any(is.na(p_q) & p_v > 0, na.rm = TRUE)) NA_real_ else sum(p_q, na.rm = TRUE),
+                p_v = if (any(is.na(p_q) & p_v > 0, na.rm = TRUE)) NA_real_ else sum(p_v, na.rm = TRUE),
+                .groups = "drop") %>%
+      left_join(b, by = c("hhid", "product")) %>%
+      mutate(country = cc, year = as.numeric(yr), seller = as.integer(sold_v > 0 | n0(sold_q) > 0),
+             fg_price = ifelse(p_q > 0 & p_v > 0, p_v / p_q, NA_real_))
+    mt <- r %>% inner_join(hh, by = c("year", "hhid"))
+    cat(sprintf("  %s %s: %5d producer records, %3.0f%% matched to the panel, %4d sellers with a price\n",
+                cc, yr, nrow(r), 100 * nrow(mt) / nrow(r), sum(!is.na(mt$fg_price))))
+    S2A[[paste(cc, yr)]] <- mt
+  }
+}
+S2A  <- bind_rows(S2A)
+CONS <- bind_rows(CONS)
+
+## prezzi alla stalla impossibili (errori di unita'): fuori da 1/10 - 10 volte la
+## mediana del paese, anno e prodotto, il prezzo si toglie (la famiglia resta)
+S2A <- S2A %>% group_by(country, year, product) %>%
+  mutate(.m = median(fg_price, na.rm = TRUE),
+         fg_price = ifelse(!is.na(fg_price) & (fg_price > 10 * .m | fg_price < .m / 10), NA, fg_price)) %>%
+  ungroup() %>% select(-.m)
+
+## ---- 14c.3 tabelle ---------------------------------------------------------- #
+ALLHH <- list()
+for (cc in unique(S2A$country)) {
+  raw <- read.csv(file.path(OUT_DIR, sprintf("panel_%s.csv", cc)), stringsAsFactors = FALSE,
+                  colClasses = c(hhid = "character"))
+  ALLHH[[cc]] <- prep(raw) %>% filter(!is.na(welfare)) %>% distinct(year, hhid, .keep_all = TRUE) %>%
+    group_by(year) %>% mutate(qt = ntile(welfare, 5)) %>% ungroup() %>%
+    transmute(country = cc, year, hhid, weight, qt)
+}
+ALLHH <- bind_rows(ALLHH)
+
+## S2A_01: prezzo alla stalla contro prezzo al consumo
+s01 <- S2A %>% filter(!is.na(fg_price)) %>% group_by(country, year, product) %>%
+  summarise(n_sellers_price = n(), farmgate_price = wmed(fg_price, weight), .groups = "drop") %>%
+  left_join(CONS, by = c("country", "year", "product")) %>%
+  mutate(cons_price = ifelse(product == "eggs" & country %in% c("ETH", "NGA"), NA, cons_price),
+         cons_price_rural = ifelse(product == "eggs" & country %in% c("ETH", "NGA"), NA, cons_price_rural),
+         ratio_consumer_to_farmgate = cons_price / farmgate_price,
+         ratio_rural_consumer_to_farmgate = cons_price_rural / farmgate_price,
+         farmgate_pct_of_consumer = 100 * farmgate_price / cons_price,
+         note = ifelse(n_sellers_price < 30, "fewer than 30 sellers", "")) %>%
+  mutate(across(where(is.double), ~ round(.x, 3))) %>% arrange(product, country, year)
+
+## S2A_02: chi produce, chi vende, quanto vende (per quinto, media sulle wave)
+prodh <- S2A %>% filter(!is.na(prod_q) & prod_q > 0 | seller == 1)
+s02 <- ALLHH %>% filter(paste(country, year) %in% unique(paste(S2A$country, S2A$year))) %>%
+  tidyr::crossing(product = c("milk", "eggs")) %>%
+  left_join(prodh %>% select(country, year, hhid, product, prod_q, sold_q, seller), by = c("country", "year", "hhid", "product")) %>%
+  mutate(producer = as.integer(!is.na(seller)),
+         ok_share = !is.na(prod_q) & prod_q > 0 & !is.na(sold_q) & sold_q <= prod_q) %>%
+  group_by(country, product, qt, year) %>%
+  summarise(pct_producing = 100 * weighted.mean(producer, weight),
+            pct_of_producers_selling = if (sum(producer)) 100 * weighted.mean(seller[producer == 1], weight[producer == 1]) else NA_real_,
+            pct_of_production_sold = if (sum(ok_share)) 100 * sum((weight * sold_q)[ok_share]) / sum((weight * prod_q)[ok_share]) else NA_real_,
+            n_producers = sum(producer), .groups = "drop") %>%
+  group_by(country, product, qt) %>%
+  summarise(across(c(pct_producing, pct_of_producers_selling, pct_of_production_sold), ~ mean(.x, na.rm = TRUE)),
+            n_producers = sum(n_producers), rounds = paste(sort(unique(year)), collapse = " "), .groups = "drop") %>%
+  mutate(pct_of_production_sold = ifelse(country == "ETH" & product == "eggs", NA, pct_of_production_sold),
+         across(where(is.double), ~ round(.x, 1)))
+
+## S2A_03: a chi si vende (venditori, quota pesata, tutte le wave con la domanda)
+s03 <- S2A %>% filter(seller == 1) %>% mutate(cat = buyer_cat(buyer)) %>% filter(!is.na(cat)) %>%
+  group_by(country, product) %>% mutate(rounds = paste(sort(unique(year)), collapse = " "), n = n()) %>%
+  group_by(country, product, rounds, n, cat) %>% summarise(w = sum(weight), .groups = "drop_last") %>%
+  mutate(pct = round(100 * w / sum(w), 1)) %>% ungroup() %>% select(-w) %>%
+  tidyr::pivot_wider(names_from = cat, values_from = pct, values_fill = 0) %>% arrange(product, country)
+
+write.csv(s01, file.path(TMPCSV, "S2A_01_farmgate_vs_consumer_price.csv"), row.names = FALSE)
+write.csv(s02, file.path(TMPCSV, "S2A_02_producers_and_sales_by_quintile.csv"), row.names = FALSE)
+write.csv(s03, file.path(TMPCSV, "S2A_03_who_buys_from_producers.csv"), row.names = FALSE)
+
+cat("\nFarm-gate price as % of the consumer price (median, sellers with a price):\n")
+print(as.data.frame(s01 %>% select(country, year, product, n_sellers_price, farmgate_price, cons_price, farmgate_pct_of_consumer)))
+cat("\nProducers selling and share of production sold, Q1 and Q5 (mean over rounds):\n")
+print(as.data.frame(s02 %>% filter(qt %in% c(1, 5))))
+cat("\nWho buys from producers (% of sellers, weighted):\n"); print(as.data.frame(s03))
+}
 
 
 ###############################################################################

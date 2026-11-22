@@ -1,6 +1,6 @@
 # Figures of the "Research Update" deck, v24 (21 November 2026): five countries, fish excluded,
 # what households buy and eat, and where their animal foods come from.
-# Every number is read from results_reference/RESULTS_v25_2026-11-21.xlsx (no number typed by hand):
+# Every number is read from results_reference/RESULTS_v26_2026-11-22.xlsx (no number typed by hand):
 #   <C>_14_participation_quintile, MARGINS_01_three_margins, VC_04_sources_by_quintile,
 #   VC_06_basket_spending_by_quintile, VC_07_basket_protein_by_quintile, and (v25) VC_08 processed
 #   animal foods, VC_12 processed dairy, VC_13 protein bought, VC_14 share of protein bought.
@@ -14,7 +14,7 @@ from matplotlib.patches import Patch
 import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REF = os.path.join(HERE, '..', '..', 'results_reference', 'RESULTS_v25_2026-11-21.xlsx')
+REF = os.path.join(HERE, '..', '..', 'results_reference', 'RESULTS_v26_2026-11-22.xlsx')
 X = pd.read_excel(REF, sheet_name=None)
 for f in fm.findSystemFonts():
     if 'Carlito' in f: fm.fontManager.addfont(f)

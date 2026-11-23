@@ -220,6 +220,41 @@ add(N, 147, [2015], 'melon_seed_ground', 'plant', 'seeds', 'kg', 1, r'(?i)melon 
 add(N, 142, n12, 'ogbono_unground', 'plant', 'seeds', 'kg', 1, r'(?i)ogbonno (un)?grinded|unground ogbonno', 'bush-mango kernel, soup thickener')
 add(N, 143, n12, 'ogbono_ground', 'plant', 'seeds', 'kg', 1, r'(?i)ogbonno grinded|ground ogbonno', 'bush-mango kernel, soup thickener')
 
+# Nigeria waves 4-5 (2018, 2023): same codes, labels without the group prefix ("90. Beef"); new items
+n4 = [2018, 2023]
+for code, slot, cat, sub, std, tot, rx, note in [
+    (90, 'beef', 'meat', 'red', 'kg', 1, r'^90\. Beef$', ''), (91, 'mutton', 'meat', 'red', 'kg', 1, r'^91\. Mutton$', ''),
+    (93, 'goat', 'meat', 'red', 'kg', 1, r'^93\. Goat$', ''), (92, 'pork', 'meat', 'red', 'kg', 1, r'^92\. Pork$', ''),
+    (94, 'game_bush_meat', 'meat', 'minor', 'kg', 1, r'(?i)wild game', ''), (96, 'meat_other_excl_poultry', 'meat', 'minor', 'kg', 1, r'(?i)other meat \(excl', ''),
+    (80, 'chicken', 'meat', 'white', 'kg', 1, r'^80\. Chicken$', ''), (81, 'duck', 'meat', 'white', 'kg', 1, r'^81\. Duck$', ''),
+    (82, 'poultry_other', 'meat', 'white', 'kg', 1, r'(?i)other domestic poultry', ''),
+    (104, 'snails', 'meat', 'minor', 'kg', 1, r'(?i)snails', 'listed under fish and seafood in the questionnaire; land snails counted as minor meat'),
+    (83, 'eggs_farm', 'eggs', 'eggs', 'kg', 1, r'(?i)agricultural eggs', '"agricultural" (farm) eggs'), (84, 'eggs_local', 'eggs', 'eggs', 'kg', 1, r'(?i)local eggs', ''),
+    (100, 'fish_fresh', 'fish', 'fresh', 'kg', 1, r'(?i)fish - fresh', ''), (101, 'fish_frozen', 'fish', 'fresh', 'kg', 1, r'(?i)fish - frozen', 'frozen fish counted with fresh'),
+    (102, 'fish_smoked', 'fish', 'dried_smoked_salted', 'kg', 1, r'(?i)fish - smoked', ''), (103, 'fish_dried', 'fish', 'dried_smoked_salted', 'kg', 1, r'(?i)fish - dried', ''),
+    (105, 'seafood_crustaceans', 'fish', 'fresh', 'kg', 1, r'(?i)seafood \(lobster', ''), (106, 'fish_canned', 'fish', 'canned_packaged', 'kg', 1, r'(?i)canned fish', ''),
+    (107, 'fish_other', 'fish', 'unspecified', 'kg', 1, r'(?i)other fish or seafood', ''),
+    (110, 'milk_fresh', 'dairy', 'milk_fresh', 'litre', 1, r'(?i)fresh milk', ''), (111, 'milk_powder', 'dairy', 'milk_powder_tinned', 'kg', 1, r'(?i)^111\. milk powder', ''),
+    (113, 'milk_tinned', 'dairy', 'milk_powder_tinned', 'kg', 1, r'(?i)milk tinned', ''),
+    (112, 'infant_formula', 'dairy', 'infant_formula', 'kg', 0, r'(?i)baby milk', 'kept, not counted in dairy'),
+    (114, 'cheese_wara', 'dairy', 'cheese', 'kg', 1, r'(?i)cheese \(wara\)', ''), (115, 'dairy_other', 'dairy', 'milk_products', 'kg', 1, r'(?i)other milk products', 'no consumption rows in 2023'),
+    (51, 'butter_margarine', 'dairy', 'fats_mixed', 'kg', 0, r'(?i)butter/ ?margarine', 'mixes butter with margarine: kept, not counted in dairy'),
+    (40, 'soybeans', 'plant', 'soy', 'kg', 1, r'(?i)soya beans', ''), (41, 'beans_brown', 'plant', 'pulses', 'kg', 1, r'(?i)brown beans', ''),
+    (42, 'beans_white', 'plant', 'pulses', 'kg', 1, r'(?i)white beans', ''),
+    (43, 'groundnuts_unshelled', 'plant', 'groundnuts', 'kg', 1, r'(?i)groundnuts \(unshelled', ''), (44, 'groundnuts_shelled', 'plant', 'groundnuts', 'kg', 1, r'(?i)groundnuts \(shelled', ''),
+    (45, 'nuts_seeds_other', 'plant', 'pulse_nut_other', 'kg', 1, r'(?i)other nuts/seeds', ''),
+    (46, 'coconut', 'plant', 'nuts_low_protein', 'kg', 0, r'(?i)coconut', 'low in protein: kept, not counted'),
+    (47, 'kola_nut', 'plant', 'nuts_low_protein', 'kg', 0, r'(?i)kola', 'stimulant, low in protein: kept, not counted'),
+    (48, 'cashew', 'plant', 'nuts', 'kg', 1, r'(?i)cashew nut', ''),
+    (145, 'melon_seed_shelled', 'plant', 'seeds', 'kg', 1, r'(?i)melon \(shelled\)', 'egusi'), (146, 'melon_seed_unshelled', 'plant', 'seeds', 'kg', 1, r'(?i)melon \(unshelled\)', 'egusi'),
+    (147, 'melon_seed_ground', 'plant', 'seeds', 'kg', 1, r'(?i)melon \(ground\)', 'egusi'),
+    (142, 'ogbono_unground', 'plant', 'seeds', 'kg', 1, r'(?i)unground ogbono', 'bush-mango kernel, soup thickener'),
+    (143, 'ogbono_ground', 'plant', 'seeds', 'kg', 1, r'(?i)^143\. ground ogbono', 'bush-mango kernel, soup thickener'),]:
+    add(N, code, [2018] if code == 115 else n4, slot, cat, sub, std, tot, rx, note)
+# 2018-2023 also list codes such as 821 guinea fowl or 452 sesame, but only as the specification of an
+# 'other' item (item_os_cd): they have no rows of their own and stay inside 82, 45, 96, 107, 115
+add(N, 85, [2023], 'eggs_other', 'eggs', 'eggs', 'kg', 1, r'(?i)other eggs', 'back in 2023 (not asked in 2018)')
+
 # ------------------------------------------------------------------ UGANDA
 U = 'UGA'; o = [2010, 2011, 2013, 2015]; nU = [2018, 2019]; allU = o + nU
 add(U, 117, allU, 'beef', 'meat', 'red', 'kg', 1, r'(?i)beef')

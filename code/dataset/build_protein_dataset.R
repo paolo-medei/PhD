@@ -39,7 +39,8 @@ rd <- function(stem, hint) { p <- find_dta(stem, hint); if (is.na(p) || !grepl(s
 ## una riga per famiglia x voce, con i nomi di ruolo comuni a tutti i paesi
 ROLE <- c("cons_raw", "q_tot", "u_tot", "q_pur", "u_pur", "exp_pur", "q_own", "u_own", "q_gift", "u_gift",
           "uo_tot", "uo_pur", "uo_own", "uo_gift", "us_tot", "us_pur", "us_own", "us_gift",
-          "q_away", "val_away", "val_own", "val_gift", "q_frompur", "u_frompur", "q_wt", "u_wt")
+          "q_away", "val_away", "val_own", "val_gift", "q_frompur", "u_frompur", "q_wt", "u_wt",
+          "pur30_yn", "q_lastpur", "u_lastpur", "us_lastpur", "val_lastpur", "cvn_tot", "cvn_lastpur", "os_item")
 frame <- function(hhid, code, ...) {
   x <- list(...); n <- length(hhid)
   out <- tibble(hhid = hhid, code = code)
@@ -236,9 +237,20 @@ conv_mwi <- function(d, mp) {
 ###############################################################################
 NGA_W <- list(`2010` = list(food = "sect10b_harvestw1", own = "5", gift = "6", frompur = NULL, conv = NULL),
               `2012` = list(food = "sect10b_harvestw2", own = "6", gift = "7", frompur = "5", conv = "food_conv_w2ph"),
-              `2015` = list(food = "sect10b_harvestw3", own = "6", gift = "7", frompur = "5", conv = "food_conv_w3"))
+              `2015` = list(food = "sect10b_harvestw3", own = "6", gift = "7", frompur = "5", conv = "food_conv_w3"),
+              ## wave 4: le fonti (q5-q7) sono nell'unita' del totale; l'acquisto e' una domanda
+              ## a parte sugli ultimi 30 giorni (q8), con quantita' e spesa dell'ULTIMO acquisto
+              ## (q9, q10) e i fattori di conversione dell'indagine (q2_cvn, q9_cvn)
+              `2018` = list(food = "sect10b_harvestw4", style = "w4", p = "s10bq", q = c(tot = "2", fp = "5a", own = "6a", gift = "7a", p30 = "8", lp = "9", val = "10")),
+              `2023` = list(food = "sect5b_harvestw5",  style = "w4", p = "s5bq",  q = c(tot = "2", fp = "3", own = "4", gift = "5", p30 = "6", lp = "7", val = "8")))
 read_nga <- function(yr) {
   C <- NGA_W[[yr]]; f <- rd(C$food, paste0("NGA_", yr)); p <- "s10bq"
+  if (identical(C$style, "w4")) { P <- C$p; Q <- as.list(C$q); v <- function(k, x = "") paste0(P, Q[[k]], x)
+    return(frame(idstr(f$hhid), num(f$item_cd), cons_raw = col(f, paste0(P, "1")),
+      q_tot = col(f, v("tot", "a")), u_tot = col(f, v("tot", "b"), chr), us_tot = col(f, v("tot", "c"), chr),
+      q_frompur = col(f, v("fp")), q_own = col(f, v("own")), q_gift = col(f, v("gift")),
+      pur30_yn = col(f, v("p30")), q_lastpur = col(f, v("lp", "a")), u_lastpur = col(f, v("lp", "b"), chr), us_lastpur = col(f, v("lp", "c"), chr),
+      val_lastpur = col(f, v("val")), cvn_tot = col(f, v("tot", "_cvn")), cvn_lastpur = col(f, v("lp", "_cvn")), os_item = col(f, "item_os_cd"))) }
   q <- function(k) col(f, paste0(p, k, "a")); u <- function(k) col(f, paste0(p, k, "b"), chr)
   uo <- function(k) { v <- paste0(p, k, "b_os"); if (v %in% names(f)) chr(f[[v]]) else NULL }
   out <- frame(idstr(f$hhid), num(f$item_cd), cons_raw = col(f, "s10bq1"),
@@ -262,6 +274,9 @@ read_nga <- function(yr) {
 }
 conv_nga <- function(d, mp) {
   cv <- attr(d, "cv"); lab <- attr(d, "lab"); metric <- c(`1` = 1, `2` = 0.001, `3` = 1, `4` = 0.01)
+  if (is.null(cv) && is.null(lab))                       # wave 4: nessuna conversione (dataset di valori originali)
+    return(d %>% mutate(s_tot = NA_real_, s_pur = NA_real_, s_own = NA_real_, s_gift = NA_real_, s_frompur = NA_real_,
+                        conv_method = "not converted"))
   one <- function(q, u) { u <- num(u)
     if (!is.null(cv)) { t <- cv$cf[match(paste(d$code, u), paste(cv$code, cv$unit))]; t <- ifelse(is.na(t), unname(metric[as.character(u)]), t) }
     else t <- unname(lab[as.character(u)])

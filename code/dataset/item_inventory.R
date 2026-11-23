@@ -21,12 +21,14 @@ S <- list(
  list("MWI",2019,"hh_mod_g1","MWI_2019","hh_g02"), list("MWI",2024,"hh_mod_g1","MWI_2024","hh_g02"),
  list("NGA",2010,"sect10b_harvestw1","NGA_2010","item_cd"), list("NGA",2012,"sect10b_harvestw2","NGA_2012","item_cd"),
  list("NGA",2015,"sect10b_harvestw3","NGA_2015","item_cd"),
+ list("NGA",2018,"sect10b_harvestw4","NGA_2018","item_cd"),
+ list("NGA",2023,"sect5b_harvestw5","NGA_2023","item_cd"),
  list("UGA",2010,"GSEC15b","UGA_2010","itmcd"), list("UGA",2011,"GSEC15B","UGA_2011","itmcd"),
  list("UGA",2013,"GSEC15B","UGA_2013","itmcd"), list("UGA",2015,"gsec15b","UGA_2015","itmcd"),
  list("UGA",2018,"GSEC15B","UGA_2018","CEB01"), list("UGA",2019,"gsec15b","UGA_2019","CEB01"))
 out <- list()
 for (s in S) {
-  p <- find_dta(s[[3]], s[[4]]); if (is.na(p)) { cat("MISSING", unlist(s), "\n"); next }
+  p <- find_dta(s[[3]], s[[4]]); if (is.na(p) || !grepl(s[[4]], p)) { cat("MISSING", unlist(s), "\n"); next }
   d <- read_dta(p, col_select = all_of(s[[5]]))
   x <- d[[1]]; lv <- attr(x, "labels")
   tb <- as.data.frame(table(code = as.numeric(zap_labels(x))), stringsAsFactors = FALSE)

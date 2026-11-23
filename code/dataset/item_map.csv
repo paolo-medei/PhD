@@ -507,6 +507,86 @@ NGA,2012.0,142,ogbonno ungrinded,ogbono_unground,plant,seeds,kg,1,,"bush-mango k
 NGA,2015.0,142,142. UNGROUND OGBONNO,ogbono_unground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4580
 NGA,2012.0,143,ogbonno grinded,ogbono_ground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4758
 NGA,2015.0,143,143. GROUND OGBONNO,ogbono_ground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4580
+NGA,2018.0,90,90. Beef,beef,meat,red,kg,1,,,4976
+NGA,2023.0,90,90. Beef,beef,meat,red,kg,1,,,4715
+NGA,2018.0,91,91. Mutton,mutton,meat,red,kg,1,,,4976
+NGA,2023.0,91,91. Mutton,mutton,meat,red,kg,1,,,4715
+NGA,2018.0,93,93. Goat,goat,meat,red,kg,1,,,4976
+NGA,2023.0,93,93. Goat,goat,meat,red,kg,1,,,4715
+NGA,2018.0,92,92. Pork,pork,meat,red,kg,1,,,4976
+NGA,2023.0,92,92. Pork,pork,meat,red,kg,1,,,4715
+NGA,2018.0,94,94. Wild game/bush meat,game_bush_meat,meat,minor,kg,1,,,4976
+NGA,2023.0,94,94. Wild game/bush  meat,game_bush_meat,meat,minor,kg,1,,,4715
+NGA,2018.0,96,96. Other meat (excl. poultry)(specify),meat_other_excl_poultry,meat,minor,kg,1,,,4976
+NGA,2023.0,96,96. Other meat (excl,meat_other_excl_poultry,meat,minor,kg,1,,,4715
+NGA,2018.0,80,80. Chicken,chicken,meat,white,kg,1,,,4976
+NGA,2023.0,80,80. Chicken,chicken,meat,white,kg,1,,,4715
+NGA,2018.0,81,81. Duck,duck,meat,white,kg,1,,,4976
+NGA,2023.0,81,81. Duck,duck,meat,white,kg,1,,,4715
+NGA,2018.0,82,82. Other domestic poultry,poultry_other,meat,white,kg,1,,,4976
+NGA,2023.0,82,82. Other domestic poultry,poultry_other,meat,white,kg,1,,,4715
+NGA,2018.0,104,104. Snails,snails,meat,minor,kg,1,,listed under fish and seafood in the questionnaire; land snails counted as minor meat,4976
+NGA,2023.0,104,104. Snails,snails,meat,minor,kg,1,,listed under fish and seafood in the questionnaire; land snails counted as minor meat,4715
+NGA,2018.0,83,83. Agricultural eggs,eggs_farm,eggs,eggs,kg,1,,"""agricultural"" (farm) eggs",4976
+NGA,2023.0,83,83. Agricultural eggs,eggs_farm,eggs,eggs,kg,1,,"""agricultural"" (farm) eggs",4715
+NGA,2018.0,84,84. Local eggs,eggs_local,eggs,eggs,kg,1,,,4976
+NGA,2023.0,84,84. Local eggs,eggs_local,eggs,eggs,kg,1,,,4715
+NGA,2018.0,100,100. Fish - fresh,fish_fresh,fish,fresh,kg,1,,,4976
+NGA,2023.0,100,100. Fish - fresh,fish_fresh,fish,fresh,kg,1,,,4715
+NGA,2018.0,101,101. Fish - frozen,fish_frozen,fish,fresh,kg,1,,frozen fish counted with fresh,4976
+NGA,2023.0,101,101. Fish - frozen,fish_frozen,fish,fresh,kg,1,,frozen fish counted with fresh,4715
+NGA,2018.0,102,102. Fish - smoked,fish_smoked,fish,dried_smoked_salted,kg,1,,,4976
+NGA,2023.0,102,102. Fish - smoked,fish_smoked,fish,dried_smoked_salted,kg,1,,,4715
+NGA,2018.0,103,103. Fish - dried,fish_dried,fish,dried_smoked_salted,kg,1,,,4976
+NGA,2023.0,103,103. Fish - dried,fish_dried,fish,dried_smoked_salted,kg,1,,,4715
+NGA,2018.0,105,"105. Seafood (lobster, crab, prawns, etc)",seafood_crustaceans,fish,fresh,kg,1,,,4976
+NGA,2023.0,105,"105. Seafood (lobster, crab, prawns, etc)",seafood_crustaceans,fish,fresh,kg,1,,,4715
+NGA,2018.0,106,106. Canned fish/seafood,fish_canned,fish,canned_packaged,kg,1,,,4976
+NGA,2023.0,106,106. Canned fish/seafood,fish_canned,fish,canned_packaged,kg,1,,,4715
+NGA,2018.0,107,107. Other fish or seafood(specify),fish_other,fish,unspecified,kg,1,,,4976
+NGA,2023.0,107,107. Other fish or seafood,fish_other,fish,unspecified,kg,1,,,4715
+NGA,2018.0,110,110. Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,4976
+NGA,2023.0,110,110. Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,4715
+NGA,2018.0,111,111. Milk powder,milk_powder,dairy,milk_powder_tinned,kg,1,,,4976
+NGA,2023.0,111,111. Milk powder,milk_powder,dairy,milk_powder_tinned,kg,1,,,4715
+NGA,2018.0,113,113. Milk tinned,milk_tinned,dairy,milk_powder_tinned,kg,1,,,4976
+NGA,2023.0,113,113. Milk tinned (unsweetened),milk_tinned,dairy,milk_powder_tinned,kg,1,,,4715
+NGA,2018.0,112,112. Baby milk powder,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",4976
+NGA,2023.0,112,112. Baby milk powder,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",4715
+NGA,2018.0,114,114. Cheese (wara),cheese_wara,dairy,cheese,kg,1,,,4976
+NGA,2023.0,114,114. Cheese (wara),cheese_wara,dairy,cheese,kg,1,,,4715
+NGA,2018.0,115,115. Other milk products(specify),dairy_other,dairy,milk_products,kg,1,,no consumption rows in 2023,4976
+NGA,2018.0,51,51. Butter/ Margarine,butter_margarine,dairy,fats_mixed,kg,0,,"mixes butter with margarine: kept, not counted in dairy",4976
+NGA,2023.0,51,51. Butter/ Margarine,butter_margarine,dairy,fats_mixed,kg,0,,"mixes butter with margarine: kept, not counted in dairy",4715
+NGA,2018.0,40,40. Soya beans,soybeans,plant,soy,kg,1,,,4976
+NGA,2023.0,40,40. Soya beans,soybeans,plant,soy,kg,1,,,4715
+NGA,2018.0,41,41. Brown beans,beans_brown,plant,pulses,kg,1,,,4976
+NGA,2023.0,41,41. Brown beans,beans_brown,plant,pulses,kg,1,,,4715
+NGA,2018.0,42,42. White beans,beans_white,plant,pulses,kg,1,,,4976
+NGA,2023.0,42,42. White beans,beans_white,plant,pulses,kg,1,,,4715
+NGA,2018.0,43,"43. Groundnuts (Unshelled, in the pod)",groundnuts_unshelled,plant,groundnuts,kg,1,,,4976
+NGA,2023.0,43,43. Groundnuts (Unshelled),groundnuts_unshelled,plant,groundnuts,kg,1,,,4715
+NGA,2018.0,44,"44. Groundnuts (Shelled, removed from the pod)",groundnuts_shelled,plant,groundnuts,kg,1,,,4976
+NGA,2023.0,44,44. Groundnuts (Shelled),groundnuts_shelled,plant,groundnuts,kg,1,,,4715
+NGA,2018.0,45,45. Other nuts/seeds/pulses,nuts_seeds_other,plant,pulse_nut_other,kg,1,,,4976
+NGA,2023.0,45,45. Other nuts/seeds/pulses,nuts_seeds_other,plant,pulse_nut_other,kg,1,,,4715
+NGA,2018.0,46,46. Coconut,coconut,plant,nuts_low_protein,kg,0,,"low in protein: kept, not counted",4976
+NGA,2023.0,46,46. Coconut,coconut,plant,nuts_low_protein,kg,0,,"low in protein: kept, not counted",4715
+NGA,2018.0,47,47. Kola nut,kola_nut,plant,nuts_low_protein,kg,0,,"stimulant, low in protein: kept, not counted",4976
+NGA,2023.0,47,47. Kola nut,kola_nut,plant,nuts_low_protein,kg,0,,"stimulant, low in protein: kept, not counted",4715
+NGA,2018.0,48,48. Cashew nut,cashew,plant,nuts,kg,1,,,4976
+NGA,2023.0,48,48. Cashew nut,cashew,plant,nuts,kg,1,,,4715
+NGA,2018.0,145,145. Melon (shelled),melon_seed_shelled,plant,seeds,kg,1,,egusi,4976
+NGA,2023.0,145,145. Melon (shelled),melon_seed_shelled,plant,seeds,kg,1,,egusi,4715
+NGA,2018.0,146,146. Melon (unshelled),melon_seed_unshelled,plant,seeds,kg,1,,egusi,4976
+NGA,2023.0,146,146. Melon (unshelled),melon_seed_unshelled,plant,seeds,kg,1,,egusi,4715
+NGA,2018.0,147,147. Melon (ground),melon_seed_ground,plant,seeds,kg,1,,egusi,4976
+NGA,2023.0,147,147. Melon (ground),melon_seed_ground,plant,seeds,kg,1,,egusi,4715
+NGA,2018.0,142,142. Unground Ogbono,ogbono_unground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4976
+NGA,2023.0,142,142. Unground Ogbono,ogbono_unground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4715
+NGA,2018.0,143,143. Ground Ogbono,ogbono_ground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4976
+NGA,2023.0,143,143. Ground Ogbono,ogbono_ground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4715
+NGA,2023.0,85,85. Other eggs (not chicken),eggs_other,eggs,eggs,kg,1,,back in 2023 (not asked in 2018),4715
 UGA,2010.0,117,Beef,beef,meat,red,kg,1,,,924
 UGA,2011.0,117,Beef,beef,meat,red,kg,1,,,962
 UGA,2013.0,117,Beef,beef,meat,red,kg,1,,,1218

@@ -1,51 +1,50 @@
-# Dataset armonizzato sugli alimenti ricchi di proteine (v1, 23 novembre 2026)
+# Dataset delle famiglie sugli alimenti ricchi di proteine, solo valori originali (v2, 23 novembre 2026)
 
-Una riga per paese x wave x famiglia (127.501 famiglie, 23 wave: Etiopia 5, Tanzania 5, Malawi 4,
-Nigeria 3, Uganda 6), ogni voce proteica separata (154 voci armonizzate: carne rossa, bianca, minore,
-trasformata; pesce fresco, secco, in scatola; uova; latticini freschi e trasformati; legumi,
-arachidi, frutta a guscio, semi), con le risposte grezze accanto ai valori armonizzati e i totali per
-categoria. Il file .xlsx e il .csv.gz contengono dati di famiglia con gli identificativi: **non vanno
-nel repository** (che e' pubblico) ne' si ridistribuiscono. Qui c'e' solo il codice.
+Una riga per paese x wave x famiglia del modulo alimentare (25 wave: Etiopia 5, Tanzania 5, Malawi 4,
+Nigeria 5, Uganda 6). Ogni voce proteica ha le sue colonne (carne, pesce, uova, latticini, legumi,
+arachidi, frutta a guscio, semi) con le risposte del questionario COSI' COME SONO nei file .dta della
+Banca Mondiale: consumato si'/no, quantita', codice dell'unita', spesa, per fonte (acquisto, produzione
+propria, regali; Uganda anche fuori casa e i valori; Nigeria 2018-2023 l'ultimo acquisto a 30 giorni).
+Accanto, le variabili della copertina (peso, regione, distretto, EA, strato, codice urbano/rurale) e
+dell'aggregato ufficiale di consumo, con i nomi originali.
+
+**Niente e' creato:** nessuna conversione delle unita', nessun totale, nessuna ricodifica, nessuna
+imputazione, nessun taglio dei valori anomali, nessuno zero al posto di un vuoto (decisione di Paolo,
+23 novembre: "solo cose originali"). La prima versione dello stesso giorno, con valori armonizzati e
+totali, e' nella storia del repository.
+
+Il file .xlsx e il .csv.gz contengono dati di famiglia con gli identificativi: **non vanno nel
+repository** (che e' pubblico) ne' si ridistribuiscono. Qui c'e' solo il codice.
 
 ## Come si rifa'
 
-Dalla cartella `code/dataset/`, con gli archivi estratti in `data/_unzipped` e i pannelli dello Step I
-in `data/OUTPUT` (dalla run di `ASF_completo.R`):
+Dalla cartella `code/dataset/`, con gli archivi estratti in `data/_unzipped`:
 
 ```
 Rscript item_inventory.R <data/_unzipped> item_inventory.csv      # tutte le voci dei moduli alimentari, con etichetta
-python3 make_item_map.py item_inventory.csv item_map.csv          # voce originale -> voce armonizzata, con controllo delle etichette
-Rscript build_protein_dataset.R <data/_unzipped> <out> item_map.csv   # tabelle lunghe famiglia x voce, conversioni
-Rscript hh_info.R ../ASF_completo.R <data> <data/OUTPUT> <out>/hh_info.csv   # variabili di famiglia dello Step I
-Rscript unit_codes.R <data/_unzipped> item_map.csv <out>/unit_codes.csv     # codici delle unita' con etichetta
-python3 assemble_dataset.py <out> item_map.csv <data/OUTPUT> ../../docs/external/wdi_gdp_pc_ppp.csv <cartella finale>
+python3 make_item_map.py item_inventory.csv item_map.csv          # codice originale -> colonna della voce, con controllo delle etichette
+Rscript build_protein_dataset.R <data/_unzipped> <out> item_map.csv     # famiglia x voce, valori originali
+Rscript hh_raw.R <data/_unzipped> <out>/hh_raw.csv <out>/hh_raw_sources.csv   # copertina e aggregato, valori originali
+Rscript role_vars.R <data/_unzipped> item_map.csv <out>/role_vars.csv     # variabile originale di ogni domanda e totali di controllo
+Rscript unit_codes.R <data/_unzipped> item_map.csv <out>/unit_codes.csv   # codici delle unita' con etichetta
+python3 assemble_dataset.py <out> item_map.csv <cartella finale>
 ```
 
-Tempi sul server: 4 minuti il build, 6 minuti l'assemblaggio (il file .xlsx pesa 150 MB: 45 milioni di
-celle; per le analisi conviene il .csv.gz, identico cella per cella, verificato rileggendo l'.xlsx).
-
-## Regole
-
-- Niente si cancella e niente si corregge: i valori anomali hanno un segnale (`flag`), non vengono
-  svuotati come nello Step I (M17, M18).
-- 0 = non consumato o non comprato; vuoto = non risposto, non convertibile, o voce assente dal
-  questionario di quella wave (il foglio Comparability_Matrix dice quale). Nessun vuoto diventa 0.
-- Le quantita' si convertono solo con le tabelle ufficiali delle indagini o con unita' metriche.
-- Le scelte che cambiano i totali o l'insieme delle voci sono nel foglio Harmonization_Log con stato
-  NEEDS YOUR APPROVAL (D03-D08, D12, D13, D15-D17, D19, D26, D28).
+(`build_protein_dataset.R` calcola anche quantita' convertite, che `assemble_dataset.py` non usa.)
 
 ## Controlli (foglio Quality_Control)
 
-- 0 duplicati; 0 famiglie perse fra modulo alimentare e dataset; righe famiglia x voce = famiglie x voci
-  chieste in tutte le 23 wave.
-- Confronto con i pannelli dello Step I (manzo, capra/pecora, maiale, pollame, uova, latte, 23 wave):
-  stessi consumatori, compratori e spesa, salvo differenze spiegate una per una (2 acquisti anomali che
-  lo Step I svuota, 1 risposta "no" con quantita', 386 famiglie del campo profughi del Malawi 2024).
-- Verifica indipendente sui moduli grezzi (6 wave, 193 voci): stesse risposte "si'" e stessa spesa.
-- I totali per categoria ricalcolati dalle colonne della tabella larga coincidono (464 controlli).
+- 0 duplicati; ogni famiglia del modulo alimentare c'e'.
+- Ogni domanda di ogni wave e' ricontata direttamente sul file .dta (`role_vars.R`, codice scritto a
+  parte): righe non vuote e somma sulle voci proteiche coincidono con il dataset. Uniche differenze,
+  spiegate: il Malawi 2024 salva quantita' e spese come testo e alcune celle contengono la lettera "a"
+  (codice di mancante), che resta vuota.
+- I numeri salvati in Stata come float a 4 byte sono scritti con le loro 7 cifre significative, come li
+  mostra Stata (0,3 e non 0,300000011920929).
 
 ## Trovato durante il lavoro
 
 - Malawi, voce 522 (pezzi di pollo, 2016-2024): nel dataset c'e', nella lista ITEMS_MW dello Step I no.
   Lo Step I sottostima il pollame del Malawi 2016-2024 (da correggere nella PARTE 4).
-- Nigeria 2018 (wave 4) e 2023 (wave 5) non ci sono ancora: gli archivi non erano estratti sul PC.
+- Nigeria 2018-2023: l'acquisto e' una domanda a parte sugli ultimi 30 giorni (ultimo acquisto), non a 7
+  giorni come prima; le voci "altro" hanno la specifica in item_os_cd (821 faraona, 961 pelle di vacca...).

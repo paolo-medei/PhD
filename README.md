@@ -45,6 +45,10 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
   latticini**, detto e motivato nel deck; **Step II, parte A**: il lato del produttore dagli stessi
   sondaggi (PARTE 14c: prezzo alla stalla contro prezzo al consumo, chi vende, quanto, a chi; S2A_01-03).
   Riferimento: `results_reference/RESULTS_v26_2026-11-22.xlsx` (92 tabelle). `docs/FINDINGS.md`, sezioni L-N.
+- 23 novembre: **dataset armonizzato** sugli alimenti ricchi di proteine, una riga per famiglia e wave
+  (127.501 famiglie, 23 wave, 154 voci con risposte grezze e valori armonizzati, totali per categoria,
+  documentazione e controlli nel workbook). Codice in `code/dataset/`, spiegazioni in `docs/DATASET.md`;
+  i dati di famiglia NON sono nel repository.
 - **Come si lancia:** aprire `code/ASF_completo.R` dalla cartella del progetto (non una copia in Download)
   e premere *Source* (Ctrl+Maiusc+S).
 - Aperto: M11 (strumento per la spesa totale: la variabile strumentale con la spesa della wave precedente è
@@ -57,6 +61,7 @@ Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuor
 ```
 code/ASF_completo.R     TUTTO: dai file grezzi ai risultati, con le spiegazioni (PARTE 0-16; indice in cima)
 results_reference/      RESULTS_*.xlsx della run di riferimento (stesso codice, stessi archivi; il piu' recente per nome e' quello usato)
+code/dataset/           dataset armonizzato sulle proteine (docs/DATASET.md); nessun dato di famiglia
 code/legacy/            v20 originale e ANALISI_semplice.R (5 ottobre), per riferimento
 checks/                 varmap.R, varmap2.R: ogni colonna usata, con l'etichetta del file
                         compare_runs.R: confronto cella per cella tra due RESULTS_*.xlsx

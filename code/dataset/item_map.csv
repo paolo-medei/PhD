@@ -1,0 +1,669 @@
+country,year,code,label,slot,cat,sub,std,in_total,cf_code,note,rows_in_module
+ETH,2011.0,18,Meat,meat_all,meat,mixed,kg,1,18.0,single meat item in 2011-2013; whether fish was reported here is not stated,3969
+ETH,2013.0,18,Meat,meat_all,meat,mixed,kg,1,18.0,single meat item in 2011-2013; whether fish was reported here is not stated,5262
+ETH,2015.0,180,Goat & mutton meat,goat_mutton,meat,red,kg,1,180.0,,4954
+ETH,2018.0,701,701. Goat & mutton meat,goat_mutton,meat,red,kg,1,180.0,,6770
+ETH,2021.0,701,701. Goat & mutton meat,goat_mutton,meat,red,kg,1,180.0,,4959
+ETH,2015.0,181,Beef,beef,meat,red,kg,1,181.0,,4954
+ETH,2018.0,702,702. Beef,beef,meat,red,kg,1,181.0,,6770
+ETH,2021.0,702,702. Beef,beef,meat,red,kg,1,181.0,,4959
+ETH,2021.0,714,714. Camel meat,camel,meat,red,kg,1,,no conversion-table entry: metric units only,4959
+ETH,2015.0,182,Poultry,poultry,meat,white,kg,1,182.0,,4954
+ETH,2018.0,703,703. Poultry,poultry,meat,white,kg,1,182.0,,6770
+ETH,2021.0,703,703. Poultry,poultry,meat,white,kg,1,182.0,,4959
+ETH,2015.0,183,Fish,fish_unspecified,fish,unspecified,kg,1,183.0,"form (fresh, dried, canned) not asked",4954
+ETH,2018.0,704,704. Fish,fish_unspecified,fish,unspecified,kg,1,183.0,"form (fresh, dried, canned) not asked",6770
+ETH,2021.0,704,704. Fish,fish_unspecified,fish,unspecified,kg,1,183.0,"form (fresh, dried, canned) not asked",4959
+ETH,2011.0,21,Eggs,eggs,eggs,eggs,kg,1,21.0,official table converts numbers to kg,3969
+ETH,2013.0,21,Eggs,eggs,eggs,eggs,kg,1,21.0,official table converts numbers to kg,5262
+ETH,2015.0,21,Eggs,eggs,eggs,eggs,kg,1,21.0,official table converts numbers to kg,4954
+ETH,2018.0,709,709. Eggs,eggs,eggs,eggs,kg,1,21.0,official table converts numbers to kg,6770
+ETH,2021.0,709,709. Eggs,eggs,eggs,eggs,kg,1,21.0,official table converts numbers to kg,4959
+ETH,2011.0,19,Milk,milk_fresh,dairy,milk_fresh,litre,1,19.0,all milk; species not stated,3969
+ETH,2013.0,19,Milk,milk_fresh,dairy,milk_fresh,litre,1,19.0,all milk; species not stated,5262
+ETH,2015.0,19,Milk,milk_fresh,dairy,milk_fresh,litre,1,19.0,all milk; species not stated,4954
+ETH,2018.0,705,705. Milk,milk_fresh,dairy,milk_fresh,litre,1,19.0,all milk; species not stated,6770
+ETH,2021.0,705,705. Milk,milk_fresh,dairy,milk_fresh,litre,1,19.0,all milk; species not stated,4959
+ETH,2011.0,20,Cheese,cheese,dairy,cheese,kg,1,20.0,traditional cottage cheese (ayib),3969
+ETH,2013.0,20,Cheese,cheese,dairy,cheese,kg,1,20.0,traditional cottage cheese (ayib),5262
+ETH,2015.0,20,Cheese,cheese,dairy,cheese,kg,1,20.0,traditional cottage cheese (ayib),4954
+ETH,2018.0,706,706. Cheese,cheese,dairy,cheese,kg,1,20.0,traditional cottage cheese (ayib),6770
+ETH,2021.0,706,706. Cheese,cheese,dairy,cheese,kg,1,20.0,traditional cottage cheese (ayib),4959
+ETH,2015.0,201,Butter/ghee,butter_ghee,dairy,butter_ghee,kg,1,201.0,code 201 means horsebeans from 2018,4954
+ETH,2018.0,707,707. Butter/ghee,butter_ghee,dairy,butter_ghee,kg,1,201.0,,6770
+ETH,2021.0,707,707. Butter/ghee,butter_ghee,dairy,butter_ghee,kg,1,201.0,,4959
+ETH,2011.0,7,Horsebeans,horsebeans,plant,pulses,kg,1,7.0,,3969
+ETH,2013.0,7,Horsebeans,horsebeans,plant,pulses,kg,1,7.0,,5262
+ETH,2015.0,7,Horsebeans,horsebeans,plant,pulses,kg,1,7.0,,4954
+ETH,2018.0,201,201. Horsebeans,horsebeans,plant,pulses,kg,1,7.0,code 201 means butter/ghee in 2015,6770
+ETH,2021.0,201,201. Horsebeans,horsebeans,plant,pulses,kg,1,7.0,code 201 means butter/ghee in 2015,4959
+ETH,2011.0,8,Chick Pea,eth_pea_code8,plant,pulses,kg,1,8.0,"LABEL CONFLICT: module says chick pea, conversion table says field pea; identity unresolved",3969
+ETH,2013.0,8,Chick Pea,eth_pea_code8,plant,pulses,kg,1,8.0,"LABEL CONFLICT: module says chick pea, conversion table says field pea; identity unresolved",5262
+ETH,2011.0,9,Field Pea,eth_pea_code9,plant,pulses,kg,1,9.0,"LABEL CONFLICT: module says field pea, conversion table says chick pea; identity unresolved",3969
+ETH,2013.0,9,Field Pea,eth_pea_code9,plant,pulses,kg,1,9.0,"LABEL CONFLICT: module says field pea, conversion table says chick pea; identity unresolved",5262
+ETH,2015.0,8,Field Pea,field_pea,plant,pulses,kg,1,8.0,,4954
+ETH,2015.0,9,Chick Pea,chickpea,plant,pulses,kg,1,9.0,,4954
+ETH,2018.0,202,202. Chick Pea,chickpea,plant,pulses,kg,1,9.0,,6770
+ETH,2021.0,202,202. Chick Pea,chickpea,plant,pulses,kg,1,9.0,,4959
+ETH,2018.0,203,203. Field Pea,field_pea,plant,pulses,kg,1,8.0,,6770
+ETH,2021.0,203,203. Field Pea,field_pea,plant,pulses,kg,1,8.0,,4959
+ETH,2011.0,10,Lentils,lentils,plant,pulses,kg,1,10.0,,3969
+ETH,2013.0,10,Lentils,lentils,plant,pulses,kg,1,10.0,,5262
+ETH,2015.0,10,Lentils,lentils,plant,pulses,kg,1,10.0,,4954
+ETH,2018.0,204,204. Lentils,lentils,plant,pulses,kg,1,10.0,,6770
+ETH,2021.0,204,204. Lentils,lentils,plant,pulses,kg,1,10.0,,4959
+ETH,2011.0,11,Haricot Beans,haricot_beans,plant,pulses,kg,1,11.0,,3969
+ETH,2013.0,11,Haricot Beans,haricot_beans,plant,pulses,kg,1,11.0,,5262
+ETH,2015.0,11,Haricot Beans,haricot_beans,plant,pulses,kg,1,11.0,,4954
+ETH,2018.0,205,205. Haricot Beans,haricot_beans,plant,pulses,kg,1,11.0,,6770
+ETH,2021.0,205,205. Haricot Beans,haricot_beans,plant,pulses,kg,1,11.0,,4959
+ETH,2018.0,207,207. Vetch,vetch,plant,pulses,kg,1,,no conversion-table entry: metric units only,6770
+ETH,2021.0,207,207. Vetch,vetch,plant,pulses,kg,1,,no conversion-table entry: metric units only,4959
+ETH,2018.0,208,208. Fenugreek,fenugreek,plant,pulses,kg,1,,legume seed used mainly as spice; no conversion-table entry,6770
+ETH,2021.0,208,208. Fenugreek,fenugreek,plant,pulses,kg,1,,legume seed used mainly as spice; no conversion-table entry,4959
+ETH,2018.0,209,209. mung bean,mung_bean,plant,pulses,kg,1,,no conversion-table entry: metric units only,6770
+ETH,2021.0,209,209. mung bean,mung_bean,plant,pulses,kg,1,,no conversion-table entry: metric units only,4959
+ETH,2018.0,210,210. Processed pulses (Shiro),shiro_processed_pulses,plant,pulses_processed,kg,1,,pulse flour; no conversion-table entry,6770
+ETH,2021.0,210,210. Processed pulses (Shiro),shiro_processed_pulses,plant,pulses_processed,kg,1,,pulse flour; no conversion-table entry,4959
+ETH,2015.0,110,Ground nuts,groundnuts,plant,groundnuts,kg,1,110.0,not asked in 2011-2013,4954
+ETH,2018.0,206,206. Ground nuts,groundnuts,plant,groundnuts,kg,1,110.0,,6770
+ETH,2021.0,206,206. Ground nuts,groundnuts,plant,groundnuts,kg,1,110.0,,4959
+ETH,2015.0,111,Other pulse or nut (SPECIFY),pulse_or_nut_other,plant,pulse_nut_other,kg,1,111.0,,4954
+ETH,2018.0,211,211. Other pulse or nut (SPECIFY),pulse_or_nut_other,plant,pulse_nut_other,kg,1,111.0,,6770
+ETH,2021.0,211,211. Other pulse or nut (SPECIFY),pulse_or_nut_other,plant,pulse_nut_other,kg,1,111.0,,4959
+ETH,2011.0,12,Niger Seed,niger_seed,plant,seeds,kg,1,12.0,,3969
+ETH,2013.0,12,Niger Seed,niger_seed,plant,seeds,kg,1,12.0,,5262
+ETH,2015.0,12,Niger Seed,niger_seed,plant,seeds,kg,1,12.0,,4954
+ETH,2018.0,301,301. Niger Seed,niger_seed,plant,seeds,kg,1,12.0,,6770
+ETH,2021.0,301,301. Niger Seed,niger_seed,plant,seeds,kg,1,12.0,,4959
+ETH,2011.0,13,Linseed,linseed,plant,seeds,kg,1,13.0,,3969
+ETH,2013.0,13,Linseed,linseed,plant,seeds,kg,1,13.0,,5262
+ETH,2015.0,13,Linseed,linseed,plant,seeds,kg,1,13.0,,4954
+ETH,2018.0,302,302. Linseed,linseed,plant,seeds,kg,1,13.0,,6770
+ETH,2021.0,302,302. Linseed,linseed,plant,seeds,kg,1,13.0,,4959
+ETH,2018.0,303,303. SESAME,sesame,plant,seeds,kg,1,,no conversion-table entry: metric units only,6770
+ETH,2021.0,303,303. Seasame,sesame,plant,seeds,kg,1,,no conversion-table entry: metric units only,4959
+ETH,2018.0,304,304. Sun Flower,sunflower_seed,plant,seeds,kg,1,,no conversion-table entry: metric units only,6770
+ETH,2021.0,304,304. Sun Flower,sunflower_seed,plant,seeds,kg,1,,no conversion-table entry: metric units only,4959
+ETH,2015.0,131,Other seed (SPECIFY),seed_other,plant,seeds,kg,1,131.0,,4954
+ETH,2018.0,305,305. Other seed (SPECIFY),seed_other,plant,seeds,kg,1,131.0,,6770
+ETH,2021.0,305,305. Other seed (SPECIFY),seed_other,plant,seeds,kg,1,131.0,,4959
+TZA,2008.0,801,Goat meat,goat,meat,red,kg,1,,,3265
+TZA,2010.0,801,Goat meat,goat,meat,red,kg,1,,,3924
+TZA,2012.0,801,GOAT MEAT,goat,meat,red,kg,1,,,5010
+TZA,2014.0,801,GOAT MEAT,goat,meat,red,kg,1,,,3352
+TZA,2020.0,801,GOAT MEAT,goat,meat,red,kg,1,,,4290
+TZA,2020.1,801,GOAT MEAT,goat,meat,red,kg,1,,,419
+TZA,2008.0,802,Beef including minced sausage,beef,meat,red,kg,1,,includes minced meat and sausages,3265
+TZA,2010.0,802,Beef including minced sausage,beef,meat,red,kg,1,,includes minced meat and sausages,3924
+TZA,2012.0,802,BEEF INCLUDING MINCED SAUSAGE,beef,meat,red,kg,1,,includes minced meat and sausages,5010
+TZA,2014.0,802,BEEF INCLUDING MINCED SAUSAGE,beef,meat,red,kg,1,,includes minced meat and sausages,3352
+TZA,2020.0,802,BEEF (INCLUDING MINCED SAUSAGE),beef,meat,red,kg,1,,includes minced meat and sausages,4290
+TZA,2020.1,802,BEEF INCLUDING MINCED SAUSAGE,beef,meat,red,kg,1,,includes minced meat and sausages,419
+TZA,2008.0,803,Pork including sauages and bacon,pork,meat,red,kg,1,,includes sausages and bacon,3265
+TZA,2010.0,803,Pork including sausages and bacon,pork,meat,red,kg,1,,includes sausages and bacon,3924
+TZA,2012.0,803,PORK INCLUDING SAUSAGES AND BACON,pork,meat,red,kg,1,,includes sausages and bacon,5010
+TZA,2014.0,803,PORK INCLUDING SAUSAGES AND BACON,pork,meat,red,kg,1,,includes sausages and bacon,3352
+TZA,2020.0,803,PORK (INCLUDING SAUSAGES AND BACON),pork,meat,red,kg,1,,includes sausages and bacon,4290
+TZA,2020.1,803,PORK INCLUDING SAUSAGES AND BACON,pork,meat,red,kg,1,,includes sausages and bacon,419
+TZA,2008.0,804,Chicken and other poultry,poultry,meat,white,kg,1,,,3265
+TZA,2010.0,804,Chicken and other poultry,poultry,meat,white,kg,1,,,3924
+TZA,2012.0,804,CHICKEN AND OTHER POULTRY,poultry,meat,white,kg,1,,,5010
+TZA,2014.0,804,CHICKEN AND OTHER POULTRY,poultry,meat,white,kg,1,,,3352
+TZA,2020.1,804,CHICKEN AND OTHER POULTRY,poultry,meat,white,kg,1,,,419
+TZA,2020.0,8041,chicken,chicken,meat,white,kg,1,,2020 main sample splits poultry,4290
+TZA,2020.0,8042,OTHER POULTRY,poultry_other,meat,white,kg,1,,,4290
+TZA,2008.0,805,Wild birds and insects,wild_birds_insects,meat,minor,kg,1,,,3265
+TZA,2010.0,805,Wild birds and insects,wild_birds_insects,meat,minor,kg,1,,,3924
+TZA,2012.0,805,WILD BIRDS AND INSECTS,wild_birds_insects,meat,minor,kg,1,,,5010
+TZA,2014.0,805,WILD BIRDS AND INSECTS,wild_birds_insects,meat,minor,kg,1,,,3352
+TZA,2020.0,805,WILD BIRDS AND INSECTS,wild_birds_insects,meat,minor,kg,1,,,4290
+TZA,2020.1,805,WILD BIRDS AND INSECTS,wild_birds_insects,meat,minor,kg,1,,,419
+TZA,2008.0,806,Other domestic/wild meat products,meat_other_domestic_wild,meat,minor,kg,1,,,3265
+TZA,2010.0,806,Other domestic/wild meat products,meat_other_domestic_wild,meat,minor,kg,1,,,3924
+TZA,2012.0,806,OTHER DOMESTIC/WILD MEAT PRODUCTS,meat_other_domestic_wild,meat,minor,kg,1,,,5010
+TZA,2014.0,806,OTHER DOMESTIC/WILD MEAT PRODUCTS,meat_other_domestic_wild,meat,minor,kg,1,,,3352
+TZA,2020.0,806,OTHER DOMESTIC/WILD MEAT PRODUCTS,meat_other_domestic_wild,meat,minor,kg,1,,,4290
+TZA,2020.1,806,OTHER DOMESTIC/WILD MEAT PRODUCTS,meat_other_domestic_wild,meat,minor,kg,1,,,419
+TZA,2008.0,807,Eggs,eggs,eggs,eggs,piece,1,,grams converted at 55 g per egg (2020 survey calibration),3265
+TZA,2010.0,807,Eggs,eggs,eggs,eggs,piece,1,,grams converted at 55 g per egg (2020 survey calibration),3924
+TZA,2012.0,807,EGGS,eggs,eggs,eggs,piece,1,,grams converted at 55 g per egg (2020 survey calibration),5010
+TZA,2014.0,807,eggs,eggs,eggs,eggs,piece,1,,grams converted at 55 g per egg (2020 survey calibration),3352
+TZA,2020.0,807,eggs,eggs,eggs,eggs,piece,1,,grams converted at 55 g per egg (2020 survey calibration),4290
+TZA,2020.1,807,eggs,eggs,eggs,eggs,piece,1,,grams converted at 55 g per egg (2020 survey calibration),419
+TZA,2008.0,808,Fresh fish and seafood (including dagaa),fish_fresh_seafood,fish,fresh,kg,1,,includes dagaa,3265
+TZA,2010.0,808,Fresh fish and seafood (including dagaa),fish_fresh_seafood,fish,fresh,kg,1,,includes dagaa,3924
+TZA,2012.0,808,FRESH FISH AND SEAFOOD (INCLUDING DAGAA),fish_fresh_seafood,fish,fresh,kg,1,,includes dagaa,5010
+TZA,2014.0,808,FRESH FISH AND SEAFOOD (INCLUDING DAGAA),fish_fresh_seafood,fish,fresh,kg,1,,includes dagaa,3352
+TZA,2020.1,808,FRESH FISH AND SEAFOOD (INCLUDING DAGAA),fish_fresh_seafood,fish,fresh,kg,1,,includes dagaa,419
+TZA,2020.0,8081,DAGAA (FRESH),dagaa_fresh,fish,fresh,kg,1,,,4290
+TZA,2020.0,8082,KOLEKOLE (FRESH),kolekole_fresh,fish,fresh,kg,1,,,4290
+TZA,2020.0,8083,TILAPIA (FRESH),tilapia_fresh,fish,fresh,kg,1,,,4290
+TZA,2020.0,8084,OTHER FRESH FISH AND SEAFOOD,fish_other_fresh_seafood,fish,fresh,kg,1,,,4290
+TZA,2008.0,809,Dried/salted/canned fish and seafood (incl. dagaa),fish_dried_salted_canned,fish,dried_smoked_salted,kg,1,,"label includes canned fish, which overlaps item 810",3265
+TZA,2010.0,809,Dried/salted/canned fish and seafood (incl. dagaa),fish_dried_salted_canned,fish,dried_smoked_salted,kg,1,,"label includes canned fish, which overlaps item 810",3924
+TZA,2012.0,809,DRIED/SALTED/CANNED FISH AND SEAFOOD (INCL. DAGAA),fish_dried_salted_canned,fish,dried_smoked_salted,kg,1,,"label includes canned fish, which overlaps item 810",5010
+TZA,2014.0,809,DRIED/SALTED/CANNED FISH AND SEAFOOD (INCL. DAGAA),fish_dried_salted_canned,fish,dried_smoked_salted,kg,1,,"label includes canned fish, which overlaps item 810",3352
+TZA,2020.0,809,DRIED/SALTED/CANNED FISH AND SEAFOOD (INCL. DAGAA),fish_dried_salted_canned,fish,dried_smoked_salted,kg,1,,"label includes canned fish, which overlaps item 810",4290
+TZA,2020.1,809,DRIED/SALTED/CANNED FISH AND SEAFOOD (INCL. DAGAA),fish_dried_salted_canned,fish,dried_smoked_salted,kg,1,,"label includes canned fish, which overlaps item 810",419
+TZA,2008.0,810,Package fish,fish_packaged_canned,fish,canned_packaged,kg,1,,,3265
+TZA,2010.0,810,Package fish,fish_packaged_canned,fish,canned_packaged,kg,1,,,3924
+TZA,2012.0,810,PACKAGE FISH,fish_packaged_canned,fish,canned_packaged,kg,1,,,5010
+TZA,2014.0,810,PACKAGE FISH,fish_packaged_canned,fish,canned_packaged,kg,1,,,3352
+TZA,2020.0,810,PACKAGED/CANNED FISH,fish_packaged_canned,fish,canned_packaged,kg,1,,,4290
+TZA,2020.1,810,PACKAGE FISH,fish_packaged_canned,fish,canned_packaged,kg,1,,,419
+TZA,2008.0,901,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,3265
+TZA,2010.0,901,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,3924
+TZA,2012.0,901,FRESH MILK,milk_fresh,dairy,milk_fresh,litre,1,,,5010
+TZA,2014.0,901,FRESH MILK,milk_fresh,dairy,milk_fresh,litre,1,,,3352
+TZA,2020.0,901,FRESH MILK,milk_fresh,dairy,milk_fresh,litre,1,,,4290
+TZA,2020.1,901,FRESH MILK,milk_fresh,dairy,milk_fresh,litre,1,,,419
+TZA,2008.0,902,"Milk products (like cream, cheese, yoghurt etc)",milk_products_cream_cheese_yoghurt,dairy,milk_products,litre,1,,,3265
+TZA,2010.0,902,"Milk products (like cream, cheese, yoghurt etc)",milk_products_cream_cheese_yoghurt,dairy,milk_products,litre,1,,,3924
+TZA,2012.0,902,"MILK PRODUCTS (LIKE CREAM, CHEESE, YOGHURT ETC)",milk_products_cream_cheese_yoghurt,dairy,milk_products,litre,1,,,5010
+TZA,2014.0,902,"MILK PRODUCTS (LIKE CREAM, CHEESE, YOGHURT ETC)",milk_products_cream_cheese_yoghurt,dairy,milk_products,litre,1,,,3352
+TZA,2020.0,902,"MILK PRODUCTS (LIKE CREAM, CHEESE, YOGHURT ETC)",milk_products_cream_cheese_yoghurt,dairy,milk_products,litre,1,,,4290
+TZA,2020.1,902,"MILK PRODUCTS (LIKE CREAM, CHEESE, YOGHURT ETC)",milk_products_cream_cheese_yoghurt,dairy,milk_products,litre,1,,,419
+TZA,2008.0,903,Canned milk/milk powder,milk_canned_powder,dairy,milk_powder_tinned,kg,1,,litres counted as kg,3265
+TZA,2010.0,903,Canned milk/milk powder,milk_canned_powder,dairy,milk_powder_tinned,kg,1,,litres counted as kg,3924
+TZA,2012.0,903,CANNED MILK/MILK POWDER,milk_canned_powder,dairy,milk_powder_tinned,kg,1,,litres counted as kg,5010
+TZA,2014.0,903,CANNED MILK/MILK POWDER,milk_canned_powder,dairy,milk_powder_tinned,kg,1,,litres counted as kg,3352
+TZA,2020.0,903,CANNED MILK/MILK POWDER,milk_canned_powder,dairy,milk_powder_tinned,kg,1,,litres counted as kg,4290
+TZA,2020.1,903,CANNED MILK/MILK POWDER,milk_canned_powder,dairy,milk_powder_tinned,kg,1,,litres counted as kg,419
+TZA,2008.0,1002,"Butter, margarine, ghee and other fat products",butter_margarine_ghee,dairy,fats_mixed,kg,0,,"mixes dairy butter and ghee with margarine: kept, not counted in dairy",3265
+TZA,2010.0,1002,"Butter, margarine, ghee and other fat products",butter_margarine_ghee,dairy,fats_mixed,kg,0,,"mixes dairy butter and ghee with margarine: kept, not counted in dairy",3924
+TZA,2012.0,1002,"BUTTER, MARGARINE, GHEE AND OTHER FAT PRODUCTS",butter_margarine_ghee,dairy,fats_mixed,kg,0,,"mixes dairy butter and ghee with margarine: kept, not counted in dairy",5010
+TZA,2014.0,1002,"BUTTER, MARGARINE, GHEE AND OTHER FAT PRODUCTS",butter_margarine_ghee,dairy,fats_mixed,kg,0,,"mixes dairy butter and ghee with margarine: kept, not counted in dairy",3352
+TZA,2020.0,1002,"BUTTER, MARGARINE, GHEE AND OTHER FAT PRODUCTS",butter_margarine_ghee,dairy,fats_mixed,kg,0,,"mixes dairy butter and ghee with margarine: kept, not counted in dairy",4290
+TZA,2020.1,1002,"BUTTER, MARGARINE, GHEE AND OTHER FAT PRODUCTS",butter_margarine_ghee,dairy,fats_mixed,kg,0,,"mixes dairy butter and ghee with margarine: kept, not counted in dairy",419
+TZA,2008.0,401,"Peas, beans, lentils and other pulses",pulses_all,plant,pulses,kg,1,,,3265
+TZA,2010.0,401,"Peas, beans, lentils and other pulses",pulses_all,plant,pulses,kg,1,,,3924
+TZA,2012.0,401,"PEAS, BEANS, LENTILS AND OTHER PULSES",pulses_all,plant,pulses,kg,1,,,5010
+TZA,2014.0,401,"PEAS, BEANS, LENTILS AND OTHER PULSES",pulses_all,plant,pulses,kg,1,,,3352
+TZA,2020.1,401,"PEAS, BEANS, LENTILS AND OTHER PULSES",pulses_all,plant,pulses,kg,1,,,419
+TZA,2020.0,4011,peas,peas,plant,pulses,kg,1,,fresh or dry not stated,4290
+TZA,2020.0,4012,GREEN BEANS,green_beans,plant,pulses_fresh,kg,1,,fresh beans or pods: not stated,4290
+TZA,2020.0,4013,"OTHER BEANS, LENTILS, AND PULSES",beans_lentils_pulses_other,plant,pulses,kg,1,,,4290
+TZA,2008.0,501,Groundnuts in shell/shelled,groundnuts,plant,groundnuts,kg,1,,,3265
+TZA,2010.0,501,Groundnuts in shell/shelled,groundnuts,plant,groundnuts,kg,1,,,3924
+TZA,2012.0,501,GROUNDNUTS IN SHELL/SHELLED,groundnuts,plant,groundnuts,kg,1,,,5010
+TZA,2014.0,501,GROUNDNUTS IN SHELL/SHELLED,groundnuts,plant,groundnuts,kg,1,,,3352
+TZA,2020.0,501,GROUNDNUTS IN SHELL/SHELLED,groundnuts,plant,groundnuts,kg,1,,,4290
+TZA,2020.1,501,GROUNDNUTS IN SHELL/SHELLED,groundnuts,plant,groundnuts,kg,1,,,419
+TZA,2008.0,502,Coconuts (mature/immature),coconut,plant,nuts_low_protein,piece,0,,"low in protein: kept, not counted in plant-protein total",3265
+TZA,2010.0,502,Coconuts (mature/immature),coconut,plant,nuts_low_protein,piece,0,,"low in protein: kept, not counted in plant-protein total",3924
+TZA,2012.0,502,COCONUTS (MATURE/IMMATURE),coconut,plant,nuts_low_protein,piece,0,,"low in protein: kept, not counted in plant-protein total",5010
+TZA,2014.0,502,COCONUTS (MATURE/IMMATURE),coconut,plant,nuts_low_protein,piece,0,,"low in protein: kept, not counted in plant-protein total",3352
+TZA,2020.0,502,COCONUTS (MATURE/IMMATURE),coconut,plant,nuts_low_protein,piece,0,,"low in protein: kept, not counted in plant-protein total",4290
+TZA,2020.1,502,COCONUTS (MATURE/IMMATURE),coconut,plant,nuts_low_protein,piece,0,,"low in protein: kept, not counted in plant-protein total",419
+TZA,2008.0,503,"Cashew, almonds and other nuts",cashew_almonds_nuts,plant,nuts,kg,1,,,3265
+TZA,2010.0,503,"Cashew, almonds and other nuts",cashew_almonds_nuts,plant,nuts,kg,1,,,3924
+TZA,2012.0,503,"CASHEW, ALMONDS AND OTHER NUTS",cashew_almonds_nuts,plant,nuts,kg,1,,,5010
+TZA,2014.0,503,"CASHEW, ALMONDS AND OTHER NUTS",cashew_almonds_nuts,plant,nuts,kg,1,,,3352
+TZA,2020.0,503,"CASHEW, ALMONDS AND OTHER NUTS",cashew_almonds_nuts,plant,nuts,kg,1,,,4290
+TZA,2020.1,503,"CASHEW, ALMONDS AND OTHER NUTS",cashew_almonds_nuts,plant,nuts,kg,1,,,419
+TZA,2008.0,504,Seeds and products from nuts/seeds (excl. cooking oil),seeds_and_nut_products,plant,seeds,kg,1,,,3265
+TZA,2010.0,504,Seeds and products from nuts/seeds (excl. cooking oil),seeds_and_nut_products,plant,seeds,kg,1,,,3924
+TZA,2012.0,504,SEEDS AND PRODUCTS FROM NUTS/SEEDS (EXCL. COOKING OIL),seeds_and_nut_products,plant,seeds,kg,1,,,5010
+TZA,2014.0,504,SEEDS AND PRODUCTS FROM NUTS/SEEDS (EXCL. COOKING OIL),seeds_and_nut_products,plant,seeds,kg,1,,,3352
+TZA,2020.0,504,SEEDS AND PRODUCTS FROM NUTS/SEEDS (EXCL. COOKING OIL),seeds_and_nut_products,plant,seeds,kg,1,,,4290
+TZA,2020.1,504,SEEDS AND PRODUCTS FROM NUTS/SEEDS (EXCL. COOKING OIL),seeds_and_nut_products,plant,seeds,kg,1,,,419
+MWI,2010.0,504,Beef,beef,meat,red,kg,1,,pieces not converted (official factor 0.036-0.25 kg),12271
+MWI,2016.0,504,Beef,beef,meat,red,kg,1,,pieces not converted (official factor 0.036-0.25 kg),12447
+MWI,2019.0,504,Beef,beef,meat,red,kg,1,,pieces not converted (official factor 0.036-0.25 kg),11434
+MWI,2024.0,504,Beef,beef,meat,red,kg,1,,pieces not converted (official factor 0.036-0.25 kg),12888
+MWI,2010.0,505,Goat,goat,meat,red,kg,1,,pieces not converted,12271
+MWI,2016.0,505,Goat,goat,meat,red,kg,1,,pieces not converted,12447
+MWI,2019.0,505,Goat,goat,meat,red,kg,1,,pieces not converted,11434
+MWI,2024.0,505,Goat,goat,meat,red,kg,1,,pieces not converted,12888
+MWI,2010.0,507,Mutton,mutton,meat,red,kg,1,,pieces not converted,12271
+MWI,2016.0,507,Mutton,mutton,meat,red,kg,1,,pieces not converted,12447
+MWI,2019.0,507,Mutton,mutton,meat,red,kg,1,,pieces not converted,11434
+MWI,2024.0,507,Mutton,mutton,meat,red,kg,1,,pieces not converted,12888
+MWI,2010.0,506,Pork,pork,meat,red,kg,1,,pieces not converted,12271
+MWI,2016.0,506,Pork,pork,meat,red,kg,1,,pieces not converted,12447
+MWI,2019.0,506,Pork,pork,meat,red,kg,1,,pieces not converted,11434
+MWI,2024.0,506,Pork,pork,meat,red,kg,1,,pieces not converted,12888
+MWI,2010.0,508,Chicken,chicken,meat,white,kg,1,,2010: whole and pieces together,12271
+MWI,2016.0,508,Chicken,chicken_whole,meat,white,kg,1,,"2016 label is ""Chicken"", with pieces separate in 522",12447
+MWI,2019.0,508,Chicken - Whole,chicken_whole,meat,white,kg,1,,"2016 label is ""Chicken"", with pieces separate in 522",11434
+MWI,2024.0,508,Chicken - Whole,chicken_whole,meat,white,kg,1,,"2016 label is ""Chicken"", with pieces separate in 522",12888
+MWI,2016.0,522,Chicken/Pieces,chicken_pieces,meat,white,kg,1,,,12447
+MWI,2019.0,522,Chicken - Pieces,chicken_pieces,meat,white,kg,1,,,11434
+MWI,2024.0,522,Chicken - Pieces,chicken_pieces,meat,white,kg,1,,,12888
+MWI,2010.0,509,"Other poultry - guinea fowl, doves, etc.",poultry_other,meat,white,kg,1,,pieces not converted,12271
+MWI,2016.0,509,"Other poultry - guinea fowl, doves, etc.",poultry_other,meat,white,kg,1,,pieces not converted,12447
+MWI,2019.0,509,"Other poultry - guinea fowl, doves, etc",poultry_other,meat,white,kg,1,,pieces not converted,11434
+MWI,2024.0,509,"Other poultry - guinea fowl, doves, quails etc",poultry_other,meat,white,kg,1,,pieces not converted,12888
+MWI,2010.0,510,"Small animal <U+2013> rabbit, mice, etc.",small_animals,meat,minor,kg,1,,"rabbit, mice",12271
+MWI,2016.0,510,"Small animal <U+00EF><U+00BF><U+00BD> rabbit, mice, etc.",small_animals,meat,minor,kg,1,,"rabbit, mice",12447
+MWI,2019.0,510,"Small animal <U+2013> rabbit, mice, etc",small_animals,meat,minor,kg,1,,"rabbit, mice",11434
+MWI,2024.0,510,"Small animal <U+2013> rabbit, mice, etc",small_animals,meat,minor,kg,1,,"rabbit, mice",12888
+MWI,2010.0,511,"Termites, other insects (eg Ngumbi, caterpillar)",insects,meat,minor,kg,1,,,12271
+MWI,2016.0,511,"Termites, other insects (eg Ngumbi, caterpillar)",insects,meat,minor,kg,1,,,12447
+MWI,2019.0,511,"Termites, other insects (eg Ngumbi, caterpillar)",insects,meat,minor,kg,1,,,11434
+MWI,2024.0,511,"Termites, other insects (eg Ngumbi, caterpillar)",insects,meat,minor,kg,1,,,12888
+MWI,2024.0,516,"Offal, liver, blood and other parts of slaughtered animals",offal,meat,minor,kg,1,,,12888
+MWI,2024.0,517,"Sausage, minced meat, meat balls and other processed meat",sausage_minced_meatballs,meat,processed,kg,1,,,12888
+MWI,2010.0,512,Tinned meat or fish,meat_or_fish_tinned,asf_mixed,meat_or_fish_tinned,kg,1,,meat and fish together: counted in the animal-source total only,12271
+MWI,2016.0,512,Tinned meat or fish,meat_or_fish_tinned,asf_mixed,meat_or_fish_tinned,kg,1,,meat and fish together: counted in the animal-source total only,12447
+MWI,2019.0,512,Tinned meat or fish,meat_or_fish_tinned,asf_mixed,meat_or_fish_tinned,kg,1,,meat and fish together: counted in the animal-source total only,11434
+MWI,2024.0,512,Tinned meat or fish,meat_or_fish_tinned,asf_mixed,meat_or_fish_tinned,kg,1,,meat and fish together: counted in the animal-source total only,12888
+MWI,2010.0,515,Other (specify),meat_fish_other_specify,asf_mixed,other_specify,kg,1,,"""other"" of the meat, fish and animal products group: counted in the animal-source total only",12267
+MWI,2016.0,515,Other (specify),meat_fish_other_specify,asf_mixed,other_specify,kg,1,,"""other"" of the meat, fish and animal products group: counted in the animal-source total only",12447
+MWI,2019.0,515,Other (specify),meat_fish_other_specify,asf_mixed,other_specify,kg,1,,"""other"" of the meat, fish and animal products group: counted in the animal-source total only",11434
+MWI,2024.0,515,Other (specify),meat_fish_other_specify,asf_mixed,other_specify,kg,1,,"""other"" of the meat, fish and animal products group: counted in the animal-source total only",12888
+MWI,2010.0,501,Eggs,eggs,eggs,eggs,piece,1,,,12271
+MWI,2016.0,501,Eggs,eggs,eggs,eggs,piece,1,,,12447
+MWI,2019.0,501,Eggs,eggs,eggs,eggs,piece,1,,,11434
+MWI,2024.0,501,Eggs,eggs,eggs,eggs,piece,1,,,12888
+MWI,2010.0,502,Dried fish,fish_dried,fish,dried_smoked_salted,kg,1,,heaps and pieces not converted,12271
+MWI,2010.0,503,Fresh fish,fish_fresh,fish,fresh,kg,1,,heaps and pieces not converted,12271
+MWI,2010.0,513,Smoked fish,fish_smoked,fish,dried_smoked_salted,kg,1,,heaps and pieces not converted,12271
+MWI,2016.0,5021,Sun Dried fish (Large Variety),fish_sundried_large,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12447
+MWI,2019.0,5021,Sun Dried fish (Large Variety),fish_sundried_large,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,11434
+MWI,2024.0,5021,Sun Dried fish (Large Variety),fish_sundried_large,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12888
+MWI,2016.0,5022,Sun Dried fish (Medium Variety),fish_sundried_medium,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12447
+MWI,2019.0,5022,Sun Dried fish (Medium Variety),fish_sundried_medium,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,11434
+MWI,2024.0,5022,Sun Dried fish (Medium Variety),fish_sundried_medium,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12888
+MWI,2016.0,5023,Sun Dried fish (Small Variety),fish_sundried_small,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12447
+MWI,2019.0,5023,Sun Dried fish (Small Variety),fish_sundried_small,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,11434
+MWI,2024.0,5023,Sun Dried fish (Small Variety),fish_sundried_small,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12888
+MWI,2016.0,5031,Fresh fish (Large Variety),fish_fresh_large,fish,fresh,kg,1,,size of the variety; heaps and pieces not converted,12447
+MWI,2019.0,5031,Fresh fish (Large Variety),fish_fresh_large,fish,fresh,kg,1,,size of the variety; heaps and pieces not converted,11434
+MWI,2024.0,5031,Fresh fish (Large Variety),fish_fresh_large,fish,fresh,kg,1,,size of the variety; heaps and pieces not converted,12888
+MWI,2016.0,5032,Fresh fish (Medium Variety),fish_fresh_medium,fish,fresh,kg,1,,size of the variety; heaps and pieces not converted,12447
+MWI,2019.0,5032,Fresh fish (Medium Variety),fish_fresh_medium,fish,fresh,kg,1,,size of the variety; heaps and pieces not converted,11434
+MWI,2024.0,5032,Fresh fish (Medium Variety),fish_fresh_medium,fish,fresh,kg,1,,size of the variety; heaps and pieces not converted,12888
+MWI,2016.0,5033,Fresh fish (Small Variety),fish_fresh_small,fish,fresh,kg,1,,size of the variety; heaps and pieces not converted,12447
+MWI,2019.0,5033,Fresh fish (Small Variety),fish_fresh_small,fish,fresh,kg,1,,size of the variety; heaps and pieces not converted,11434
+MWI,2024.0,5033,Fresh fish (Small Variety),fish_fresh_small,fish,fresh,kg,1,,size of the variety; heaps and pieces not converted,12888
+MWI,2016.0,5121,Smoked fish (Large Variety),fish_smoked_large,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12447
+MWI,2019.0,5121,Smoked fish (Large Variety),fish_smoked_large,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,11434
+MWI,2024.0,5121,Smoked fish (Large Variety),fish_smoked_large,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12888
+MWI,2016.0,5122,Smoked fish (Medium Variety),fish_smoked_medium,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12447
+MWI,2019.0,5122,Smoked fish (Medium Variety),fish_smoked_medium,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,11434
+MWI,2024.0,5122,Smoked fish (Medium Variety),fish_smoked_medium,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12888
+MWI,2016.0,5123,Smoked fish (Small Variety),fish_smoked_small,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12447
+MWI,2019.0,5123,Smoked fish (Small Variety),fish_smoked_small,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,11434
+MWI,2024.0,5123,Smoked fish (Small Variety),fish_smoked_small,fish,dried_smoked_salted,kg,1,,size of the variety; heaps and pieces not converted,12888
+MWI,2010.0,514,Fish Soup/Sauce,fish_soup_sauce,fish,fish_product,kg,1,,,12271
+MWI,2016.0,514,Fish Soup/Sauce,fish_soup_sauce,fish,fish_product,kg,1,,,12447
+MWI,2019.0,514,Fish Soup/Sauce,fish_soup_sauce,fish,fish_product,kg,1,,,11434
+MWI,2024.0,514,Fish Soup/Sauce,fish_soup_sauce,fish,fish_product,kg,1,,,12888
+MWI,2010.0,701,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,12271
+MWI,2016.0,701,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,12447
+MWI,2019.0,701,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,11434
+MWI,2024.0,701,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,12888
+MWI,2010.0,702,Powdered milk,milk_powder,dairy,milk_powder_tinned,kg,1,,,12271
+MWI,2016.0,702,Powdered milk,milk_powder,dairy,milk_powder_tinned,kg,1,,,12447
+MWI,2019.0,702,Powdered milk,milk_powder,dairy,milk_powder_tinned,kg,1,,,11434
+MWI,2024.0,702,Powdered milk,milk_powder,dairy,milk_powder_tinned,kg,1,,,12888
+MWI,2010.0,704,Butter,butter,dairy,butter_ghee,kg,1,,,12271
+MWI,2016.0,704,Butter,butter,dairy,butter_ghee,kg,1,,,12447
+MWI,2019.0,704,Butter,butter,dairy,butter_ghee,kg,1,,,11434
+MWI,2024.0,704,Butter,butter,dairy,butter_ghee,kg,1,,,12888
+MWI,2010.0,705,Chambiko - soured milk,milk_soured_fermented,dairy,yoghurt_fermented,litre,1,,chambiko (soured milk),12271
+MWI,2016.0,705,Chambiko - soured milk,milk_soured_fermented,dairy,yoghurt_fermented,litre,1,,chambiko (soured milk),12447
+MWI,2019.0,705,Chambiko - soured milk,milk_soured_fermented,dairy,yoghurt_fermented,litre,1,,chambiko (soured milk),11434
+MWI,2024.0,705,Chambiko - soured milk,milk_soured_fermented,dairy,yoghurt_fermented,litre,1,,chambiko (soured milk),12888
+MWI,2010.0,706,Yoghurt,yoghurt,dairy,yoghurt_fermented,litre,1,,,12271
+MWI,2016.0,706,Yoghurt,yoghurt,dairy,yoghurt_fermented,litre,1,,,12447
+MWI,2019.0,706,Yoghurt,yoghurt,dairy,yoghurt_fermented,litre,1,,,11434
+MWI,2024.0,706,Yoghurt,yoghurt,dairy,yoghurt_fermented,litre,1,,,12888
+MWI,2010.0,707,Cheese,cheese,dairy,cheese,kg,1,,,12271
+MWI,2016.0,707,Cheese,cheese,dairy,cheese,kg,1,,,12447
+MWI,2019.0,707,Cheese,cheese,dairy,cheese,kg,1,,,11434
+MWI,2024.0,707,Cheese,cheese,dairy,cheese,kg,1,,,12888
+MWI,2010.0,708,Infant feeding formula (for bottle),infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",12271
+MWI,2016.0,708,Infant feeding formula (for bottle),infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",12447
+MWI,2019.0,708,Infant feeding formula (for bottle),infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",11434
+MWI,2024.0,708,Infant feeding formula (for bottle),infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",12888
+MWI,2010.0,709,Other (specify),dairy_other_specify,dairy,milk_products,kg,1,,"""other"" of the milk group",12265
+MWI,2016.0,709,Other (specify),dairy_other_specify,dairy,milk_products,kg,1,,"""other"" of the milk group",12447
+MWI,2019.0,709,Other (specify),dairy_other_specify,dairy,milk_products,kg,1,,"""other"" of the milk group",11434
+MWI,2024.0,709,Other (specify),dairy_other_specify,dairy,milk_products,kg,1,,"""other"" of the milk group",12888
+MWI,2010.0,301,"Bean, white",beans_white,plant,pulses,kg,1,,,12271
+MWI,2016.0,301,"Bean, white",beans_white,plant,pulses,kg,1,,,12447
+MWI,2019.0,301,"Bean, white",beans_white,plant,pulses,kg,1,,,11434
+MWI,2024.0,301,"Bean, white",beans_white,plant,pulses,kg,1,,,12888
+MWI,2010.0,302,"Bean, brown",beans_brown,plant,pulses,kg,1,,,12271
+MWI,2016.0,302,"Bean, brown",beans_brown,plant,pulses,kg,1,,,12447
+MWI,2019.0,302,"Bean, brown",beans_brown,plant,pulses,kg,1,,,11434
+MWI,2024.0,302,"Bean, brown",beans_brown,plant,pulses,kg,1,,,12888
+MWI,2024.0,323,"Bean, mixed",beans_mixed,plant,pulses,kg,1,,,12888
+MWI,2010.0,303,Pigeonpea (nandolo),pigeonpea,plant,pulses,kg,1,,,12271
+MWI,2016.0,303,Pigeonpea (nandolo),pigeonpea,plant,pulses,kg,1,,,12447
+MWI,2019.0,303,Pigeon pea (nandolo),pigeonpea,plant,pulses,kg,1,,,11434
+MWI,2024.0,303,Pigeon pea (nandolo),pigeonpea,plant,pulses,kg,1,,,12888
+MWI,2010.0,307,Ground bean (nzama),ground_bean_nzama,plant,pulses,kg,1,,Bambara groundnut,12271
+MWI,2016.0,307,Ground bean (nzama),ground_bean_nzama,plant,pulses,kg,1,,Bambara groundnut,12447
+MWI,2019.0,307,Ground bean (nzama),ground_bean_nzama,plant,pulses,kg,1,,Bambara groundnut,11434
+MWI,2024.0,307,Ground bean (nzama),ground_bean_nzama,plant,pulses,kg,1,,Bambara groundnut,12888
+MWI,2010.0,308,Cowpea (khobwe),cowpea,plant,pulses,kg,1,,,12271
+MWI,2016.0,308,Cowpea (khobwe),cowpea,plant,pulses,kg,1,,,12447
+MWI,2019.0,308,Cowpea (khobwe),cowpea,plant,pulses,kg,1,,,11434
+MWI,2024.0,308,Cowpea (khobwe),cowpea,plant,pulses,kg,1,,,12888
+MWI,2010.0,306,Soyabean flour,soybean_flour,plant,soy,kg,1,,,12271
+MWI,2016.0,306,Soyabean flour,soybean_flour,plant,soy,kg,1,,,12447
+MWI,2019.0,306,Soyabean flour,soybean_flour,plant,soy,kg,1,,,11434
+MWI,2024.0,306,Soyabean flour,soybean_flour,plant,soy,kg,1,,,12888
+MWI,2024.0,315,Soya Pieces,soya_pieces,plant,soy,kg,1,,,12888
+MWI,2010.0,304,Groundnut,groundnuts,plant,groundnuts,kg,1,,2010: one item for all groundnuts,12271
+MWI,2016.0,311,Groundnut (shelled),groundnuts_shelled,plant,groundnuts,kg,1,,,12447
+MWI,2019.0,311,Groundnut (Shelled),groundnuts_shelled,plant,groundnuts,kg,1,,,11434
+MWI,2024.0,311,Groundnut (Shelled),groundnuts_shelled,plant,groundnuts,kg,1,,,12888
+MWI,2016.0,312,Groundnut (unshelled),groundnuts_dried_unshelled,plant,groundnuts,kg,1,,,12447
+MWI,2019.0,312,Groundnut Dried (UnShelled),groundnuts_dried_unshelled,plant,groundnuts,kg,1,,,11434
+MWI,2024.0,312,Groundnut Dried (UnShelled),groundnuts_dried_unshelled,plant,groundnuts,kg,1,,,12888
+MWI,2016.0,313,Groundnut fresh (unshelled),groundnuts_fresh_unshelled,plant,groundnuts,kg,1,,,12447
+MWI,2019.0,313,Groundnut Fresh (UnShelled),groundnuts_fresh_unshelled,plant,groundnuts,kg,1,,,11434
+MWI,2024.0,313,Groundnut Fresh (UnShelled),groundnuts_fresh_unshelled,plant,groundnuts,kg,1,,,12888
+MWI,2010.0,305,Groundnut flour,groundnut_flour,plant,groundnuts,kg,1,,,12271
+MWI,2016.0,305,Groundnut flour,groundnut_flour,plant,groundnuts,kg,1,,,12447
+MWI,2019.0,305,Groundnut flour,groundnut_flour,plant,groundnuts,kg,1,,,11434
+MWI,2024.0,305,Groundnut flour,groundnut_flour,plant,groundnuts,kg,1,,,12888
+MWI,2010.0,309,Macademia nuts,macadamia,plant,nuts,kg,1,,,12271
+MWI,2016.0,309,Macademia nuts,macadamia,plant,nuts,kg,1,,,12447
+MWI,2019.0,309,Macademia nuts,macadamia,plant,nuts,kg,1,,,11434
+MWI,2024.0,309,Macademia nuts,macadamia,plant,nuts,kg,1,,,12888
+MWI,2010.0,310,Other (specify),pulses_nuts_other_specify,plant,pulse_nut_other,kg,1,,"""other"" of the nuts and pulses group",12268
+MWI,2016.0,310,Other (specify),pulses_nuts_other_specify,plant,pulse_nut_other,kg,1,,"""other"" of the nuts and pulses group",12447
+MWI,2019.0,310,Other (specify),pulses_nuts_other_specify,plant,pulse_nut_other,kg,1,,"""other"" of the nuts and pulses group",11434
+MWI,2024.0,310,Other (specify),pulses_nuts_other_specify,plant,pulse_nut_other,kg,1,,"""other"" of the nuts and pulses group",12888
+MWI,2019.0,837,KALONGONDA (Mucuna),mucuna_kalongonda,plant,pulses,kg,1,,"code 837 is ""other (specify)"" in 2016: not mapped there",11434
+MWI,2024.0,837,KALONGONDA (Mucuna),mucuna_kalongonda,plant,pulses,kg,1,,"code 837 is ""other (specify)"" in 2016: not mapped there",12888
+MWI,2010.0,823,Eggs - boiled (vendor),eggs_boiled_vendor,eggs,prepared_vendor,piece,0,,cooked food from vendors: own subtotal,12271
+MWI,2016.0,823,Eggs - boiled (vendor),eggs_boiled_vendor,eggs,prepared_vendor,piece,0,,cooked food from vendors: own subtotal,12447
+MWI,2019.0,823,Eggs - boiled (vendor),eggs_boiled_vendor,eggs,prepared_vendor,piece,0,,cooked food from vendors: own subtotal,11434
+MWI,2024.0,823,Eggs - boiled (vendor),eggs_boiled_vendor,eggs,prepared_vendor,piece,0,,cooked food from vendors: own subtotal,12888
+MWI,2010.0,824,Chicken (vendor),chicken_vendor,meat,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12271
+MWI,2016.0,824,Chicken (vendor),chicken_vendor,meat,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12447
+MWI,2019.0,824,Chicken (vendor),chicken_vendor,meat,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,11434
+MWI,2024.0,824,Chicken (vendor),chicken_vendor,meat,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12888
+MWI,2010.0,825,Meat (vendor),meat_vendor,meat,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12271
+MWI,2016.0,825,Meat (vendor),meat_vendor,meat,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12447
+MWI,2019.0,825,Meat (vendor),meat_vendor,meat,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,11434
+MWI,2024.0,825,Meat (vendor),meat_vendor,meat,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12888
+MWI,2010.0,826,Fish (vendor),fish_vendor,fish,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12271
+MWI,2016.0,826,Fish (vendor),fish_vendor,fish,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12447
+MWI,2019.0,826,Fish (vendor),fish_vendor,fish,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,11434
+MWI,2024.0,826,Fish (vendor),fish_vendor,fish,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12888
+MWI,2016.0,833,Boiled groundnuts,groundnuts_boiled_vendor,plant,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12447
+MWI,2019.0,833,Boiled groundnuts,groundnuts_boiled_vendor,plant,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,11434
+MWI,2024.0,833,Boiled groundnuts,groundnuts_boiled_vendor,plant,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12888
+MWI,2016.0,834,Rosted groundnuts,groundnuts_roasted_vendor,plant,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12447
+MWI,2019.0,834,Roasted groundnuts,groundnuts_roasted_vendor,plant,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,11434
+MWI,2024.0,834,Roasted groundnuts,groundnuts_roasted_vendor,plant,prepared_vendor,kg,0,,cooked food from vendors: own subtotal,12888
+NGA,2010.0,90,Meat: Beef,beef,meat,red,kg,1,,,2297
+NGA,2012.0,90,meat: beef,beef,meat,red,kg,1,,,4759
+NGA,2015.0,90,90. MEAT: BEEF,beef,meat,red,kg,1,,,4580
+NGA,2010.0,91,Meat: Mutton,mutton,meat,red,kg,1,,,273
+NGA,2012.0,91,meat: mutton,mutton,meat,red,kg,1,,,4759
+NGA,2015.0,91,91. MEAT: MUTTON,mutton,meat,red,kg,1,,,4580
+NGA,2010.0,93,Meat: Goat,goat,meat,red,kg,1,,,282
+NGA,2012.0,93,meat: goat,goat,meat,red,kg,1,,,4759
+NGA,2015.0,93,93. MEAT: GOAT,goat,meat,red,kg,1,,,4580
+NGA,2010.0,92,Meat: Pork,pork,meat,red,kg,1,,,104
+NGA,2012.0,92,meat: pork,pork,meat,red,kg,1,,,4759
+NGA,2015.0,92,92. MEAT: PORK,pork,meat,red,kg,1,,,4580
+NGA,2010.0,94,Meat: Wild game meat,game_bush_meat,meat,minor,kg,1,,,82
+NGA,2012.0,94,meat: wild game meat,game_bush_meat,meat,minor,kg,1,,,4759
+NGA,2015.0,94,94. MEAT: WILD GAME/BUSH MEAT,game_bush_meat,meat,minor,kg,1,,,4580
+NGA,2010.0,96,Meat: Other meat (excl. poultry),meat_other_excl_poultry,meat,minor,kg,1,,,37
+NGA,2012.0,96,meat: other meat (excl. poultry),meat_other_excl_poultry,meat,minor,kg,1,,,4759
+NGA,2015.0,96,96. MEAT: OTHER MEAT (EXCL. POULTRY),meat_other_excl_poultry,meat,minor,kg,1,,,4580
+NGA,2010.0,95,Meat: Canned beef/corned beef,corned_beef_canned,meat,processed,kg,1,,,25
+NGA,2012.0,95,meat: canned beef/corned beef,corned_beef_canned,meat,processed,kg,1,,,4759
+NGA,2015.0,95,95. MEAT: CANNED BEEF/CORNED BEEF,corned_beef_canned,meat,processed,kg,1,,,4580
+NGA,2010.0,80,Poultry and Poultry products: Chicken,chicken,meat,white,kg,1,,,411
+NGA,2012.0,80,poultry and poultry products: chicken,chicken,meat,white,kg,1,,,4757
+NGA,2015.0,80,80. POULTRY AND POULTRY PRODUCTS: CHICKEN,chicken,meat,white,kg,1,,,4580
+NGA,2010.0,81,Poultry and Poultry products: Duck,duck,meat,white,kg,1,,,47
+NGA,2012.0,81,poultry and poultry products: duck,duck,meat,white,kg,1,,,4759
+NGA,2015.0,81,81. POULTRY AND POULTRY PRODUCTS: DUCK,duck,meat,white,kg,1,,,4580
+NGA,2010.0,82,Poultry and Poultry products: Other domestic poultry,poultry_other,meat,white,kg,1,,,22
+NGA,2012.0,82,poultry and poultry products: other domestic poultry,poultry_other,meat,white,kg,1,,,4759
+NGA,2015.0,82,82. POULTRY AND POULTRY PRODUCTS: OTHER DOMESTIC POULTRY,poultry_other,meat,white,kg,1,,,4580
+NGA,2010.0,104,Fish and Seafood: Snails,snails,meat,minor,kg,1,,listed under fish and seafood in the questionnaire; land snails counted as minor meat,113
+NGA,2012.0,104,fish and seafood: snails,snails,meat,minor,kg,1,,listed under fish and seafood in the questionnaire; land snails counted as minor meat,4759
+NGA,2015.0,104,104. FISH AND SEAFOOD: SNAILS,snails,meat,minor,kg,1,,listed under fish and seafood in the questionnaire; land snails counted as minor meat,4580
+NGA,2010.0,83,Poultry and Poultry products: Agricultural eggs,eggs_farm,eggs,eggs,kg,1,,"""agricultural"" (farm) eggs",392
+NGA,2012.0,83,poultry and poultry products: agricultural eggs,eggs_farm,eggs,eggs,kg,1,,"""agricultural"" (farm) eggs",4759
+NGA,2015.0,83,83. POULTRY AND POULTRY PRODUCTS: AGRICULTURAL EGGS,eggs_farm,eggs,eggs,kg,1,,"""agricultural"" (farm) eggs",4580
+NGA,2010.0,84,Poultry and Poultry products: Local eggs,eggs_local,eggs,eggs,kg,1,,,59
+NGA,2012.0,84,poultry and poultry products: local eggs,eggs_local,eggs,eggs,kg,1,,,4759
+NGA,2015.0,84,84. POULTRY AND POULTRY PRODUCTS: LOCAL EGGS,eggs_local,eggs,eggs,kg,1,,,4580
+NGA,2010.0,85,Poultry and Poultry products: Other eggs (not chicken),eggs_other,eggs,eggs,kg,1,,,46
+NGA,2012.0,85,poultry and poultry products: other eggs (not chicken),eggs_other,eggs,eggs,kg,1,,,4759
+NGA,2015.0,85,85. POULTRY AND POULTRY PRODUCTS: OTHER EGGS (NOT CHICKEN),eggs_other,eggs,eggs,kg,1,,,4580
+NGA,2010.0,100,Fish and Seafood:  Fish-Fresh,fish_fresh,fish,fresh,kg,1,,,639
+NGA,2012.0,100,fish and seafood:  fish-fresh,fish_fresh,fish,fresh,kg,1,,,4759
+NGA,2015.0,100,100. FISH AND SEAFOOD:  FISH-FRESH,fish_fresh,fish,fresh,kg,1,,,4580
+NGA,2010.0,101,Fish and Seafood:  Fish-Frozen,fish_frozen,fish,fresh,kg,1,,frozen fish counted with fresh,1737
+NGA,2012.0,101,fish and seafood:  fish-frozen,fish_frozen,fish,fresh,kg,1,,frozen fish counted with fresh,4759
+NGA,2015.0,101,101. FISH AND SEAFOOD:  FISH-FROZEN,fish_frozen,fish,fresh,kg,1,,frozen fish counted with fresh,4580
+NGA,2010.0,102,Fish and Seafood: Fish-Smoked,fish_smoked,fish,dried_smoked_salted,kg,1,,,929
+NGA,2012.0,102,fish and seafood: fish-smoked,fish_smoked,fish,dried_smoked_salted,kg,1,,,4759
+NGA,2015.0,102,102. FISH AND SEAFOOD: FISH-SMOKED,fish_smoked,fish,dried_smoked_salted,kg,1,,,4580
+NGA,2010.0,103,Fish and Seafood:  Fish-Dried,fish_dried,fish,dried_smoked_salted,kg,1,,,1331
+NGA,2012.0,103,fish and seafood:  fish-dried,fish_dried,fish,dried_smoked_salted,kg,1,,,4759
+NGA,2015.0,103,103. FISH AND SEAFOOD:  FISH-DRIED,fish_dried,fish,dried_smoked_salted,kg,1,,,4580
+NGA,2010.0,105,"Fish and Seafood: Seafood (lobster, crab, prawns)",seafood_crustaceans,fish,fresh,kg,1,,,101
+NGA,2012.0,105,"fish and seafood: seafood (lobster, crab, prawns)",seafood_crustaceans,fish,fresh,kg,1,,,4759
+NGA,2015.0,105,"105. FISH AND SEAFOOD: SEAFOOD (LOBSTER, CRAB, PRAWNS)",seafood_crustaceans,fish,fresh,kg,1,,,4580
+NGA,2010.0,106,Fish and Seafood : Canned fish/seafood,fish_canned,fish,canned_packaged,kg,1,,,30
+NGA,2012.0,106,fish and seafood : canned fish/seafood,fish_canned,fish,canned_packaged,kg,1,,,4758
+NGA,2015.0,106,106. FISH AND SEAFOOD : CANNED FISH/SEAFOOD,fish_canned,fish,canned_packaged,kg,1,,,4580
+NGA,2010.0,107,Fish and Seafood : Other fish or seafood,fish_other,fish,unspecified,kg,1,,,50
+NGA,2012.0,107,fish and seafood : other fish or seafood,fish_other,fish,unspecified,kg,1,,,4759
+NGA,2015.0,107,107. FISH AND SEAFOOD : OTHER FISH OR SEAFOOD,fish_other,fish,unspecified,kg,1,,,4580
+NGA,2010.0,110,Milk and Milk Products: Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,375
+NGA,2012.0,110,milk and milk products: fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,4759
+NGA,2015.0,110,110. MILK AND MILK PRODUCTS: FRESH MILK,milk_fresh,dairy,milk_fresh,litre,1,,,4580
+NGA,2010.0,111,Milk and Milk Products: Milk powder,milk_powder,dairy,milk_powder_tinned,kg,1,,,712
+NGA,2012.0,111,milk and milk products: milk powder,milk_powder,dairy,milk_powder_tinned,kg,1,,,4758
+NGA,2015.0,111,111. MILK AND MILK PRODUCTS: MILK POWDER,milk_powder,dairy,milk_powder_tinned,kg,1,,,4580
+NGA,2010.0,113,Milk and Milk Products: Milk tinned (unsweetend),milk_tinned,dairy,milk_powder_tinned,kg,1,,,600
+NGA,2012.0,113,milk and milk products: milk tinned (unsweetend),milk_tinned,dairy,milk_powder_tinned,kg,1,,,4759
+NGA,2015.0,113,113. MILK AND MILK PRODUCTS: MILK TINNED (UNSWEETEND),milk_tinned,dairy,milk_powder_tinned,kg,1,,,4580
+NGA,2010.0,112,Milk and Milk Products: Baby milk powder,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",128
+NGA,2012.0,112,milk and milk products: baby milk powder,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",4759
+NGA,2015.0,112,112. MILK AND MILK PRODUCTS: BABY MILK POWDER,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",4580
+NGA,2010.0,114,Milk and Milk Products: Other milk products,dairy_other,dairy,milk_products,kg,1,,2010 code 114 = other milk products; from 2012 = cheese,79
+NGA,2012.0,114,cheese (wara),cheese_wara,dairy,cheese,kg,1,,,4759
+NGA,2015.0,114,114. MILK AND MILK PRODUCTS: CHEESE (WARA),cheese_wara,dairy,cheese,kg,1,,,4580
+NGA,2012.0,115,other milk products,dairy_other,dairy,milk_products,kg,1,,,4759
+NGA,2015.0,115,115. MILK AND MILK PRODUCTS: OTHER MILK PRODUCTS,dairy_other,dairy,milk_products,kg,1,,,4580
+NGA,2010.0,51,Butter/Margarine,butter_margarine,dairy,fats_mixed,kg,0,,"mixes butter with margarine: kept, not counted in dairy",253
+NGA,2012.0,51,oil and fats: butter/margarine,butter_margarine,dairy,fats_mixed,kg,0,,"mixes butter with margarine: kept, not counted in dairy",4758
+NGA,2015.0,51,51. OIL AND FATS: BUTTER/MARGARINE,butter_margarine,dairy,fats_mixed,kg,0,,"mixes butter with margarine: kept, not counted in dairy",4580
+NGA,2010.0,40,"Pulses, Nuts and Seeds:Soya beans",soybeans,plant,soy,kg,1,,,122
+NGA,2012.0,40,"pulses, nuts and seeds:soya beans",soybeans,plant,soy,kg,1,,,4758
+NGA,2015.0,40,"40. PULSES, NUTS AND SEEDS:SOYA BEANS",soybeans,plant,soy,kg,1,,,4580
+NGA,2010.0,41,"Pulses, Nuts and Seeds:Brown beans",beans_brown,plant,pulses,kg,1,,,1086
+NGA,2012.0,41,"pulses, nuts and seeds:brown beans",beans_brown,plant,pulses,kg,1,,,4758
+NGA,2015.0,41,"41. PULSES, NUTS AND SEEDS:BROWN BEANS",beans_brown,plant,pulses,kg,1,,,4580
+NGA,2010.0,42,"Pulses, Nuts and Seeds:White beans",beans_white,plant,pulses,kg,1,,,2616
+NGA,2012.0,42,"pulses, nuts and seeds:white beans",beans_white,plant,pulses,kg,1,,,4759
+NGA,2015.0,42,"42. PULSES, NUTS AND SEEDS:WHITE BEANS",beans_white,plant,pulses,kg,1,,,4580
+NGA,2010.0,43,"Pulses, Nuts and Seeds:Groundnuts",groundnuts,plant,groundnuts,kg,1,,2010: one item for all groundnuts,676
+NGA,2012.0,43,"pulses, nuts and seeds:groundnuts (unshelled)",groundnuts_unshelled,plant,groundnuts,kg,1,,,4759
+NGA,2015.0,43,"43. PULSES, NUTS AND SEEDS:GROUNDNUTS (UNSHELLED)",groundnuts_unshelled,plant,groundnuts,kg,1,,,4580
+NGA,2010.0,44,"Pulses, Nuts and Seeds:Other nuts/seeds/pulses",nuts_seeds_other,plant,pulse_nut_other,kg,1,,2010 code 44 = other nuts/seeds; from 2012 = shelled groundnuts,356
+NGA,2012.0,44,groundnuts (shelled),groundnuts_shelled,plant,groundnuts,kg,1,,,4759
+NGA,2015.0,44,"44. PULSES, NUTS AND SEEDS:GROUNDNUTS (SHELLED)",groundnuts_shelled,plant,groundnuts,kg,1,,,4580
+NGA,2012.0,45,"pulses, nuts and seeds:other nuts/seeds/pulses",nuts_seeds_other,plant,pulse_nut_other,kg,1,,,4759
+NGA,2015.0,45,"45. PULSES, NUTS AND SEEDS:OTHER NUTS/SEEDS/PULSES",nuts_seeds_other,plant,pulse_nut_other,kg,1,,,4580
+NGA,2015.0,46,"46. PULSES, NUTS AND SEEDS:COCONUT",coconut,plant,nuts_low_protein,kg,0,,"low in protein: kept, not counted",4580
+NGA,2015.0,47,"47. PULSES, NUTS AND SEEDS:KOLA NUT",kola_nut,plant,nuts_low_protein,kg,0,,"stimulant, low in protein: kept, not counted",4580
+NGA,2015.0,48,"48. PULSES, NUTS AND SEEDS:CASHEW NUT",cashew,plant,nuts,kg,1,,,4580
+NGA,2012.0,145,melon (shelled),melon_seed_shelled,plant,seeds,kg,1,,egusi,4758
+NGA,2015.0,145,145. MELON (SHELLED),melon_seed_shelled,plant,seeds,kg,1,,egusi,4580
+NGA,2012.0,146,melon (unshelled),melon_seed_unshelled,plant,seeds,kg,1,,egusi,4756
+NGA,2015.0,146,146. MELON (UNSHELLED),melon_seed_unshelled,plant,seeds,kg,1,,egusi,4580
+NGA,2015.0,147,147. MELON (GROUND),melon_seed_ground,plant,seeds,kg,1,,egusi,4580
+NGA,2012.0,142,ogbonno ungrinded,ogbono_unground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4757
+NGA,2015.0,142,142. UNGROUND OGBONNO,ogbono_unground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4580
+NGA,2012.0,143,ogbonno grinded,ogbono_ground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4758
+NGA,2015.0,143,143. GROUND OGBONNO,ogbono_ground,plant,seeds,kg,1,,"bush-mango kernel, soup thickener",4580
+UGA,2010.0,117,Beef,beef,meat,red,kg,1,,,924
+UGA,2011.0,117,Beef,beef,meat,red,kg,1,,,962
+UGA,2013.0,117,Beef,beef,meat,red,kg,1,,,1218
+UGA,2015.0,117,Beef,beef,meat,red,kg,1,,,1140
+UGA,2018.0,117,Beef,beef,meat,red,kg,1,,,3172
+UGA,2019.0,117,Beef,beef,meat,red,kg,1,,,3059
+UGA,2010.0,118,Pork,pork,meat,red,kg,1,,code 118 has no consumption in 2018-19 (replaced by 1181),197
+UGA,2011.0,118,Pork,pork,meat,red,kg,1,,code 118 has no consumption in 2018-19 (replaced by 1181),194
+UGA,2013.0,118,Pork,pork,meat,red,kg,1,,code 118 has no consumption in 2018-19 (replaced by 1181),275
+UGA,2015.0,118,Pork,pork,meat,red,kg,1,,code 118 has no consumption in 2018-19 (replaced by 1181),243
+UGA,2018.0,1181,Pork,pork,meat,red,kg,1,,,3172
+UGA,2019.0,1181,Pork,pork,meat,red,kg,1,,,3059
+UGA,2010.0,119,Goat meat,goat,meat,red,kg,1,,,214
+UGA,2011.0,119,Goat meat,goat,meat,red,kg,1,,,188
+UGA,2013.0,119,Goat meat,goat,meat,red,kg,1,,,270
+UGA,2015.0,119,Goat meat,goat,meat,red,kg,1,,,264
+UGA,2018.0,119,Goat Meat,goat,meat,red,kg,1,,,3172
+UGA,2019.0,119,Goat Meat,goat,meat,red,kg,1,,,3059
+UGA,2010.0,120,Other meat,meat_other,meat,minor,kg,1,,"e.g. duck, rabbit",27
+UGA,2011.0,120,Other meat,meat_other,meat,minor,kg,1,,"e.g. duck, rabbit",38
+UGA,2013.0,120,Other meat,meat_other,meat,minor,kg,1,,"e.g. duck, rabbit",44
+UGA,2015.0,120,Other meat,meat_other,meat,minor,kg,1,,"e.g. duck, rabbit",43
+UGA,2018.0,120,"Other Meat (eg duck, rabbit etc)",meat_other,meat,minor,kg,1,,"e.g. duck, rabbit",3172
+UGA,2019.0,120,"Other Meat (eg duck, rabbit etc)",meat_other,meat,minor,kg,1,,"e.g. duck, rabbit",3059
+UGA,2018.0,1174,Sausages,sausages,meat,processed,kg,1,,,3172
+UGA,2019.0,1174,Sausages,sausages,meat,processed,kg,1,,,3059
+UGA,2010.0,121,chicken - Local,chicken,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),273
+UGA,2011.0,121,chicken - Local,chicken,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),290
+UGA,2013.0,121,chicken - Local,chicken,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),377
+UGA,2015.0,121,chicken - Local,chicken,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),335
+UGA,2018.0,1211,Chicken off-layer,chicken_off_layer,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),3172
+UGA,2019.0,1211,Chicken off-layer,chicken_off_layer,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),3059
+UGA,2018.0,1212,Chicken Broiler,chicken_broiler,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),3172
+UGA,2019.0,1212,Chicken Broiler,chicken_broiler,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),3059
+UGA,2018.0,1213,Chicken Kroiler,chicken_kroiler,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),3172
+UGA,2019.0,1213,Chicken Kroiler,chicken_kroiler,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),3059
+UGA,2018.0,1214,Chicken Local,chicken_local,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),3172
+UGA,2019.0,1214,Chicken Local,chicken_local,meat,white,kg,1,,whole birds and pieces at 1.3 kg per bird (FAO),3059
+UGA,2010.0,122,Fresh fish,fish_fresh,fish,fresh,kg,1,,"whole fish, heaps: mostly not converted",454
+UGA,2011.0,122,Fresh fish,fish_fresh,fish,fresh,kg,1,,"whole fish, heaps: mostly not converted",499
+UGA,2013.0,122,Fresh fish,fish_fresh,fish,fresh,kg,1,,"whole fish, heaps: mostly not converted",518
+UGA,2015.0,122,Fresh fish,fish_fresh,fish,fresh,kg,1,,"whole fish, heaps: mostly not converted",532
+UGA,2010.0,123,dry/smocked  fish,fish_dried_smoked,fish,dried_smoked_salted,kg,1,,"whole fish, heaps: mostly not converted",629
+UGA,2011.0,123,dry/smocked  fish,fish_dried_smoked,fish,dried_smoked_salted,kg,1,,"whole fish, heaps: mostly not converted",718
+UGA,2013.0,123,dry/smocked  fish,fish_dried_smoked,fish,dried_smoked_salted,kg,1,,"whole fish, heaps: mostly not converted",901
+UGA,2015.0,123,dry/smocked  fish,fish_dried_smoked,fish,dried_smoked_salted,kg,1,,"whole fish, heaps: mostly not converted",944
+UGA,2018.0,1221,Fresh tilapia Fish,tilapia_fresh,fish,fresh,kg,1,,,3172
+UGA,2019.0,1221,Fresh tilapia Fish,tilapia_fresh,fish,fresh,kg,1,,,3059
+UGA,2018.0,1222,Fresh Nile perch,nile_perch_fresh,fish,fresh,kg,1,,,3172
+UGA,2019.0,1222,Fresh Nile perch,nile_perch_fresh,fish,fresh,kg,1,,,3059
+UGA,2018.0,1235,Other fresh fish,fish_other_fresh,fish,fresh,kg,1,,,3172
+UGA,2019.0,1235,Other fresh fish,fish_other_fresh,fish,fresh,kg,1,,,3059
+UGA,2018.0,1231,Dry/ Smoked tilapia fish,tilapia_dried_smoked,fish,dried_smoked_salted,kg,1,,,3172
+UGA,2019.0,1231,Dry/ Smoked tilapia fish,tilapia_dried_smoked,fish,dried_smoked_salted,kg,1,,,3059
+UGA,2018.0,1232,Dry/Smoked Nile perch,nile_perch_dried_smoked,fish,dried_smoked_salted,kg,1,,,3172
+UGA,2019.0,1232,Dry/Smoked Nile perch,nile_perch_dried_smoked,fish,dried_smoked_salted,kg,1,,,3059
+UGA,2018.0,1234,Dried Nkejje,nkejje_dried,fish,dried_smoked_salted,kg,1,,,3172
+UGA,2019.0,1234,Dried Nkejje,nkejje_dried,fish,dried_smoked_salted,kg,1,,,3059
+UGA,2018.0,1236,Other dry/smoked fish,fish_other_dried_smoked,fish,dried_smoked_salted,kg,1,,,3172
+UGA,2019.0,1236,Other dry/smoked fish,fish_other_dried_smoked,fish,dried_smoked_salted,kg,1,,,3059
+UGA,2018.0,1237,Silver Fish (Mukene),silverfish_mukene,fish,unspecified,kg,1,,form not stated (usually sun-dried),3172
+UGA,2019.0,1237,Silver Fish (Mukene),silverfish_mukene,fish,unspecified,kg,1,,form not stated (usually sun-dried),3059
+UGA,2010.0,124,Eggs,eggs,eggs,eggs,piece,1,,,298
+UGA,2011.0,124,Eggs,eggs,eggs,eggs,piece,1,,,306
+UGA,2013.0,124,Eggs,eggs,eggs,eggs,piece,1,,,597
+UGA,2015.0,124,Eggs,eggs,eggs,eggs,piece,1,,,577
+UGA,2018.0,124,Eggs,eggs,eggs,eggs,piece,1,,,3172
+UGA,2019.0,124,Eggs,eggs,eggs,eggs,piece,1,,,3059
+UGA,2010.0,125,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,982
+UGA,2011.0,125,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,1066
+UGA,2013.0,125,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,1292
+UGA,2015.0,125,Fresh milk,milk_fresh,dairy,milk_fresh,litre,1,,,1186
+UGA,2018.0,125,Fresh Milk,milk_fresh,dairy,milk_fresh,litre,1,,,3172
+UGA,2019.0,125,Fresh Milk,milk_fresh,dairy,milk_fresh,litre,1,,,3059
+UGA,2018.0,1251,Milk Powdered,milk_powder,dairy,milk_powder_tinned,kg,1,,,3172
+UGA,2019.0,1251,Milk Powdered,milk_powder,dairy,milk_powder_tinned,kg,1,,,3059
+UGA,2018.0,1252,Fermented milk (Bongo),milk_soured_fermented,dairy,yoghurt_fermented,litre,1,,bongo,3172
+UGA,2019.0,1252,Fermented milk (Bongo),milk_soured_fermented,dairy,yoghurt_fermented,litre,1,,bongo,3059
+UGA,2018.0,1254,Yoghurt,yoghurt,dairy,yoghurt_fermented,litre,1,,,3172
+UGA,2019.0,1254,Yoghurt,yoghurt,dairy,yoghurt_fermented,litre,1,,,3059
+UGA,2018.0,1253,Ice-cream,ice_cream,dairy,ice_cream,kg,1,,,3172
+UGA,2019.0,1253,Ice-cream,ice_cream,dairy,ice_cream,kg,1,,,3059
+UGA,2018.0,1281,Cheese,cheese,dairy,cheese,kg,1,,,3172
+UGA,2019.0,1281,Cheese,cheese,dairy,cheese,kg,1,,,3059
+UGA,2010.0,128,Ghee,ghee,dairy,butter_ghee,kg,1,,,130
+UGA,2011.0,128,Ghee,ghee,dairy,butter_ghee,kg,1,,,130
+UGA,2013.0,128,Ghee,ghee,dairy,butter_ghee,kg,1,,,190
+UGA,2015.0,128,Ghee,ghee,dairy,butter_ghee,kg,1,,,149
+UGA,2018.0,128,Ghee,ghee,dairy,butter_ghee,kg,1,,,3172
+UGA,2019.0,128,Ghee,ghee,dairy,butter_ghee,kg,1,,,3059
+UGA,2010.0,129,"margarine, butter, etc",margarine_butter,dairy,fats_mixed,kg,0,,"mixes butter with margarine: kept, not counted in dairy",87
+UGA,2011.0,129,"margarine, butter, etc",margarine_butter,dairy,fats_mixed,kg,0,,"mixes butter with margarine: kept, not counted in dairy",106
+UGA,2013.0,129,"margarine, butter, etc",margarine_butter,dairy,fats_mixed,kg,0,,"mixes butter with margarine: kept, not counted in dairy",156
+UGA,2015.0,129,"margarine, butter, etc",margarine_butter,dairy,fats_mixed,kg,0,,"mixes butter with margarine: kept, not counted in dairy",102
+UGA,2010.0,126,Infant formula food,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",6
+UGA,2011.0,126,Infant formula food,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",6
+UGA,2013.0,126,Infant formula food,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",9
+UGA,2015.0,126,Infant formula food,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",8
+UGA,2018.0,126,Infant Formula Foods,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",3172
+UGA,2019.0,126,Infant Formula Foods,infant_formula,dairy,infant_formula,kg,0,,"kept, not counted in dairy",3059
+UGA,2010.0,140,Beans (fresh),beans_fresh,plant,pulses_fresh,kg,1,,,458
+UGA,2011.0,140,Beans (fresh),beans_fresh,plant,pulses_fresh,kg,1,,,513
+UGA,2013.0,140,Beans (fresh),beans_fresh,plant,pulses_fresh,kg,1,,,600
+UGA,2015.0,140,Beans (fresh),beans_fresh,plant,pulses_fresh,kg,1,,,509
+UGA,2018.0,140,Bean( fresh),beans_fresh,plant,pulses_fresh,kg,1,,,3172
+UGA,2019.0,140,Bean( fresh),beans_fresh,plant,pulses_fresh,kg,1,,,3059
+UGA,2010.0,141,Beans (dry),beans_dry,plant,pulses,kg,1,,,1699
+UGA,2011.0,141,Beans (dry),beans_dry,plant,pulses,kg,1,,,1990
+UGA,2013.0,141,Beans (dry),beans_dry,plant,pulses,kg,1,,,2216
+UGA,2015.0,141,Beans (dry),beans_dry,plant,pulses,kg,1,,,2268
+UGA,2018.0,141,Beans (dry),beans_dry,plant,pulses,kg,1,,,3172
+UGA,2019.0,141,Beans (dry),beans_dry,plant,pulses,kg,1,,,3059
+UGA,2010.0,145,Peas (fresh),peas_fresh,plant,pulses_fresh,kg,1,,,44
+UGA,2011.0,145,Peas (fresh),peas_fresh,plant,pulses_fresh,kg,1,,,49
+UGA,2013.0,145,Peas (fresh),peas_fresh,plant,pulses_fresh,kg,1,,,73
+UGA,2015.0,145,Peas (fresh),peas_fresh,plant,pulses_fresh,kg,1,,,65
+UGA,2018.0,145,Peas(fresh),peas_fresh,plant,pulses_fresh,kg,1,,,3172
+UGA,2019.0,145,Peas(fresh),peas_fresh,plant,pulses_fresh,kg,1,,,3059
+UGA,2010.0,162,Peas(dry),peas_dry,plant,pulses,kg,1,,,204
+UGA,2011.0,162,Peas(dry),peas_dry,plant,pulses,kg,1,,,239
+UGA,2013.0,162,Peas(dry),peas_dry,plant,pulses,kg,1,,,286
+UGA,2015.0,162,Peas(dry),peas_dry,plant,pulses,kg,1,,,297
+UGA,2018.0,162,Peas(dry),peas_dry,plant,pulses,kg,1,,,3172
+UGA,2019.0,162,Peas(dry),peas_dry,plant,pulses,kg,1,,,3059
+UGA,2018.0,1761,Soya beans (fresh),soybeans_fresh,plant,soy,kg,1,,,3172
+UGA,2019.0,1761,Soya beans (fresh),soybeans_fresh,plant,soy,kg,1,,,3059
+UGA,2018.0,1762,Soya beans (dry),soybeans_dry,plant,soy,kg,1,,,3172
+UGA,2019.0,1762,Soya beans (dry),soybeans_dry,plant,soy,kg,1,,,3059
+UGA,2010.0,142,Ground nuts (in shell),groundnuts_in_shell,plant,groundnuts,kg,1,,,133
+UGA,2011.0,142,Ground nuts (in shell),groundnuts_in_shell,plant,groundnuts,kg,1,,,133
+UGA,2013.0,142,Ground nuts (in shell),groundnuts_in_shell,plant,groundnuts,kg,1,,,153
+UGA,2015.0,142,Ground nuts (in shell),groundnuts_in_shell,plant,groundnuts,kg,1,,,225
+UGA,2018.0,142,Ground nuts (in shell),groundnuts_in_shell,plant,groundnuts,kg,1,,,3172
+UGA,2019.0,142,Ground nuts (in shell),groundnuts_in_shell,plant,groundnuts,kg,1,,,3059
+UGA,2010.0,143,Ground nut seeds (unshelled),groundnuts_shelled,plant,groundnuts,kg,1,,"LABEL CHANGE: 2010-15 ""ground nut seeds (unshelled)"", 2018-19 ""ground nuts (shelled)""",255
+UGA,2011.0,143,Ground nut seeds (unshelled),groundnuts_shelled,plant,groundnuts,kg,1,,"LABEL CHANGE: 2010-15 ""ground nut seeds (unshelled)"", 2018-19 ""ground nuts (shelled)""",260
+UGA,2013.0,143,Ground nut seeds (unshelled),groundnuts_shelled,plant,groundnuts,kg,1,,"LABEL CHANGE: 2010-15 ""ground nut seeds (unshelled)"", 2018-19 ""ground nuts (shelled)""",269
+UGA,2015.0,143,Ground nut seeds (unshelled),groundnuts_shelled,plant,groundnuts,kg,1,,"LABEL CHANGE: 2010-15 ""ground nut seeds (unshelled)"", 2018-19 ""ground nuts (shelled)""",350
+UGA,2018.0,143,Ground nuts (shelled),groundnuts_shelled,plant,groundnuts,kg,1,,"LABEL CHANGE: 2010-15 ""ground nut seeds (unshelled)"", 2018-19 ""ground nuts (shelled)""",3172
+UGA,2019.0,143,Ground nuts (shelled),groundnuts_shelled,plant,groundnuts,kg,1,,"LABEL CHANGE: 2010-15 ""ground nut seeds (unshelled)"", 2018-19 ""ground nuts (shelled)""",3059
+UGA,2010.0,144,ground nuts (pounded),groundnuts_pounded,plant,groundnuts,kg,1,,,798
+UGA,2011.0,144,ground nuts (pounded),groundnuts_pounded,plant,groundnuts,kg,1,,,897
+UGA,2013.0,144,ground nuts (pounded),groundnuts_pounded,plant,groundnuts,kg,1,,,1066
+UGA,2015.0,144,ground nuts (pounded),groundnuts_pounded,plant,groundnuts,kg,1,,,1179
+UGA,2018.0,144,Ground nuts (pounded),groundnuts_pounded,plant,groundnuts,kg,1,,,3172
+UGA,2019.0,144,Ground nuts (pounded),groundnuts_pounded,plant,groundnuts,kg,1,,,3059
+UGA,2010.0,163,Ground nuts paste,groundnut_paste,plant,groundnuts,kg,1,,,101
+UGA,2011.0,163,Ground nuts paste,groundnut_paste,plant,groundnuts,kg,1,,,184
+UGA,2013.0,163,Ground nuts paste,groundnut_paste,plant,groundnuts,kg,1,,,216
+UGA,2015.0,163,Ground nuts paste,groundnut_paste,plant,groundnuts,kg,1,,,236
+UGA,2018.0,163,Ground nuts (paste),groundnut_paste,plant,groundnuts,kg,1,,,3172
+UGA,2019.0,163,Ground nuts (paste),groundnut_paste,plant,groundnuts,kg,1,,,3059
+UGA,2010.0,146,Simsim,simsim,plant,seeds,kg,1,,sesame; replaced by 1461 in 2018-19,336
+UGA,2011.0,146,Simsim,simsim,plant,seeds,kg,1,,sesame; replaced by 1461 in 2018-19,291
+UGA,2013.0,146,Simsim,simsim,plant,seeds,kg,1,,sesame; replaced by 1461 in 2018-19,280
+UGA,2015.0,146,Simsim,simsim,plant,seeds,kg,1,,sesame; replaced by 1461 in 2018-19,404
+UGA,2018.0,1461,Simsim,simsim,plant,seeds,kg,1,,sesame,3172
+UGA,2019.0,1461,Simsim,simsim,plant,seeds,kg,1,,sesame,3059
+UGA,2018.0,1462,Simsim paste,simsim_paste,plant,seeds,kg,1,,sesame paste,3172
+UGA,2019.0,1462,Simsim paste,simsim_paste,plant,seeds,kg,1,,sesame paste,3059

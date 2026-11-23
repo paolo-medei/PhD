@@ -48,3 +48,24 @@ python3 assemble_dataset.py <out> item_map.csv <cartella finale>
   Lo Step I sottostima il pollame del Malawi 2016-2024 (da correggere nella PARTE 4).
 - Nigeria 2018-2023: l'acquisto e' una domanda a parte sugli ultimi 30 giorni (ultimo acquisto), non a 7
   giorni come prima; le voci "altro" hanno la specifica in item_os_cd (821 faraona, 961 pelle di vacca...).
+
+## Dataset armonizzato sulle proteine (harmonize_protein.py, 23 novembre 2026)
+
+Una riga per famiglia e wave (137.192 famiglie, 25 wave), 84 variabili: identificativi, pesi, disegno,
+caratteristiche della famiglia e benessere dello Step I; per tre categorie (animale senza pesce, pesce,
+vegetale: legumi, soia, arachidi, frutta a guscio, semi) consumo si'/no, grammi di proteine a settimana
+e per adulto equivalente al giorno, per fonte (mercato, produzione propria, regali), chili, spesa a 7
+giorni; limiti inferiori (`_lb`) con il numero di voci non convertite; stato di confrontabilita' della
+wave per categoria.
+
+```
+python3 harmonize_protein.py <out> item_map.csv protein_coefficients.csv <hh_info.csv> ../../docs/external/wdi_gdp_pc_ppp.csv <cartella finale>
+```
+
+- Coefficienti in `protein_coefficients.csv` (proteine per 100 g di parte edibile; WAFCT 2012 come nello
+  Step I, USDA SR Legacy per le altre voci; qualita' A/B/C/X). Da controllare sulle tabelle prima di pubblicare.
+- Conversioni nuove rispetto allo Step I: stime di peso della Tanzania 2020 (hh_ja02b), fattori kg/l del
+  file per la Nigeria 2018-2023, chili scritti nell'etichetta dell'unita' in Uganda.
+- Un totale e' mancante se una voce consumata non si converte o la categoria non e' chiesta: mai zero.
+- Limiti principali: solo alimenti ricchi di proteine (niente cereali); pesce del Malawi e dell'Uganda quasi
+  mai convertibile (mucchietti, pezzi); spesa della Nigeria 2018-2023 a 30 giorni, non usata.

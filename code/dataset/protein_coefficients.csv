@@ -1,0 +1,156 @@
+country,slot,category,composition_item,protein_g_per_100g,edible_portion,source,quality,note
+*,beef,animal,"Beef, 15-20% fat, raw",18.4,1,WAFCT 2012 07_002,A,"bone not removed (share unknown), as in Step I"
+*,goat,animal,"Goat meat, raw",17.5,1,WAFCT 2012 07_046,A,bone not removed
+*,mutton,animal,"Lamb/mutton, raw",16.5,1,WAFCT 2012 07_004,A,bone not removed
+*,goat_mutton,animal,"Goat and mutton, mean of 07_046 and 07_004",17.0,1,WAFCT 2012,B,one item for goat and mutton
+*,pork,animal,"Pork, ~20% fat, raw",16.8,1,WAFCT 2012 07_006,A,Tanzania: item includes sausages and bacon
+*,camel,animal,Camel meat: beef value used,18.4,1,WAFCT 2012 07_002 (proxy),B,no camel entry in the table
+*,chicken,animal,"Chicken with skin, raw: mean of light (07_036) and dark (07_030) meat",18.1,1,WAFCT 2012,A,whole birds and pieces; bone not removed
+*,chicken_whole,animal,as chicken,18.1,1,WAFCT 2012,A,bone not removed
+*,chicken_pieces,animal,as chicken,18.1,1,WAFCT 2012,A,bone not removed
+*,chicken_broiler,animal,as chicken,18.1,1,WAFCT 2012,A,
+*,chicken_kroiler,animal,as chicken,18.1,1,WAFCT 2012,A,
+*,chicken_local,animal,as chicken,18.1,1,WAFCT 2012,A,
+*,chicken_off_layer,animal,as chicken,18.1,1,WAFCT 2012,A,
+*,poultry,animal,Poultry: chicken value,18.1,1,WAFCT 2012,A,chicken and other poultry in one item
+*,poultry_other,animal,Other poultry: chicken value,18.1,1,WAFCT 2012 (proxy),B,"guinea fowl, pigeon, turkey"
+*,duck,animal,Duck: chicken value,18.1,1,WAFCT 2012 (proxy),B,
+*,game_bush_meat,animal,Wild game: beef value,18.4,1,WAFCT 2012 07_002 (proxy),B,
+*,meat_other,animal,Other meat: goat value,17.5,1,WAFCT 2012 07_046 (proxy),B,"e.g. duck, rabbit"
+*,meat_other_domestic_wild,animal,Other domestic/wild meat: goat value,17.5,1,WAFCT 2012 07_046 (proxy),B,
+*,meat_other_excl_poultry,animal,Other meat: goat value,17.5,1,WAFCT 2012 07_046 (proxy),B,
+*,small_animals,animal,"Rabbit, mice: goat value",17.5,1,WAFCT 2012 07_046 (proxy),B,
+*,offal,animal,"Offal, liver, blood: between beef liver (20.4) and tripe (12.1)",17.0,1,"USDA SR Legacy: beef liver raw 20.36, beef tripe raw 12.07",C,mixed parts
+*,snails,animal,"Snail, raw",16.1,1,USDA SR Legacy: mollusks snail raw,B,land snails
+*,meat_all,animal,"Meat, one item: mean of beef, goat/mutton and chicken",17.8,1,WAFCT 2012 (as Step I meat_agg),C,Ethiopia 2011-2013; whether fish is reported here is not stated
+*,corned_beef_canned,animal,"Corned beef, canned",27.1,1,USDA SR Legacy: beef cured corned beef canned,A,
+*,sausages,animal,"Sausage, raw (pork or beef, 11-14)",12.0,1,USDA SR Legacy (range of fresh sausages),B,
+*,sausage_minced_meatballs,animal,"Sausage, minced meat, meat balls: between sausage (12) and minced beef (17-19)",15.0,1,USDA SR Legacy (range),C,mixed products
+*,insects,animal,"Termites, caterpillars: form not stated (fresh about 14, dried 50-60)",,1,,X,not computed: the value depends on the form
+*,wild_birds_insects,animal,Wild birds and insects: mixed,,1,,X,not computed: mixed foods
+*,eggs,animal,"Egg, whole, raw",12.6,0.88,WAFCT 2012 08_001,A,shell removed (edible portion 0.88); pieces converted at 55 g per egg
+*,eggs_farm,animal,as eggs,12.6,0.88,WAFCT 2012 08_001,A,
+*,eggs_local,animal,as eggs,12.6,0.88,WAFCT 2012 08_001,A,
+*,eggs_other,animal,as eggs,12.6,0.88,WAFCT 2012 08_001,B,eggs of other birds
+*,milk_fresh,animal,"Milk, whole, cow, fresh",3.4,1,WAFCT 2012 10_001,A,litres converted at 1.03 kg per litre; species not stated
+*,milk_powder,animal,"Milk powder, whole",25.9,1,WAFCT 2012 10_002,A,
+*,milk_tinned,animal,"Milk, evaporated, unsweetened",6.81,1,USDA SR Legacy: milk canned evaporated,A,
+*,milk_canned_powder,animal,"Canned milk or milk powder: powder (25.9) if recorded by weight, evaporated (6.81) if recorded by volume",25.9,1,WAFCT 2012 10_002 / USDA SR Legacy,C,"one item for two products; coefficient chosen by the unit recorded (litre, millilitre = evaporated)"
+*,yoghurt,animal,"Yoghurt, whole milk",3.8,1,WAFCT 2012 10_005,A,litres at 1.03 kg per litre
+*,milk_soured_fermented,animal,Soured milk: yoghurt value,3.8,1,WAFCT 2012 10_005,B,"chambiko (Malawi), bongo (Uganda)"
+ETH,cheese,animal,Ayib (Ethiopian cottage cheese),14.7,1,FAO 1990 (from O'Mahony and Peters 1987),A,as in Step I
+*,cheese,animal,"Cheese, cheddar type",24.9,1,USDA SR Legacy: cheese cheddar,B,Malawi and Uganda: type not stated
+*,cheese_wara,animal,Wara (soft fresh cheese): ayib value,14.7,1,FAO 1990 (proxy),B,
+*,butter,animal,"Butter, salted",0.85,1,USDA SR Legacy,A,
+*,butter_ghee,animal,Butter/ghee (kibe): butter value,0.85,1,USDA SR Legacy,B,
+*,ghee,animal,"Ghee (butter oil, anhydrous)",0.28,1,USDA SR Legacy,A,
+*,ice_cream,animal,"Ice cream, vanilla",3.5,1,USDA SR Legacy,A,
+*,infant_formula,animal,"Infant formula, powder (10-12 by product)",11.0,1,USDA SR Legacy (range of powders),C,milk-based; brand not known
+*,milk_products_cream_cheese_yoghurt,animal,"Cream, cheese, yoghurt in one item: yoghurt value",3.8,1,WAFCT 2012 10_005,C,cream about 2-3; cheese 15-25
+*,dairy_other,animal,Other milk products,,1,,X,not computed: product not stated
+*,dairy_other_specify,animal,Other milk products,,1,,X,not computed: product not stated
+*,tilapia_fresh,fish,"Tilapia, raw",20.08,1,USDA SR Legacy,A,whole fish: bones and head not removed
+*,nile_perch_fresh,fish,"Perch, mixed species, raw",19.39,1,USDA SR Legacy,B,
+*,fish_fresh,fish,"Fresh fish: mean of tilapia (20.08), carp (17.83), catfish (16.38)",18.1,1,USDA SR Legacy,B,species not stated; whole fish
+*,fish_fresh_large,fish,as fish_fresh,18.1,1,USDA SR Legacy,B,
+*,fish_fresh_medium,fish,as fish_fresh,18.1,1,USDA SR Legacy,B,
+*,fish_fresh_small,fish,as fish_fresh,18.1,1,USDA SR Legacy,B,
+*,fish_fresh_seafood,fish,as fish_fresh,18.1,1,USDA SR Legacy,B,includes seafood and dagaa
+*,fish_other_fresh,fish,as fish_fresh,18.1,1,USDA SR Legacy,B,
+*,fish_other_fresh_seafood,fish,as fish_fresh,18.1,1,USDA SR Legacy,B,
+*,dagaa_fresh,fish,as fish_fresh,18.1,1,USDA SR Legacy,B,small sardine-like fish
+*,kolekole_fresh,fish,as fish_fresh,18.1,1,USDA SR Legacy,B,
+*,fish_frozen,fish,as fish_fresh,18.1,1,USDA SR Legacy,B,
+*,seafood_crustaceans,fish,"Shrimp, mixed species, raw",20.1,1,USDA SR Legacy,B,"lobster, crab, prawns"
+*,fish_dried,fish,"Dried fish: cod, dried and salted",62.8,1,USDA SR Legacy,B,sun-dried small fish of the region are in the same range
+*,fish_sundried_large,fish,as fish_dried,62.8,1,USDA SR Legacy,B,
+*,fish_sundried_medium,fish,as fish_dried,62.8,1,USDA SR Legacy,B,
+*,fish_sundried_small,fish,as fish_dried,62.8,1,USDA SR Legacy,B,
+*,nkejje_dried,fish,as fish_dried,62.8,1,USDA SR Legacy,B,
+*,fish_smoked,fish,Smoked (smoke-dried) fish: middle of 40-65,50.0,1,range of smoke-dried fish,C,moisture depends on smoking
+*,fish_smoked_large,fish,as fish_smoked,50.0,1,range of smoke-dried fish,C,
+*,fish_smoked_medium,fish,as fish_smoked,50.0,1,range of smoke-dried fish,C,
+*,fish_smoked_small,fish,as fish_smoked,50.0,1,range of smoke-dried fish,C,
+*,fish_dried_smoked,fish,Dry or smoked fish: between smoked (50) and dried (62.8),55.0,1,USDA SR Legacy / range,C,
+*,fish_other_dried_smoked,fish,as fish_dried_smoked,55.0,1,,C,
+*,nile_perch_dried_smoked,fish,as fish_dried_smoked,55.0,1,,C,
+*,tilapia_dried_smoked,fish,as fish_dried_smoked,55.0,1,,C,
+*,fish_dried_salted_canned,fish,Dried/salted/canned fish incl. dagaa: dried value,62.8,1,USDA SR Legacy,C,canned fish (24.6) also in the item
+*,silverfish_mukene,fish,Mukene: dried value,62.8,1,USDA SR Legacy,C,form not stated (usually sun-dried)
+*,fish_canned,fish,"Sardine, canned in oil, drained",24.62,1,USDA SR Legacy,B,
+*,fish_packaged_canned,fish,as fish_canned,24.62,1,USDA SR Legacy,B,
+*,fish_unspecified,fish,"Fish, form not asked: fresh value",18.1,1,USDA SR Legacy,C,Ethiopia: dried fish would have about three times as much
+*,fish_other,fish,Other fish or seafood,,1,,X,not computed: form not stated
+*,fish_soup_sauce,fish,Fish soup/sauce,,1,,X,not computed: product not stated
+*,haricot_beans,plant,"Beans, navy (haricot), dry, raw",22.33,1,USDA SR Legacy,A,
+*,beans_brown,plant,"Beans, dry: Malawi kidney-type (23.58), Nigeria cowpea (23.52)",23.5,1,USDA SR Legacy,B,
+*,beans_white,plant,as beans_brown,23.5,1,USDA SR Legacy,B,
+*,beans_mixed,plant,"Beans, kidney, dry, raw",23.58,1,USDA SR Legacy,B,
+*,beans_dry,plant,"Beans, kidney, dry, raw",23.58,1,USDA SR Legacy,B,
+*,pulses_all,plant,"Pulses, one item: mean of dry beans, peas, lentils",23.0,1,USDA SR Legacy,C,
+*,beans_lentils_pulses_other,plant,"Other beans, lentils, pulses",23.0,1,USDA SR Legacy,C,
+*,chickpea,plant,"Chickpeas, dry, raw",20.47,1,USDA SR Legacy,A,
+*,eth_pea_code8,plant,Chick pea or field pea (label conflict): mean,22.2,1,USDA SR Legacy,C,identity unresolved
+*,eth_pea_code9,plant,Field pea or chick pea (label conflict): mean,22.2,1,USDA SR Legacy,C,identity unresolved
+*,field_pea,plant,"Peas, split, dry, raw (23.8-24.6 by release)",24.0,1,USDA SR Legacy,B,
+*,peas_dry,plant,as field_pea,24.0,1,USDA SR Legacy,B,
+*,peas,plant,"Peas, fresh or dry not stated: dry value",24.0,1,USDA SR Legacy,C,fresh peas have 5.4
+*,lentils,plant,"Lentils, raw",24.63,1,USDA SR Legacy,A,
+*,horsebeans,plant,"Broad beans (fava), dry, raw",26.12,1,USDA SR Legacy,A,
+*,vetch,plant,Grass pea/vetch: fava value,26.1,1,USDA SR Legacy (proxy),B,
+*,fenugreek,plant,Fenugreek seed,23.0,1,USDA SR Legacy,A,used mostly as spice
+*,mung_bean,plant,"Mung beans, dry, raw",23.86,1,USDA SR Legacy,A,
+*,cowpea,plant,"Cowpeas, dry, raw",23.52,1,USDA SR Legacy,A,
+*,pigeonpea,plant,"Pigeon peas, dry, raw",21.7,1,USDA SR Legacy,A,
+*,ground_bean_nzama,plant,"Bambara groundnut, dry (16-25 in the literature)",19.0,1,literature range,C,
+*,mucuna_kalongonda,plant,"Velvet bean (Mucuna), dry",24.0,1,literature range,C,
+*,shiro_processed_pulses,plant,Pulse flour (shiro): chickpea flour,22.39,1,USDA SR Legacy,B,spices mixed in
+*,soybeans,plant,"Soybeans, dry, raw",36.49,1,USDA SR Legacy,A,
+*,soybeans_dry,plant,as soybeans,36.49,1,USDA SR Legacy,A,
+*,soybean_flour,plant,"Soy flour, full-fat, raw",34.54,1,USDA SR Legacy,A,
+*,soya_pieces,plant,"Textured soy pieces, dry (about 50)",50.0,1,USDA SR Legacy (soy protein products),C,
+*,soybeans_fresh,plant,"Soybeans, green, raw",12.95,1,USDA SR Legacy,A,
+*,beans_fresh,plant,"Fresh shelled beans: lima beans, immature, raw",6.84,1,USDA SR Legacy,B,
+*,peas_fresh,plant,"Green peas, raw",5.42,1,USDA SR Legacy,A,
+*,green_beans,plant,"Snap (green) beans, raw",1.83,1,USDA SR Legacy,B,fresh beans or pods: not stated
+*,groundnuts_shelled,plant,"Peanuts, all types, raw",25.8,1,USDA SR Legacy,A,
+*,groundnuts_in_shell,plant,Peanuts in shell,25.8,0.73,USDA SR Legacy (refuse 27% shells),B,
+*,groundnuts_unshelled,plant,as groundnuts_in_shell,25.8,0.73,USDA SR Legacy,B,
+*,groundnuts_dried_unshelled,plant,as groundnuts_in_shell,25.8,0.73,USDA SR Legacy,B,
+*,groundnuts_fresh_unshelled,plant,Fresh groundnuts in shell (kernels about half as dry as stored nuts),13.0,0.73,USDA SR Legacy (adjusted for moisture),C,
+*,groundnuts,plant,"Groundnuts, shelled or not stated: mean of shelled (25.8) and in shell (18.8)",22.3,1,USDA SR Legacy,C,
+*,groundnut_flour,plant,Pounded groundnuts,25.8,1,USDA SR Legacy,B,
+*,groundnuts_pounded,plant,as groundnut_flour,25.8,1,USDA SR Legacy,B,
+*,groundnut_paste,plant,"Peanut butter, smooth",22.5,1,USDA SR Legacy,B,
+*,cashew,plant,"Cashew nuts, raw",18.22,1,USDA SR Legacy,A,
+*,cashew_almonds_nuts,plant,"Cashew, almonds, other nuts: cashew value",18.2,1,USDA SR Legacy,B,
+*,macadamia,plant,"Macadamia nuts, raw",7.91,1,USDA SR Legacy,A,
+*,sesame,plant,"Sesame seeds, whole, dried",17.73,1,USDA SR Legacy,A,
+*,simsim,plant,as sesame,17.73,1,USDA SR Legacy,A,
+*,simsim_paste,plant,Tahini (sesame paste),17.0,1,USDA SR Legacy,A,
+*,sunflower_seed,plant,"Sunflower seed kernels, dried",20.78,1,USDA SR Legacy,A,
+*,linseed,plant,Flaxseed,18.29,1,USDA SR Legacy,A,
+*,niger_seed,plant,Niger seed (18-24 in the literature),20.0,1,literature range,C,
+*,melon_seed_shelled,plant,Egusi (melon) kernels (26-30 in the literature),28.0,1,literature range,C,
+*,melon_seed_ground,plant,as melon_seed_shelled,28.0,1,literature range,C,
+*,melon_seed_unshelled,plant,Egusi seeds with hull,28.0,0.7,literature range,C,hull share approximate
+*,ogbono_unground,plant,Ogbono (Irvingia) kernel (7-9),8.5,1,literature range,C,
+*,ogbono_ground,plant,as ogbono_unground,8.5,1,literature range,C,
+*,seed_other,plant,Other seeds,20.0,1,range of oil seeds,C,
+*,seeds_and_nut_products,plant,Seeds and nut products,20.0,1,range of oil seeds,C,
+*,nuts_seeds_other,plant,"Other nuts, seeds, pulses",20.0,1,range,C,
+*,pulse_or_nut_other,plant,Other pulse or nut,22.0,1,range of pulses,C,
+*,pulses_nuts_other_specify,plant,Other pulses or nuts,22.0,1,range of pulses,C,
+*,meat_or_fish_tinned,unsplit,Tinned meat or fish: between sardine (24.6) and corned beef (27.1),25.0,1,USDA SR Legacy,C,meat and fish not separable (Malawi)
+*,meat_fish_other_specify,unsplit,"Other meat, fish or animal product",,1,,X,not computed: product not stated
+*,coconut,excluded,Coconut (3.3),,1,,X,not a protein-rich food: kept out of the three categories
+*,kola_nut,excluded,Kola nut,,1,,X,stimulant: kept out
+*,butter_margarine,excluded,Butter or margarine,,1,,X,"mixed animal and plant fat, protein under 1 g/100 g: kept out"
+*,butter_margarine_ghee,excluded,"Butter, margarine, ghee",,1,,X,mixed animal and plant fat: kept out
+*,margarine_butter,excluded,"Margarine, butter",,1,,X,mixed animal and plant fat: kept out
+*,eggs_boiled_vendor,excluded,Cooked food from vendors,,1,,X,prepared food bought out: quantities in plates or pieces
+*,chicken_vendor,excluded,Cooked food from vendors,,1,,X,prepared food
+*,meat_vendor,excluded,Cooked food from vendors,,1,,X,prepared food
+*,fish_vendor,excluded,Cooked food from vendors,,1,,X,prepared food
+*,groundnuts_boiled_vendor,excluded,Cooked food from vendors,,1,,X,prepared food
+*,groundnuts_roasted_vendor,excluded,Cooked food from vendors,,1,,X,prepared food

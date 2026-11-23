@@ -69,3 +69,51 @@ python3 harmonize_protein.py <out> item_map.csv protein_coefficients.csv <hh_inf
 - Un totale e' mancante se una voce consumata non si converte o la categoria non e' chiesta: mai zero.
 - Limiti principali: solo alimenti ricchi di proteine (niente cereali); pesce del Malawi e dell'Uganda quasi
   mai convertibile (mucchietti, pezzi); spesa della Nigeria 2018-2023 a 30 giorni, non usata.
+
+## Dataset LONG armonizzato per voce alimentare (build_long_food_dataset.py, 23 novembre 2026)
+
+Sostituisce, come dataset di analisi, sia la versione "solo originali" (troppo larga: una colonna per
+domanda e voce) sia quella a tre categorie (troppo aggregata). Una riga per **famiglia x wave x voce
+originale del questionario** (solo alimenti ricchi di proteine: carni, pollame, uova, latticini, pesce,
+legumi, soia, arachidi, frutta a guscio, semi, piu' le voci miste e i piatti pronti a base di questi),
+43 colonne fisse uguali in tutti i paesi e le wave.
+
+```
+python3 item_classification.py item_map.csv item_classification.csv    # voce di dettaglio -> voce -> gruppo -> super-gruppo
+python3 build_long_food_dataset.py <out> item_map.csv item_classification.csv protein_coefficients.csv <hh_info.csv> ../../docs/external/wdi_gdp_pc_ppp.csv <cartella finale>
+# DOC_ONLY=1 rifà solo il workbook di documentazione dalle statistiche salvate
+Rscript to_rds.R <cartella finale> <data>                               # le stesse tabelle in .rds per R (testi ripetuti come factor)
+```
+
+Uscite: `food_items_long_<data>.csv.gz` e `.rds` (4,6 milioni di righe: troppe per Excel; in R l'.rds occupa
+circa 1,3 GB di memoria e si apre con `readRDS`; il .csv.gz va letto con `hhid` e `unit_total_orig` come testo), `households_<data>.csv.gz` e `.rds`
+(137.192 famiglie, anche nel workbook), `food_dataset_documentation_<data>.xlsx` (README, Households,
+Item_Classification, Item_Mapping, Data_Dictionary, Comparability_Matrix, Quality_Control).
+
+- **Gerarchia**: `item_detail` (una per voce originale, 154) -> `item` (91 prodotti: beef, pork, goat,
+  goat_sheep, chicken, poultry_other, eggs, milk_fresh, milk_processed, cheese, fish_fresh, beans_dry...)
+  -> `food_group` (17) -> `food_supergroup` (animal_source, plant, mixed). Le categorie combinate del
+  questionario restano tali (`meat_unspecified`, `goat_sheep`, `poultry_unspecified`, `fish_form_unspecified`)
+  con `item_comparability = combined`: mai divise.
+- **Una variabile per concetto**: `qty_total_kg`, `qty_from_purchases_kg` (consumato da acquisti),
+  `qty_purchased_kg` (acquistato a 7 giorni: solo Nigeria 2010-2015, domanda diversa), `qty_own_kg`,
+  `qty_gift_kg`, `qty_away_kg` (Uganda), `exp_purchases` (7 giorni), `value_*` (Uganda), e per la Nigeria
+  2018-2023 l'ultimo acquisto a 30 giorni (`purchased_30d`, `qty_last_purchase_kg`, `value_last_purchase`).
+  Le variabili originali di ogni wave sono nel Data_Dictionary e nella Comparability_Matrix.
+- **Zero, mancante, non raccolto**: 0 = non consumato o fonte non usata; vuoto = mancante;
+  `not_collected` elenca le variabili che la wave non chiede (vuote per tutte le famiglie della wave);
+  `consumption_status` distingue consumed / not_consumed / not_listed (wave che elencano solo le voci
+  consumate) / no_record / not_answered; `qty_status` distingue converted / not_convertible / no_quantity.
+- **Benessere**: `welfare_annual` identico a quello dello Step I (verificato: scarto massimo 0). Variabile
+  originale per paese e wave in `welfare_official_var` e `welfare_formula`. Il quintile nuovo e' pesato per
+  la popolazione (peso x componenti); quello dello Step I non era pesato.
+- **Correzioni rispetto al dataset a tre categorie**: i pezzi si convertono a 55 g solo per le uova (il cocco
+  restava a 55 g per pezzo); in Tanzania uova e cocco registrati in kg o g ora sono convertiti.
+- **Controlli** (foglio Quality_Control): 0 duplicati famiglia x wave x voce; ogni famiglia del modulo ha le sue
+  righe; righe non vuote e somma della quantita' totale originale uguali ai file .dta in ogni wave (unica
+  differenza: Malawi 2024, 9 celle con la lettera "a"); nessuna variabile "not collected" ha valori; nessun valore
+  negativo; spot check di 6 righe (ETH 2018, TZA 2020, NGA 2018, UGA 2019, MWI 2019) rilette dai file .dta.
+- **Limiti**: quantita' in kg per il 78% delle voci consumate (pesce 40%: mucchietti e pezzi in Malawi, Uganda,
+  Etiopia; soia, legumi freschi, piatti pronti); Tanzania 2020: uova contate in pezzi a 55 g anche quando la
+  famiglia ha dato il peso, quindi le fonti in grammi possono differire di poco dal totale; Uganda 2018-2019 non
+  chiede il totale (totale = somma delle fonti); Malawi 2010 senza etichette delle unita' nel file.

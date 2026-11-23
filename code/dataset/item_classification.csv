@@ -1,0 +1,155 @@
+item_detail,item,item_label,food_group,food_supergroup,item_comparability,note
+beef,beef,Beef,meat,animal_source,direct,Tanzania: includes minced meat and sausages
+goat,goat,Goat meat,meat,animal_source,direct,
+mutton,sheep,Sheep meat (mutton),meat,animal_source,direct,
+goat_mutton,goat_sheep,"Goat and sheep meat, one item",meat,animal_source,combined,Ethiopia: goat and mutton asked together
+pork,pork,Pork,meat,animal_source,direct,Tanzania: includes sausages and bacon
+camel,camel,Camel meat,meat,animal_source,direct,Ethiopia 2021 only
+game_bush_meat,game_meat,Wild game / bush meat,meat,animal_source,direct,
+offal,offal,"Offal, liver, blood",meat,animal_source,direct,Malawi 2024 only
+small_animals,meat_other,Other meat,meat,animal_source,residual,"Malawi: small animals (rabbit, mice)"
+meat_other,meat_other,Other meat,meat,animal_source,residual,
+meat_other_domestic_wild,meat_other,Other meat,meat,animal_source,residual,Tanzania: other domestic or wild meat
+meat_other_excl_poultry,meat_other,Other meat,meat,animal_source,residual,
+meat_all,meat_unspecified,"Meat, one item for all meat",meat,animal_source,combined,Ethiopia 2011-2013: one item for all meat; poultry (and possibly fish) inside
+corned_beef_canned,canned_meat,Canned meat / corned beef,meat,animal_source,direct,
+sausages,sausages,Sausages,meat,animal_source,direct,
+sausage_minced_meatballs,processed_meat,"Sausages, minced meat, meat balls",meat,animal_source,combined,Malawi 2024
+chicken,chicken,Chicken,poultry,animal_source,direct,Malawi 2010: whole birds and pieces together
+chicken_whole,chicken,Chicken,poultry,animal_source,subtype,Malawi 2016-2024: whole birds
+chicken_pieces,chicken,Chicken,poultry,animal_source,subtype,Malawi 2016-2024: pieces
+chicken_broiler,chicken,Chicken,poultry,animal_source,subtype,Uganda 2018-19: broiler
+chicken_kroiler,chicken,Chicken,poultry,animal_source,subtype,Uganda 2018-19: kroiler
+chicken_local,chicken,Chicken,poultry,animal_source,subtype,Uganda 2018-19: local
+chicken_off_layer,chicken,Chicken,poultry,animal_source,subtype,Uganda 2018-19: off-layer
+duck,poultry_other,Other poultry,poultry,animal_source,subtype,Nigeria: duck asked apart
+poultry_other,poultry_other,Other poultry,poultry,animal_source,direct,"guinea fowl, turkey, pigeon"
+poultry,poultry_unspecified,"Poultry, one item",poultry,animal_source,combined,"Ethiopia, Tanzania 2008-2014: chicken and other poultry together"
+insects,insects,"Insects (termites, caterpillars)",other_animal,animal_source,direct,Malawi
+snails,snails,Snails,other_animal,animal_source,direct,Nigeria: listed with fish and seafood
+wild_birds_insects,wild_birds_insects,Wild birds and insects,other_animal,animal_source,combined,Tanzania
+eggs,eggs,Eggs,eggs,animal_source,direct,
+eggs_farm,eggs,Eggs,eggs,animal_source,subtype,Nigeria: farm ('agricultural') eggs
+eggs_local,eggs,Eggs,eggs,animal_source,subtype,Nigeria: local eggs
+eggs_other,eggs,Eggs,eggs,animal_source,subtype,Nigeria: other eggs
+milk_fresh,milk_fresh,Fresh milk,dairy,animal_source,direct,species not stated
+milk_powder,milk_powder,Milk powder,dairy,animal_source,direct,
+milk_tinned,milk_canned,Canned milk (evaporated),dairy,animal_source,direct,
+milk_canned_powder,milk_processed_unspecified,"Canned milk or milk powder, one item",dairy,animal_source,combined,Tanzania
+yoghurt,fermented_milk,Yoghurt and soured milk,dairy,animal_source,direct,
+milk_soured_fermented,fermented_milk,Yoghurt and soured milk,dairy,animal_source,subtype,"Malawi chambiko, Uganda bongo"
+cheese,cheese,Cheese,dairy,animal_source,direct,Ethiopia: ayib (cottage cheese)
+cheese_wara,cheese,Cheese,dairy,animal_source,direct,Nigeria: wara (soft cheese)
+butter,butter_ghee,Butter and ghee,dairy,animal_source,direct,
+butter_ghee,butter_ghee,Butter and ghee,dairy,animal_source,direct,Ethiopia: kibe
+ghee,butter_ghee,Butter and ghee,dairy,animal_source,direct,
+ice_cream,ice_cream,Ice cream,dairy,animal_source,direct,
+infant_formula,infant_formula,Infant formula,dairy,animal_source,direct,
+milk_products_cream_cheese_yoghurt,milk_products_unspecified,"Milk products (cream, cheese, yoghurt), one item",dairy,animal_source,combined,Tanzania
+dairy_other,milk_products_other,Other milk products,dairy,animal_source,residual,
+dairy_other_specify,milk_products_other,Other milk products,dairy,animal_source,residual,
+butter_margarine,butter_margarine,"Butter and margarine, one item",fats_mixed,mixed,combined,animal and plant fat together
+butter_margarine_ghee,butter_margarine,"Butter and margarine, one item",fats_mixed,mixed,combined,Tanzania: also ghee and other fats
+margarine_butter,butter_margarine,"Butter and margarine, one item",fats_mixed,mixed,combined,Uganda
+fish_fresh,fish_fresh,Fresh fish,fish_seafood,animal_source,direct,
+fish_fresh_large,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,Malawi: large variety
+fish_fresh_medium,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,Malawi: medium variety
+fish_fresh_small,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,Malawi: small variety
+fish_frozen,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,Nigeria: frozen fish
+tilapia_fresh,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,tilapia
+nile_perch_fresh,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,Nile perch
+dagaa_fresh,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,Tanzania 2020: dagaa
+kolekole_fresh,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,Tanzania 2020: kolekole
+fish_other_fresh,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,Uganda: other fresh fish
+fish_other_fresh_seafood,fish_fresh,Fresh fish,fish_seafood,animal_source,subtype,Tanzania 2020: other fresh fish and seafood
+fish_fresh_seafood,fish_seafood_fresh_unspecified,"Fresh fish and seafood, one item",fish_seafood,animal_source,combined,"Tanzania 2008-2014: fresh fish, seafood and dagaa together"
+seafood_crustaceans,seafood,Seafood (crustaceans),fish_seafood,animal_source,direct,
+fish_dried,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,dried
+fish_sundried_large,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,"Malawi: sun-dried, large"
+fish_sundried_medium,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,"Malawi: sun-dried, medium"
+fish_sundried_small,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,"Malawi: sun-dried, small"
+fish_smoked,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,smoked
+fish_smoked_large,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,"Malawi: smoked, large"
+fish_smoked_medium,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,"Malawi: smoked, medium"
+fish_smoked_small,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,"Malawi: smoked, small"
+fish_dried_smoked,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,direct,Uganda 2010-2015
+tilapia_dried_smoked,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,Uganda 2018-19: tilapia
+nile_perch_dried_smoked,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,Uganda 2018-19: Nile perch
+nkejje_dried,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,Uganda 2018-19: nkejje
+fish_other_dried_smoked,fish_dried_smoked,Dried or smoked fish,fish_seafood,animal_source,subtype,Uganda 2018-19: other
+fish_dried_salted_canned,fish_dried_canned_unspecified,"Dried, salted or canned fish, one item",fish_seafood,animal_source,combined,Tanzania: dried and canned fish together (incl. dagaa)
+fish_canned,fish_canned,Canned fish,fish_seafood,animal_source,direct,
+fish_packaged_canned,fish_canned,Canned fish,fish_seafood,animal_source,direct,Tanzania: packaged fish
+silverfish_mukene,fish_form_unspecified,"Fish, form not stated",fish_seafood,animal_source,combined,Uganda: mukene (usually sun-dried)
+fish_unspecified,fish_form_unspecified,"Fish, form not stated",fish_seafood,animal_source,combined,Ethiopia: one fish item
+fish_other,fish_other,Other fish or seafood,fish_seafood,animal_source,residual,
+fish_soup_sauce,fish_products,Fish soup or sauce,fish_seafood,animal_source,direct,Malawi
+meat_or_fish_tinned,meat_fish_canned,"Tinned meat or fish, one item",meat_fish_mixed,animal_source,combined,Malawi
+meat_fish_other_specify,animal_other,"Other meat, fish or animal product",meat_fish_mixed,animal_source,residual,Malawi
+beans_dry,beans_dry,Dry beans,pulses,plant,direct,
+haricot_beans,beans_dry,Dry beans,pulses,plant,subtype,Ethiopia: haricot beans
+beans_brown,beans_dry,Dry beans,pulses,plant,subtype,Malawi: brown beans; Nigeria: brown beans (cowpea type)
+beans_white,beans_dry,Dry beans,pulses,plant,subtype,Malawi: white beans; Nigeria: white beans (cowpea type)
+beans_mixed,beans_dry,Dry beans,pulses,plant,subtype,Malawi 2024: mixed beans
+cowpea,cowpea,Cowpea,pulses,plant,direct,Malawi
+pigeonpea,pigeon_pea,Pigeon pea,pulses,plant,direct,
+chickpea,chickpea,Chickpea,pulses,plant,direct,
+eth_pea_code8,chickpea_or_field_pea,Chickpea or field pea (label conflict),pulses,plant,combined,Ethiopia 2011-2013 code 8: identity unresolved
+eth_pea_code9,chickpea_or_field_pea,Chickpea or field pea (label conflict),pulses,plant,combined,Ethiopia 2011-2013 code 9: identity unresolved
+field_pea,peas_dry,Dry peas,pulses,plant,direct,Ethiopia: field pea
+peas_dry,peas_dry,Dry peas,pulses,plant,direct,
+peas,peas_unspecified,"Peas, fresh or dry not stated",pulses,plant,combined,Tanzania 2020
+lentils,lentils,Lentils,pulses,plant,direct,
+horsebeans,faba_beans,Faba beans (horsebeans),pulses,plant,direct,
+vetch,grass_pea_vetch,Grass pea / vetch,pulses,plant,direct,
+fenugreek,fenugreek,Fenugreek,pulses,plant,direct,used mostly as a spice
+mung_bean,mung_bean,Mung bean,pulses,plant,direct,
+ground_bean_nzama,bambara_groundnut,Bambara groundnut,pulses,plant,direct,Malawi: nzama
+mucuna_kalongonda,mucuna,Velvet bean (mucuna),pulses,plant,direct,Malawi
+pulses_all,pulses_unspecified,"Pulses, one item",pulses,plant,combined,"Tanzania 2008-2014 (and 2020 hh_sec_j1): peas, beans, lentils together"
+beans_lentils_pulses_other,pulses_other,"Other beans, lentils and pulses",pulses,plant,residual,Tanzania 2020
+shiro_processed_pulses,pulse_flour,Pulse flour (shiro),pulses,plant,direct,Ethiopia
+beans_fresh,beans_fresh,Fresh beans,pulses_fresh,plant,direct,
+peas_fresh,peas_fresh,Fresh peas,pulses_fresh,plant,direct,
+green_beans,green_beans,Green beans,pulses_fresh,plant,direct,Tanzania 2020: fresh beans or pods
+soybeans,soybeans,Soybeans,soy,plant,direct,
+soybeans_dry,soybeans,Soybeans,soy,plant,direct,
+soybeans_fresh,soybeans_fresh,Fresh soybeans,soy,plant,direct,Uganda 2018-19
+soybean_flour,soy_products,Soy flour and soy pieces,soy,plant,subtype,Malawi: soy flour
+soya_pieces,soy_products,Soy flour and soy pieces,soy,plant,subtype,Malawi 2024: soy pieces
+groundnuts_shelled,groundnuts_shelled,"Groundnuts, shelled",groundnuts,plant,direct,
+groundnuts_unshelled,groundnuts_in_shell,Groundnuts in shell,groundnuts,plant,direct,
+groundnuts_in_shell,groundnuts_in_shell,Groundnuts in shell,groundnuts,plant,direct,
+groundnuts_dried_unshelled,groundnuts_in_shell,Groundnuts in shell,groundnuts,plant,direct,Malawi: dried
+groundnuts_fresh_unshelled,groundnuts_fresh,Fresh groundnuts in shell,groundnuts,plant,direct,Malawi
+groundnuts,groundnuts_unspecified,"Groundnuts, form not stated",groundnuts,plant,combined,
+groundnut_flour,groundnut_products,"Groundnut flour, paste, pounded",groundnuts,plant,subtype,Malawi: flour
+groundnuts_pounded,groundnut_products,"Groundnut flour, paste, pounded",groundnuts,plant,subtype,Uganda: pounded
+groundnut_paste,groundnut_products,"Groundnut flour, paste, pounded",groundnuts,plant,subtype,Uganda: paste
+cashew,cashew,Cashew nuts,nuts,plant,direct,
+macadamia,macadamia,Macadamia nuts,nuts,plant,direct,Malawi
+cashew_almonds_nuts,nuts_unspecified,"Cashew, almonds and other nuts, one item",nuts,plant,combined,Tanzania
+sesame,sesame,Sesame (simsim),seeds,plant,direct,
+simsim,sesame,Sesame (simsim),seeds,plant,direct,
+simsim_paste,sesame_paste,Sesame paste,seeds,plant,direct,Uganda 2018-19
+sunflower_seed,sunflower_seed,Sunflower seed,seeds,plant,direct,
+linseed,linseed,Linseed,seeds,plant,direct,
+niger_seed,niger_seed,Niger seed,seeds,plant,direct,
+melon_seed_shelled,melon_seeds,Melon seeds (egusi),seeds,plant,subtype,shelled
+melon_seed_unshelled,melon_seeds,Melon seeds (egusi),seeds,plant,subtype,unshelled
+melon_seed_ground,melon_seeds,Melon seeds (egusi),seeds,plant,subtype,ground
+ogbono_unground,ogbono,Ogbono (bush mango kernel),seeds,plant,subtype,unground
+ogbono_ground,ogbono,Ogbono (bush mango kernel),seeds,plant,subtype,ground
+seed_other,seeds_other,Other seeds,seeds,plant,residual,
+seeds_and_nut_products,seeds_nut_products,"Seeds and nut products, one item",seeds,plant,combined,Tanzania
+pulse_or_nut_other,pulses_nuts_seeds_other,"Other pulses, nuts or seeds",pulses_nuts_seeds_other,plant,residual,
+pulses_nuts_other_specify,pulses_nuts_seeds_other,"Other pulses, nuts or seeds",pulses_nuts_seeds_other,plant,residual,
+nuts_seeds_other,pulses_nuts_seeds_other,"Other pulses, nuts or seeds",pulses_nuts_seeds_other,plant,residual,
+coconut,coconut,Coconut,other_plant,plant,direct,low in protein
+kola_nut,kola_nut,Kola nut,other_plant,plant,direct,"stimulant, low in protein"
+meat_vendor,prepared_meat,Cooked meat from vendors,prepared_food,animal_source,direct,Malawi
+chicken_vendor,prepared_chicken,Cooked chicken from vendors,prepared_food,animal_source,direct,Malawi
+fish_vendor,prepared_fish,Cooked fish from vendors,prepared_food,animal_source,direct,Malawi
+eggs_boiled_vendor,prepared_eggs,Boiled eggs from vendors,prepared_food,animal_source,direct,Malawi
+groundnuts_boiled_vendor,prepared_groundnuts,Cooked groundnuts from vendors,prepared_food,plant,subtype,Malawi: boiled
+groundnuts_roasted_vendor,prepared_groundnuts,Cooked groundnuts from vendors,prepared_food,plant,subtype,Malawi: roasted

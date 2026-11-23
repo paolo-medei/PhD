@@ -11,7 +11,6 @@ meat_other,meat_other,"other domestic or wild meat; Uganda: includes duck and ra
 game_meat,meat_other,"Nigeria: wild game / bush meat (Tanzania asks it inside other meat)"
 camel,meat_other,"Ethiopia 2021"
 offal,meat_other,"Malawi 2024"
-meat_unspecified,meat_unspecified,"Ethiopia 2011-2013: one item for all meat (poultry and possibly fish inside)"
 chicken,poultry,
 poultry_other,poultry,
 poultry_unspecified,poultry,"Ethiopia and Tanzania 2008-2014 ask chicken and other poultry together"

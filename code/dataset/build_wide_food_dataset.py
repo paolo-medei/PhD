@@ -6,10 +6,10 @@ Columns decided with Paolo (23 Nov 2026, item by item):
   household: country, year, hhid, panel_id, weight, region, district, subdistrict, ea, strata, rural, hhsize, adulteq,
              int_month, int_year, head_female, head_age, welfare_annual, welfare_scale, welfare_var,
              cons_total_hh_annual, food_cons_hh_annual, not_collected
-  19 food items x 7 columns: <item>_cons, _kg_tot, _kg_pur (consumed from purchases), _kg_own, _kg_gift, _exp (7 days), _kg_est
+  18 food items x 7 columns: <item>_cons, _kg_tot, _kg_pur (consumed from purchases), _kg_own, _kg_gift, _exp (7 days), _kg_est
   no quintile, no protein, no group totals, no Nigeria 30-day purchase, no Uganda away-from-home quantity or values,
   no prepared food, butter-margarine, coconut, kola, insects, snails, "other (specify)" residuals.
-Items: the original items of item_classification.csv summed into 19 items (wide_items.csv): goat + sheep + goat-and-mutton,
+Ethiopia 2011 and 2013 left out (one item for all meat). Items: the original items of item_classification.csv summed into 18 items (wide_items.csv): goat + sheep + goat-and-mutton,
   chicken + other poultry, fresh milk vs all processed dairy, fish fresh / processed / form not given, etc.
 Units that the survey tables do not convert (heaps, pieces, cups, plates...): kilograms ESTIMATED from prices
   (Paolo: "stima con un peso questi pezzi o heap"): kg per unit = median over purchases in that unit of
@@ -29,7 +29,8 @@ T0 = time.time(); TODAY = datetime.date.today().isoformat()
 COUNTRIES = ["ETH", "TZA", "MWI", "NGA", "UGA"]
 SVY = {("NGA", 2018), ("NGA", 2023)}
 NMIN = 5                                    # observations needed for a median price or weight
-ITEMS = ["beef", "goat_sheep", "pork", "processed_red_meat", "meat_other", "meat_unspecified", "poultry", "eggs", "milk_fresh",
+DROP = {("ETH", 2011), ("ETH", 2013)}       # Paolo, 23 Nov: out, their questionnaire has one item for all meat (no beef, poultry, fish)
+ITEMS = ["beef", "goat_sheep", "pork", "processed_red_meat", "meat_other", "poultry", "eggs", "milk_fresh",
          "dairy_processed", "fish_fresh", "fish_processed", "fish_unspecified", "pulses_dry", "pulses_fresh", "groundnuts", "soy", "nuts", "seeds"]
 VARS = ["cons", "kg_tot", "kg_pur", "kg_own", "kg_gift", "exp", "kg_est"]
 HCOLS = ["country", "year", "hhid", "panel_id", "weight", "region", "district", "subdistrict", "ea", "strata", "rural", "hhsize", "adulteq",
@@ -103,9 +104,9 @@ LC = ["country", "year", "hhid", "item_detail", "consumption_status", "consumed"
       "qty_own_kg", "qty_gift_kg", "qty_away_kg", "exp_purchases", "not_collected"]
 LONG = pd.read_csv(LONGF, usecols=LC, dtype={"hhid": str, "country": "category", "item_detail": "category", "consumption_status": "category",
                                              "not_collected": "category"}, low_memory=False)
-LONG = LONG[LONG.item_detail.isin(KEEP)].copy()
+LONG = LONG[LONG.item_detail.isin(KEEP) & ~pd.Series(list(zip(LONG.country.astype(str), LONG.year)), index=LONG.index).isin(DROP)].copy()
 LONG["item_detail"] = LONG.item_detail.astype(str); LONG["wide"] = LONG.item_detail.map(D2W)
-log(f"long rows of the 19 items: {len(LONG)}")
+log(f"long rows of the {len(ITEMS)} items: {len(LONG)}")
 RAWC = ["hhid", "year", "slot", "cons", "q_tot", "u_tot", "us_tot", "q_pur", "u_pur", "us_pur", "q_own", "u_own", "us_own", "q_gift", "u_gift", "us_gift",
         "q_frompur", "u_frompur", "q_away", "exp", "q_lastpur", "u_lastpur", "us_lastpur", "val_lastpur", "cvn_lastpur"]
 UNITC = [c for c in RAWC if c.startswith("u")]
@@ -275,6 +276,7 @@ for (c, y), s in asked.items():
 # 3. household variables
 # ------------------------------------------------------------------------------------------
 H = pd.read_csv(HHF, dtype={"hhid": str, "panel_id": str, "region": str, "district": str, "subdistrict": str, "ea": str, "strata": str}, low_memory=False)
+H = H[~pd.Series(list(zip(H.country, H.year)), index=H.index).isin(DROP)].copy()
 NH = pd.read_csv(NGAHEAD, dtype={"hhid": str})
 H = H.merge(NH[["country", "year", "hhid", "head_female", "head_age"]], on=["country", "year", "hhid"], how="left", suffixes=("", "_nga"))
 for c in ["head_female", "head_age"]:
@@ -355,6 +357,7 @@ IT = WI.groupby("wide_item").apply(lambda d: "; ".join(f"{i}" + (f" ({n})" if is
 IDOC = pd.DataFrame([dict(column=f"{i}_*", contains=IT[i]) for i in ITEMS])
 MP = MAP.merge(CL[["item_detail", "item"]], left_on="slot", right_on="item_detail", how="left")
 MP["column"] = MP["item"].map(I2W).fillna("dropped")
+MP = MP[~pd.Series(list(zip(MP.country, MP["round"])), index=MP.index).isin(DROP)]
 MP = MP[["country", "round", "code", "label", "item_detail", "item", "column"]].rename(columns={"round": "year", "code": "item_code_orig", "label": "item_label_orig"})
 MP = MP.sort_values(["country", "year", "column", "item_detail"], key=lambda s: s.map(COUNTRIES.index) if s.name == "country" else s)
 WTS = pd.DataFrame(WT_ROWS).sort_values(["country", "year", "item", "item_detail", "unit_code"], key=lambda s: s.map(COUNTRIES.index) if s.name == "country" else s)
@@ -370,13 +373,14 @@ COV = pd.DataFrame(COV)
 COV["share_with_kg"] = (COV.with_kg_tot / COV.households_consuming.replace(0, np.nan)).round(3)
 SUMM = pd.DataFrame([("rows", len(X), "households x rounds"), ("duplicated country-year-hhid", int(X.duplicated(["country", "year", "hhid"]).sum()), ""),
                      ("columns", len(COLS), f"{len(HCOLS)} household + {len(ITEMS)} items x {len(VARS)}"),
-                     ("consumed item rows with kg before the estimated weights", int(ES.kg_before.sum()), f"of {int(ES.consumed_items.sum())} (all original items of the 19 columns)"),
+                     ("consumed item rows with kg before the estimated weights", int(ES.kg_before.sum()), f"of {int(ES.consumed_items.sum())} (all original items of the {len(ITEMS)} columns)"),
                      ("consumed item rows with kg after the estimated weights", int(ES.kg_after.sum()), ""),
                      ("estimated unit weights", len(WTS), "sheet Unit_weights")], columns=["check", "value", "note"])
 README = pd.DataFrame([
     ("Data", "one row per household x round (never repeated); the same columns in the same order in every workbook"),
     ("rule", "0 = not consumed / source not used; empty = missing; empty for a whole round = not collected (column not_collected)"),
-    ("items", "19 items, each the sum of original questionnaire items (sheet Items, sheet Item_mapping); combined original items are never split"),
+    ("rounds", "23 rounds: Ethiopia 2011 and 2013 are left out because their questionnaire has a single item for all meat"),
+    ("items", "18 items, each the sum of original questionnaire items (sheet Items, sheet Item_mapping); combined original items are never split"),
     ("kilograms", "survey conversion tables and metric units; heaps, pieces, cups, plates: weight estimated from prices (<item>_kg_est = 1, sheet Unit_weights)"),
     ("welfare", "official aggregate, annual, per adult equivalent or per person (welfare_scale, welfare_var)"),
     ("money", "local currency: ETB, TZS, MWK, NGN, UGX; exp is at 7 days, welfare and consumption totals per year"),

@@ -117,3 +117,31 @@ Item_Classification, Item_Mapping, Data_Dictionary, Comparability_Matrix, Qualit
   Etiopia; soia, legumi freschi, piatti pronti); Tanzania 2020: uova contate in pezzi a 55 g anche quando la
   famiglia ha dato il peso, quindi le fonti in grammi possono differire di poco dal totale; Uganda 2018-2019 non
   chiede il totale (totale = somma delle fonti); Malawi 2010 senza etichette delle unita' nel file.
+
+## Dataset WIDE per famiglia (build_wide_food_dataset.py, 23 novembre 2026) — quello da usare
+
+Una riga per famiglia x wave, mai ripetuta (137.192 righe, 25 wave), 156 colonne decise con Paolo voce per
+voce: 23 della famiglia e 19 alimenti x 7 (`_cons`, `_kg_tot`, `_kg_pur`, `_kg_own`, `_kg_gift`, `_exp`,
+`_kg_est`). Un file Excel con tutti i paesi e uno per paese, stesse colonne nello stesso ordine.
+
+```
+Rscript nga_head.R <data/_unzipped> nga_head.csv      # sesso ed eta' del capofamiglia in Nigeria (roster sect1_harvestw1-w5)
+python3 build_wide_food_dataset.py <out> food_items_long_<data>.csv.gz households_<data>.csv.gz item_classification.csv wide_items.csv item_map.csv nga_head.csv <cartella finale>
+```
+
+- **Voci** (`wide_items.csv`): beef, goat_sheep (capra + pecora + "capra e montone" ETH), pork, processed_red_meat,
+  meat_other (con selvaggina, cammello, frattaglie), meat_unspecified (solo ETH 2011-2013), poultry (pollo +
+  altro pollame), eggs, milk_fresh, dairy_processed (tutti gli altri latticini), fish_fresh, fish_processed,
+  fish_unspecified, pulses_dry, pulses_fresh, groundnuts, soy, nuts, seeds. Tolti: piatti pronti, burro-margarina,
+  cocco, noce di cola, insetti, lumache, uccelli selvatici, voci "altro (specificare)".
+- **Somme rigorose**: il valore di una colonna e' vuoto se una delle voci originali che somma e' sconosciuta.
+- **Chili stimati**: per mucchietti, pezzi, tazze, piatti senza fattore di conversione, kg per unita' = mediana
+  su chi ha comprato in quell'unita' di (spesa / quantita') diviso il prezzo al kg mediano della stessa voce,
+  paese e wave (minimo 5 acquisti; se mancano, la stessa unita' in tutte le wave con stesso codice ed etichetta).
+  Prima delle stime: unita' metriche e pesi scritti nell'etichetta (Malawi "PACKET (150G)"). `_kg_est = 1`
+  segna i chili stimati; i pesi sono nel foglio Unit_weights. Copertura dei kg sulle voci consumate: dal 78%
+  al 98%. Sono pesi "a valore" (un mucchietto pesa quanto i kg che costerebbero lo stesso): alcuni sono poco
+  plausibili (formaggio wara in pezzi 3-6 g, Nigeria 2015) e vanno controllati.
+- **Benessere**: annuo, per adulto equivalente o per persona (`welfare_scale`, `welfare_var`), uguale allo Step I.
+- **Non raccolto**: la colonna `not_collected` elenca per wave le voci assenti dal questionario (`pork_*`) e le
+  domande non fatte (`*_exp` Nigeria 2018-2023, `*_kg_pur` Nigeria 2010).

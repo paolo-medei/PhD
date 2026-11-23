@@ -1,0 +1,78 @@
+item,wide_item,note
+beef,beef,"Tanzania: includes minced meat and sausages"
+goat,goat_sheep,
+sheep,goat_sheep,
+goat_sheep,goat_sheep,"Ethiopia: goat and mutton asked together"
+pork,pork,"Tanzania: includes sausages and bacon"
+canned_meat,processed_red_meat,"Nigeria 2010-2015: canned beef / corned beef"
+sausages,processed_red_meat,"Uganda 2018-2019"
+processed_meat,processed_red_meat,"Malawi 2024: sausages, minced meat, meat balls"
+meat_other,meat_other,"other domestic or wild meat; Uganda: includes duck and rabbit"
+game_meat,meat_other,"Nigeria: wild game / bush meat (Tanzania asks it inside other meat)"
+camel,meat_other,"Ethiopia 2021"
+offal,meat_other,"Malawi 2024"
+meat_unspecified,meat_unspecified,"Ethiopia 2011-2013: one item for all meat (poultry and possibly fish inside)"
+chicken,poultry,
+poultry_other,poultry,
+poultry_unspecified,poultry,"Ethiopia and Tanzania 2008-2014 ask chicken and other poultry together"
+eggs,eggs,
+milk_fresh,milk_fresh,
+butter_ghee,dairy_processed,
+cheese,dairy_processed,
+fermented_milk,dairy_processed,
+ice_cream,dairy_processed,
+infant_formula,dairy_processed,
+milk_canned,dairy_processed,
+milk_powder,dairy_processed,
+milk_processed_unspecified,dairy_processed,"Tanzania: canned milk / milk powder"
+milk_products_other,dairy_processed,
+milk_products_unspecified,dairy_processed,"Tanzania: milk products (cream, cheese, yoghurt)"
+fish_fresh,fish_fresh,
+seafood,fish_fresh,"Nigeria: lobster, crab, prawns"
+fish_seafood_fresh_unspecified,fish_fresh,"Tanzania 2008-2014: fresh fish and seafood (including dagaa)"
+fish_dried_smoked,fish_processed,
+fish_canned,fish_processed,
+fish_dried_canned_unspecified,fish_processed,"Tanzania 2008-2014: dried, salted or canned fish and seafood"
+fish_products,fish_processed,"Malawi: fish soup / sauce"
+fish_form_unspecified,fish_unspecified,"Ethiopia: fish; Uganda 2018-2019: silver fish (mukene)"
+fish_other,fish_unspecified,"Nigeria: other fish or seafood"
+beans_dry,pulses_dry,
+peas_dry,pulses_dry,
+cowpea,pulses_dry,
+pigeon_pea,pulses_dry,
+lentils,pulses_dry,
+chickpea,pulses_dry,
+chickpea_or_field_pea,pulses_dry,
+faba_beans,pulses_dry,
+fenugreek,pulses_dry,
+grass_pea_vetch,pulses_dry,
+mung_bean,pulses_dry,
+bambara_groundnut,pulses_dry,
+mucuna,pulses_dry,
+pulse_flour,pulses_dry,
+peas_unspecified,pulses_dry,
+pulses_other,pulses_dry,
+pulses_unspecified,pulses_dry,
+beans_fresh,pulses_fresh,
+peas_fresh,pulses_fresh,
+green_beans,pulses_fresh,
+groundnut_products,groundnuts,
+groundnuts_fresh,groundnuts,
+groundnuts_in_shell,groundnuts,
+groundnuts_shelled,groundnuts,
+groundnuts_unspecified,groundnuts,
+soy_products,soy,
+soybeans,soy,
+soybeans_fresh,soy,
+cashew,nuts,
+macadamia,nuts,
+nuts_unspecified,nuts,
+linseed,seeds,
+melon_seeds,seeds,
+niger_seed,seeds,
+ogbono,seeds,
+seeds_nut_products,seeds,
+seeds_other,seeds,
+sesame,seeds,
+sesame_paste,seeds,
+sunflower_seed,seeds,

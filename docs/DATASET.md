@@ -39,8 +39,8 @@ python3 assemble_dataset.py <out> item_map.csv <cartella finale>
   parte): righe non vuote e somma sulle voci proteiche coincidono con il dataset. Uniche differenze,
   spiegate: il Malawi 2024 salva quantita' e spese come testo e alcune celle contengono la lettera "a"
   (codice di mancante), che resta vuota.
-- I numeri salvati in Stata come float a 4 byte sono scritti con le loro 7 cifre significative, come li
-  mostra Stata (0,3 e non 0,300000011920929).
+- I numeri salvati in Stata come float a 4 byte sono scritti con le cifre piu' corte che ridanno lo stesso
+  float (0,3 e non 0,300000011920929): stesso valore salvato, scritto come lo mostra Stata.
 
 ## Trovato durante il lavoro
 

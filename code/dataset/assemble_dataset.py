@@ -131,15 +131,16 @@ HHTEXT = {"country", "hhid", "food_module_file"} | (set(HHCOLS) & set(HS.loc[HS.
 
 
 def show(a):
-    """numbers as Stata shows them: values stored as 4-byte floats back to their 7 significant digits"""
+    """a value stored in Stata as a 4-byte float is written with the shortest decimals that give back
+    the same float (0.3, not 0.300000011920929): same stored value, written as Stata shows it"""
     a = a.copy()
     m = np.isfinite(a) & (a != 0) & (a != np.round(a))
     if m.any():
-        v = a[m]; f = v.astype(np.float32).astype(np.float64)
-        is32 = np.abs(f - v) <= 1e-13 * np.abs(v)
-        d = 6 - np.floor(np.log10(np.abs(v)))
-        r = np.array([round(x, int(k)) if k > 0 else x for x, k in zip(v, d)])
-        a[m] = np.where(is32, r, v)
+        v = a[m]; f = v.astype(np.float32)
+        is32 = np.abs(f.astype(np.float64) - v) <= 1e-13 * np.abs(v)
+        if is32.any():
+            v[is32] = [float(np.format_float_positional(x, unique=True, trim="-")) for x in f[is32]]
+        a[m] = v
     return a
 
 
@@ -469,7 +470,7 @@ summary = pd.DataFrame([
     ("households not found in the cover or aggregate file", int((~H._in_cover).sum()), "their household columns are empty", True),
     ("question x round checks against the raw files", len(CMPR), "rows with value and sum of every question, read straight from the .dta (role_vars.R)", True),
     ("checks that fail", len(bad), "must be 0", len(bad) == 0),
-    ("values changed", 0, "none (numbers stored in the file as 4-byte floats are shown with 7 significant digits, as Stata shows them)", True),
+    ("values changed", 0, "none (a number stored as a 4-byte float is written with the shortest decimals that give back the same float: 0.3, not 0.300000011920929)", True),
     ("values created", 0, "none: no conversion, total, recode, imputation, trimming or zero filling", True),
 ], columns=["check", "value", "note", "pass"])
 sh = SHEETS["Quality_Control"]

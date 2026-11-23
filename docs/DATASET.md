@@ -121,8 +121,8 @@ Item_Classification, Item_Mapping, Data_Dictionary, Comparability_Matrix, Qualit
 ## Dataset WIDE per famiglia (build_wide_food_dataset.py, 23 novembre 2026) — quello da usare
 
 Una riga per famiglia x wave, mai ripetuta (127.961 righe, 23 wave: Etiopia 2011 e 2013 tolte perche' il
-questionario ha una sola voce per tutta la carne, decisione di Paolo), 149 colonne decise con Paolo voce per
-voce: 23 della famiglia e 18 alimenti x 7 (`_cons`, `_kg_tot`, `_kg_pur`, `_kg_own`, `_kg_gift`, `_exp`,
+questionario ha una sola voce per tutta la carne, decisione di Paolo), 142 colonne decise con Paolo voce per
+voce: 23 della famiglia e 17 alimenti x 7 (`_cons`, `_kg_tot`, `_kg_pur`, `_kg_own`, `_kg_gift`, `_exp`,
 `_kg_est`). Un file Excel con tutti i paesi e uno per paese, stesse colonne nello stesso ordine.
 
 ```
@@ -133,7 +133,8 @@ python3 build_wide_food_dataset.py <out> food_items_long_<data>.csv.gz household
 - **Voci** (`wide_items.csv`): beef, goat_sheep (capra + pecora + "capra e montone" ETH), pork, processed_red_meat,
   meat_other (con selvaggina, cammello, frattaglie), poultry (pollo +
   altro pollame), eggs, milk_fresh, dairy_processed (tutti gli altri latticini), fish_fresh, fish_processed,
-  fish_unspecified, pulses_dry, pulses_fresh, groundnuts, soy, nuts, seeds. Tolti: piatti pronti, burro-margarina,
+  pulses_dry, pulses_fresh, groundnuts, soy, nuts, seeds. Pesce: il "Fish" dell'Etiopia va nel fresco; il mukene
+  dell'Uganda e l'"altro pesce" della Nigeria (crayfish, stockfish) nel trasformato. Tolti: piatti pronti, burro-margarina,
   cocco, noce di cola, insetti, lumache, uccelli selvatici, voci "altro (specificare)".
 - **Somme rigorose**: il valore di una colonna e' vuoto se una delle voci originali che somma e' sconosciuta.
 - **Chili stimati**: per mucchietti, pezzi, tazze, piatti senza fattore di conversione, kg per unita' = mediana

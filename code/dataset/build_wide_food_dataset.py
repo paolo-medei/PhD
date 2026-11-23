@@ -31,7 +31,7 @@ SVY = {("NGA", 2018), ("NGA", 2023)}
 NMIN = 5                                    # observations needed for a median price or weight
 DROP = {("ETH", 2011), ("ETH", 2013)}       # Paolo, 23 Nov: out, their questionnaire has one item for all meat (no beef, poultry, fish)
 ITEMS = ["beef", "goat_sheep", "pork", "processed_red_meat", "meat_other", "poultry", "eggs", "milk_fresh",
-         "dairy_processed", "fish_fresh", "fish_processed", "fish_unspecified", "pulses_dry", "pulses_fresh", "groundnuts", "soy", "nuts", "seeds"]
+         "dairy_processed", "fish_fresh", "fish_processed", "pulses_dry", "pulses_fresh", "groundnuts", "soy", "nuts", "seeds"]
 VARS = ["cons", "kg_tot", "kg_pur", "kg_own", "kg_gift", "exp", "kg_est"]
 HCOLS = ["country", "year", "hhid", "panel_id", "weight", "region", "district", "subdistrict", "ea", "strata", "rural", "hhsize", "adulteq",
          "int_month", "int_year", "head_female", "head_age", "welfare_annual", "welfare_scale", "welfare_var",
@@ -44,8 +44,9 @@ CL = pd.read_csv(CLASSF)
 WI = pd.read_csv(WIDEF)
 assert set(WI.wide_item) == set(ITEMS)
 D2I = CL.set_index("item_detail")["item"].to_dict()                       # detail -> harmonized item
-I2W = WI.set_index("item")["wide_item"].to_dict()                          # harmonized item -> column item
-D2W = {d: I2W.get(i) for d, i in D2I.items()}
+I2W = WI[~WI["item"].str.startswith("detail:")].set_index("item")["wide_item"].to_dict()      # harmonized item -> column item
+DOV = {r["item"][7:]: r["wide_item"] for _, r in WI[WI["item"].str.startswith("detail:")].iterrows()}   # exceptions by original item
+D2W = {d: DOV.get(d, I2W.get(i)) for d, i in D2I.items()}
 KEEP = {d for d, w in D2W.items() if w}
 MAP = pd.read_csv(MAPF); MAP["round"] = MAP.year.apply(lambda y: int(math.floor(y)))
 UC = pd.read_csv(os.path.join(BUILD, "unit_codes.csv"), dtype=str, keep_default_na=False, na_values=[""]); UC["year"] = UC.year.astype(int)
@@ -356,7 +357,7 @@ DD = pd.DataFrame(DD)
 IT = WI.groupby("wide_item").apply(lambda d: "; ".join(f"{i}" + (f" ({n})" if isinstance(n, str) else "") for i, n in zip(d["item"], d.note)), include_groups=False)
 IDOC = pd.DataFrame([dict(column=f"{i}_*", contains=IT[i]) for i in ITEMS])
 MP = MAP.merge(CL[["item_detail", "item"]], left_on="slot", right_on="item_detail", how="left")
-MP["column"] = MP["item"].map(I2W).fillna("dropped")
+MP["column"] = MP["item_detail"].map(D2W).fillna("dropped")
 MP = MP[~pd.Series(list(zip(MP.country, MP["round"])), index=MP.index).isin(DROP)]
 MP = MP[["country", "round", "code", "label", "item_detail", "item", "column"]].rename(columns={"round": "year", "code": "item_code_orig", "label": "item_label_orig"})
 MP = MP.sort_values(["country", "year", "column", "item_detail"], key=lambda s: s.map(COUNTRIES.index) if s.name == "country" else s)

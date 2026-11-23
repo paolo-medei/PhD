@@ -33,8 +33,9 @@ fish_dried_smoked,fish_processed,
 fish_canned,fish_processed,
 fish_dried_canned_unspecified,fish_processed,"Tanzania 2008-2014: dried, salted or canned fish and seafood"
 fish_products,fish_processed,"Malawi: fish soup / sauce"
-fish_form_unspecified,fish_unspecified,"Ethiopia: fish; Uganda 2018-2019: silver fish (mukene)"
-fish_other,fish_unspecified,"Nigeria: other fish or seafood"
+fish_form_unspecified,fish_fresh,"Ethiopia: one fish item, form not stated, counted as fresh (Paolo, 23 Nov)"
+detail:silverfish_mukene,fish_processed,"Uganda 2018-2019: silver fish (mukene), sold sun-dried (price per kg above fresh Nile perch)"
+fish_other,fish_processed,"Nigeria: other fish or seafood; 2018-2023 specified mostly as crayfish and stockfish (dried)"
 beans_dry,pulses_dry,
 peas_dry,pulses_dry,
 cowpea,pulses_dry,

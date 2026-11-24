@@ -245,6 +245,9 @@ dati <- dati %>% mutate(ln_x = log(x), ln_x_reale = ln_x - lnP_stone, ln_ampiezz
 for (g in GS) dati[[paste0("lnp_", g)]] <- dati[[paste0("lnP_", g)]] - dati$lnP_altro   # prezzi relativi a "altro": omogeneita' imposta
 PREL <- paste0("lnp_", GS)
 
+# 8.7 Pulizia: gli oggetti intermedi grandi non servono piu' (il bootstrap ha bisogno di memoria)
+rm(dati_grezzi, griglia, pp, pg, pa, pr, pq, pt); invisible(gc())
+
 
 ## =============================================================================
 ## 9. STIMA DEL LA/AIDS (Shonkwiler-Yen, control function, SUR con omogeneita' e simmetria)
@@ -270,23 +273,28 @@ for (i in 1:(G - 2)) for (j in (i + 1):(G - 1)) {
 cat("Restrizioni di simmetria:", length(simm), "\n")
 
 # La stima (9.1-9.6) va rifatta molte volte nel bootstrap (sezione 11): la scriviamo UNA volta come funzione.
-# Entra un campione d, esce una lista con i parametri e il campione arricchito (Phi, phi, t, v_hat).
+# Entra un campione d, esce una lista con i parametri e le colonne del campione che servono alle elasticita'.
+# (Gli oggetti glm e systemfit sono grandi: se ne tengono solo i coefficienti, cosi' il bootstrap non esaurisce la memoria.)
 stima_laaids <- function(d, stampa = FALSE) {
 
   # 9.1 Control function: ln x (spesa alimentare) regredito sullo strumento ln(spesa totale) e su tutte le esogene.
   #     Il residuo v_hat entra nelle equazioni delle quote e "pulisce" l'endogeneita' della spesa alimentare.
   cf <- lm(as.formula(paste("ln_x ~ ln_spesa_tot +", paste(c(PREL, DEMO, ROUND), collapse = " + "))), data = d)
   d$v_hat <- residuals(cf)
+  t_strumento <- summary(cf)$coefficients["ln_spesa_tot", "t value"]
   if (stampa) cat("Primo stadio: coefficiente dello strumento", round(coef(cf)["ln_spesa_tot"], 3),
-                  " t =", round(summary(cf)$coefficients["ln_spesa_tot", "t value"], 1), "(uno strumento forte ha t ben sopra 3)\n")
+                  " t =", round(t_strumento, 1), "(uno strumento forte ha t ben sopra 3)\n")
+  rm(cf)
 
   # 9.2 Primo stadio di Shonkwiler-Yen: per ogni gruppo un probit su "la famiglia lo consuma?" (w > 0),
   #     con gli stessi regressori delle quote. Ne escono Phi = probabilita' di consumo e phi = densita' normale.
-  probit <- list()
+  probit <- list()                                                   # coefficienti dei probit
   for (g in GS) {
     d[[paste0("d_", g)]] <- as.numeric(d[[paste0("w_", g)]] > 0)
-    probit[[g]] <- glm(as.formula(paste0("d_", g, " ~ ", paste(X_COM, collapse = " + "))), family = binomial(link = "probit"), data = d)
-    t_g <- predict(probit[[g]], type = "link")                       # indice lineare z'gamma
+    m <- glm(as.formula(paste0("d_", g, " ~ ", paste(X_COM, collapse = " + "))), family = binomial(link = "probit"), data = d)
+    probit[[g]] <- coef(m)
+    t_g <- predict(m, type = "link")                                 # indice lineare z'gamma
+    rm(m)
     d[[paste0("t_", g)]]   <- t_g
     d[[paste0("Phi_", g)]] <- pnorm(t_g)
     d[[paste0("phi_", g)]] <- dnorm(t_g)
@@ -309,7 +317,10 @@ stima_laaids <- function(d, stampa = FALSE) {
   # 9.4-9.5 SUR (regressioni apparentemente non correlate) sulle 11 equazioni, con la simmetria
   sur <- systemfit(eqs, method = "SUR", data = d, restrict.matrix = simm)
   b   <- coef(sur)
-  if (stampa) { cat("SUR stimato. R2 per equazione:\n"); print(round(sapply(summary(sur)$eq, function(e) e$r.squared), 3)) }
+  es_systemfit <- NULL
+  if (stampa) { cat("SUR stimato. R2 per equazione:\n"); print(round(sapply(summary(sur)$eq, function(e) e$r.squared), 3))
+                es_systemfit <- sqrt(diag(vcov(sur))) }
+  rm(sur)
 
   # 9.6 Parametri della parte latente: matrice gamma (12 x 12), alfa, beta, delta; il gruppo "altro" dall'adding-up
   gam <- matrix(0, G, G, dimnames = list(GRUPPI, GRUPPI))
@@ -326,7 +337,9 @@ stima_laaids <- function(d, stampa = FALSE) {
   alfa["altro"] <- 1 - sum(alfa[GS]); beta["altro"] <- -sum(beta[GS]); gam["altro", ] <- -colSums(gam[GS, ])
   if (stampa) cat("Controlli: simmetria max|gamma - t(gamma)| =", signif(max(abs(gam - t(gam))), 3),
                   "  omogeneita' max|somma righe| =", signif(max(abs(rowSums(gam))), 3), "\n")
-  list(d = d, cf = cf, probit = probit, sur = sur, b = b, alfa = alfa, beta = beta, delta = delta, gam = gam)
+  tieni <- c("round", paste0("w_", GRUPPI), paste0("t_", GS), PREL, "ln_x_reale", DEMO, ROUND, "v_hat")
+  list(d = d[, tieni], probit = probit, b = b, alfa = alfa, beta = beta, delta = delta, gam = gam,
+       t_strumento = t_strumento, es_systemfit = es_systemfit)
 }
 
 fit <- stima_laaids(stima, stampa = TRUE)       # stima sul campione vero
@@ -350,7 +363,7 @@ elasticita <- function(fit, d) {
   w  <- colMeans(d[, paste0("w_", GRUPPI)]); names(w) <- GRUPPI          # quote medie
   dX <- setNames(rep(0, G), GRUPPI); dP <- matrix(0, G, G, dimnames = list(GRUPPI, GRUPPI))
   for (g in GS) {
-    cp <- coef(fit$probit[[g]])
+    cp <- fit$probit[[g]]
     t  <- mean(d[[paste0("t_", g)]])                                       # indice del probit ai valori medi
     f  <- fit$alfa[g] + sum(fit$gam[g, GS] * colMeans(d[, PREL])) + fit$beta[g] * mean(d$ln_x_reale) +
           sum(fit$b[paste0(EQ[g], "_", EQ[g], "_", c(DEMO, ROUND, "v_hat"))] * colMeans(d[, c(DEMO, ROUND, "v_hat")]))   # parte latente ai valori medi
@@ -400,6 +413,7 @@ for (r in 1:B) {
   estratti <- sample(names(righe_cluster), K, replace = TRUE)     # K cluster estratti con reimmissione
   d_b <- stima[unlist(righe_cluster[estratti]), ]                 # le loro famiglie (un cluster estratto 2 volte entra 2 volte)
   fit_b <- tryCatch(suppressWarnings(stima_laaids(d_b)), error = function(e) NULL)
+  rm(d_b)
   if (is.null(fit_b)) next                                        # replica fallita: si salta (contata sotto)
   e_b <- elasticita(fit_b, fit_b$d)
   boot_spesa[r, ] <- e_b$spesa; boot_marsh[r, , ] <- e_b$marshall; boot_hicks[r, , ] <- e_b$hicks
@@ -407,6 +421,7 @@ for (r in 1:B) {
     e_r <- elasticita(fit_b, fit_b$d[fit_b$d$round == ANNI[k], ])
     boot_round[r, k, , "spesa"] <- e_r$spesa; boot_round[r, k, , "propria_marshall"] <- diag(e_r$marshall)
   }
+  rm(fit_b); gc()                                                 # libera la memoria della replica
   if (r %% 10 == 0) cat("  replica", r, "di", B, "-", round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1), "minuti\n")
 }
 ok <- !is.na(boot_spesa[, 1])
@@ -443,10 +458,10 @@ controlli <- data.frame(controllo = c("righe voci usate", "famiglie", "valori un
                                       "t dello strumento (primo stadio)", "repliche bootstrap riuscite", "cluster del bootstrap"),
                         valore = c(nrow(voci), nrow(famiglie), sum(!is.na(voci$uv)), sum(voci$flag_uv_anomalo), sum(voci$flag_acq_rivalutato, na.rm = TRUE),
                                    sum(voci$flag_imputato), round(100 * mean(dati$quota_imputata), 2), n_budget_zero,
-                                   nrow(stima), round(summary(fit$cf)$coefficients["ln_spesa_tot", "t value"], 1), sum(ok), K))
-coeff <- data.frame(coefficiente = names(fit$b), stima = fit$b, errore_std_systemfit = sqrt(diag(vcov(fit$sur))), row.names = NULL)
+                                   nrow(stima), round(fit$t_strumento, 1), sum(ok), K))
+coeff <- data.frame(coefficiente = names(fit$b), stima = fit$b, errore_std_systemfit = fit$es_systemfit, row.names = NULL)
 parametri <- data.frame(gruppo = GRUPPI, alfa = fit$alfa, beta = fit$beta, delta = fit$delta, fit$gam, row.names = NULL, check.names = FALSE)
-pb <- bind_rows(lapply(GS, function(g) data.frame(gruppo = g, variabile = names(coef(fit$probit[[g]])), coeff = coef(fit$probit[[g]]), row.names = NULL)))
+pb <- bind_rows(lapply(GS, function(g) data.frame(gruppo = g, variabile = names(fit$probit[[g]]), coeff = fit$probit[[g]], row.names = NULL)))
 quote <- data.frame(gruppo = GRUPPI, quota_media = wbar, famiglie_che_consumano = colMeans(dati[, paste0("v_", GRUPPI)] > 0))
 nota <- data.frame(nota = c(
   "Elasticita' ai valori medi del campione di stima. errore_std e intervalli al 95%: bootstrap a cluster (sezione 11), B repliche.",

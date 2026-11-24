@@ -110,6 +110,7 @@ t3_valori <- lungo %>% group_by(round = year, categoria) %>%
             valore_acquisti_medio_annuo = media(valore_acquisti),
             valore_autoconsumo_medio_annuo = media(valore_auto),
             valore_regali_medio_annuo = media(valore_regali),
+            quota_valore_acquisti_aggregata_pesata = agg(valore_acquisti, valore_tot, weight),
             quota_valore_autoconsumo_aggregata_pesata = agg(valore_auto, valore_tot, weight),
             quota_valore_regali_aggregata_pesata = agg(valore_regali, valore_tot, weight),
             quota_food_autoconsumo_aggregata_pesata = agg(valore_auto, food_cons_hh_annual, weight),   # stesso denominatore ufficiale
@@ -179,6 +180,7 @@ media_anni <- t1_quote %>%
             quota_regali_kg_pct = 100 * mean(quota_regali_kg_aggregata_pesata),
             valore_autoconsumo_medio_annuo_TZS = round(mean(valore_autoconsumo_medio_annuo, na.rm = TRUE)),
             valore_regali_medio_annuo_TZS = round(mean(valore_regali_medio_annuo, na.rm = TRUE)),
+            quota_valore_acquisti_pct = 100 * mean(quota_valore_acquisti_aggregata_pesata, na.rm = TRUE),
             quota_valore_autoconsumo_pct = 100 * mean(quota_valore_autoconsumo_aggregata_pesata, na.rm = TRUE),
             quota_valore_regali_pct = 100 * mean(quota_valore_regali_aggregata_pesata, na.rm = TRUE),
             round_con_valori_stimati = sum(!is.na(valore_autoconsumo_medio_annuo)),
@@ -196,8 +198,10 @@ tabella <- media_anni %>% arrange(desc(quota_food_aggregata_pesata_pct)) %>%
   transmute(Categoria = as.character(categoria),
             `Quota media hh (%)` = round(quota_food_media_household_pct, 2),
             `Quota aggregata pesata (%)` = round(quota_food_aggregata_pesata_pct, 2),
+            `Acquisti kg (%)` = round(quota_acquisti_kg_pct, 1),
             `Autoconsumo kg (%)` = round(quota_autoconsumo_kg_pct, 1),
             `Regali kg (%)` = round(quota_regali_kg_pct, 1),
+            `Acquisti valore (%)` = round(quota_valore_acquisti_pct, 1),
             `Autoconsumo valore (%)` = round(quota_valore_autoconsumo_pct, 1),
             `Regali valore (%)` = round(quota_valore_regali_pct, 1))
 print(as.data.frame(tabella))

@@ -385,7 +385,7 @@ README = pd.DataFrame([
     ("Data", "one row per household x round (never repeated); the same columns in the same order in every workbook"),
     ("rule", "0 = not consumed / source not used; empty = missing; empty for a whole round = not collected (column not_collected)"),
     ("rounds", "23 rounds: Ethiopia 2011 and 2013 are left out because their questionnaire has a single item for all meat"),
-    ("items", "18 items, each the sum of original questionnaire items (sheet Items, sheet Item_mapping); combined original items are never split"),
+    ("items", f"{len(ITEMS)} items, each the sum of original questionnaire items (sheet Items, sheet Item_mapping); combined original items are never split"),
     ("kilograms", "survey conversion tables and metric units; heaps, pieces, cups, plates: weight estimated from prices (<item>_kg_est = 1, sheet Unit_weights)"),
     ("welfare", "official aggregate, annual, per adult equivalent or per person (welfare_scale, welfare_var)"),
     ("money", "local currency: ETB, TZS, MWK, NGN, UGX; exp is at 7 days, welfare and consumption totals per year"),

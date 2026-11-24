@@ -147,3 +147,12 @@ python3 build_wide_food_dataset.py <out> food_items_long_<data>.csv.gz household
 - **Benessere**: annuo, per adulto equivalente o per persona (`welfare_scale`, `welfare_var`), uguale allo Step I.
 - **Non raccolto**: la colonna `not_collected` elenca per wave le voci assenti dal questionario (`pork_*`) e le
   domande non fatte (`*_exp` Nigeria 2018-2023, `*_kg_pur` Nigeria 2010).
+
+### Correzioni del 24 novembre 2026
+- Tanzania: `food_cons_hh_annual` = foodIN + foodOUT in tutte le wave (il 2020 non ha foodbev; alcol e tabacco
+  sono il 2% del cibo nel 2014). La quota del cibo scende nel 2020 perche' il totale 2020 aggiunge l'affitto
+  imputato e il valore d'uso dei beni durevoli.
+- Malawi: `cons_total_hh_annual` = rexpagg (reale), come il cibo (rexp_cat011) e il benessere; prima era nominale.
+- Uganda 2018: tolto fnrfxp30, che vale 0 per l'80% delle famiglie (non e' il totale del cibo nonostante l'etichetta).
+- `check_aggregates.R` rilegge i file ufficiali e confronta benessere, consumo totale e alimentare famiglia per
+  famiglia: tutti uguali.

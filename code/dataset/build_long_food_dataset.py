@@ -148,13 +148,16 @@ def wq(d):
 H["welfare_quintile"] = pd.concat([wq(d) for _, d in H.groupby(["country", "year"])])
 H["welfare_quintile_official"] = np.where(H.country == "ETH", g("agg_cons_quint"), np.where(H.country == "UGA", g("agg_quints"), np.nan))
 H["cons_total_hh_annual"] = np.select([H.country == "ETH", H.country == "TZA", H.country == "MWI", H.country == "UGA"],
-                                      [g("agg_total_cons_ann"), g("agg_expm"), g("agg_expagg"), g("agg_nrrexp30") * 12], np.nan)
+                                      [g("agg_total_cons_ann"), g("agg_expm"), g("agg_rexpagg"), g("agg_nrrexp30") * 12], np.nan)   # Malawi real, like its food and welfare
 H["cons_total_hh_var"] = np.select([H.country == "ETH", H.country == "TZA", H.country == "MWI", (H.country == "UGA") & g("agg_nrrexp30").notna()],
-                                   ["total_cons_ann (nominal)", "expm (nominal)", "expagg (nominal)", "nrrexp30 x 12 (nominal)"], None)
-H["food_cons_hh_annual"] = np.select([H.country == "ETH", (H.country == "TZA") & (H.year < 2020), H.country == "MWI", (H.country == "UGA") & g("agg_fnrfxp30").notna()],
-                                     [g("agg_food_cons_ann"), g("agg_foodbev"), g("agg_rexp_cat011"), g("agg_fnrfxp30") * 12], np.nan)
-H["food_cons_hh_var"] = np.select([H.country == "ETH", (H.country == "TZA") & (H.year < 2020), H.country == "MWI", (H.country == "UGA") & g("agg_fnrfxp30").notna()],
-                                  ["food_cons_ann (nominal)", "foodbev (nominal, food and non-alcoholic beverages)", "rexp_cat011 (real)", "fnrfxp30 x 12 (nominal)"], None)
+                                   ["total_cons_ann (nominal)", "expm (nominal)", "rexpagg (real)", "nrrexp30 x 12 (nominal)"], None)
+# Tanzania: foodIN + foodOUT in every round, because 2020 has no foodbev (food without alcohol and tobacco); alcohol and tobacco are 2% of food in 2014
+# Uganda 2018 fnrfxp30 is not used: it is 0 for 80% of the households, so it is not the total food consumption despite its label
+H["food_cons_hh_annual"] = np.select([H.country == "ETH", H.country == "TZA", H.country == "MWI"],
+                                     [g("agg_food_cons_ann"), g("agg_foodIN") + g("agg_foodOUT"), g("agg_rexp_cat011")], np.nan)
+H["food_cons_hh_var"] = np.select([H.country == "ETH", H.country == "TZA", H.country == "MWI"],
+                                  ["food_cons_ann (nominal)", "foodIN + foodOUT (nominal; food, beverages and alcohol at home and outside, tobacco outside; 2008-2014 also tobacco at home)",
+                                   "rexp_cat011 (real)"], None)
 GDP = pd.read_csv(GDPF); H = H.merge(GDP, on=["country", "year"], how="left")
 H["weight_var"] = [src("weight").get((c, y)) for c, y in zip(H.country, H.year)]
 H["survey_round"] = H.country + "_" + H.year.astype(str); H["hh_uid"] = H.survey_round + "_" + H.hhid; H["currency"] = H.country.map(CURRENCY)
@@ -315,11 +318,11 @@ if not DOC_ONLY:
         shutil.copyfileobj(fi, fo)
     os.remove(LONGF + ".tmp")
     STAT = pd.DataFrame(STAT); QSRC = pd.DataFrame(QC); CONV = pd.concat(CONV); QORIG = pd.concat(QORIG)
-    HF = os.path.join(OUTD, f"households_{TODAY}.csv.gz"); H.to_csv(HF, index=False)
-    print(f"written {LONGF} ({os.path.getsize(LONGF) / 1e6:.0f} MB), {HF} ({time.time() - T0:.0f}s)", flush=True)
+    print(f"written {LONGF} ({os.path.getsize(LONGF) / 1e6:.0f} MB) ({time.time() - T0:.0f}s)", flush=True)
     for d, n in [(STAT, "qc_status"), (QSRC, "qc_sources"), (CONV, "qc_conversion"), (QORIG, "qc_rows")]:
         d.to_csv(os.path.join(OUTD, f"{n}.csv"), index=False)
-else:
+HF = os.path.join(OUTD, f"households_{TODAY}.csv.gz"); H.to_csv(HF, index=False); print(f"written {HF}", flush=True)
+if DOC_ONLY:
     STAT, QSRC, CONV, QORIG = (pd.read_csv(os.path.join(OUTD, f"{n}.csv")) for n in ["qc_status", "qc_sources", "qc_conversion", "qc_rows"])
 
 # ------------------------------------------------------------------------------------------

@@ -334,8 +334,12 @@ HDEF = {
  "welfare_annual": ("Official consumption aggregate per adult equivalent (ETH, TZA, UGA) or per person (MWI, NGA), annual", "local currency per year",
                     "official variable; brought to one year and to one person when the file has another period or the household total (see welfare_var); equal to the Step I welfare"),
  "welfare_scale": ("per adult equivalent or per person", "text", ""), "welfare_var": ("Original variable and formula of welfare_annual", "text", ""),
- "cons_total_hh_annual": ("Total consumption of the household, annual", "local currency per year", "official aggregate; Uganda x 12 (monthly); Nigeria not available"),
- "food_cons_hh_annual": ("Food consumption of the household, annual", "local currency per year", "official aggregate; not available as one variable in Nigeria, Tanzania 2020, Uganda 2010-2015 and 2019"),
+ "cons_total_hh_annual": ("Total consumption of the household, annual", "local currency per year",
+                          "official aggregate, same prices as food_cons_hh_annual (nominal ETH, TZA, UGA; real MWI); Uganda x 12 (monthly); not in the files of Nigeria and Uganda 2010-2011"),
+ "food_cons_hh_annual": ("Food consumption of the household, annual", "local currency per year",
+                         "official aggregate: ETH food_cons_ann; TZA foodIN + foodOUT (food, beverages, alcohol, in and outside the home); MWI rexp_cat011 (food, real). "
+                         "Not in the files of Nigeria and Uganda (Uganda 2018 fnrfxp30 is 0 for 80% of the households: not the food total). "
+                         "Tanzania 2020: lower share of food in the total because the 2020 total adds imputed rent and the use value of durables"),
  "not_collected": ("Columns that the round does not ask: their cells are empty for every household of the round", "text", "item_* = item not in the questionnaire; *_var = question not asked"),
 }
 DD = []

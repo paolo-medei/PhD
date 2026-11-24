@@ -419,9 +419,18 @@ D = pd.concat(DATA, ignore_index=True)
 ## items the file has but no household reports, where the round before shows wide consumption (data problems, kept as they are)
 ANOMALY = {("UGA", 2019): "sugar_sweets: sugar (code 147) reported by no household in the 2019 file (67% in 2018)",
            ("ETH", 2021): "beverages: tella (code 805) reported by no household in the 2021 file (9% in 2018)"}
+## not_collected rebuilt from the item table: the categories with no item in the questionnaire of the round (any sample),
+## e.g. Ethiopia has no pork item; the protein dataset's notes on its own columns (*_exp, *_kg_pur) do not apply here
+## (an item counts when the file has rows for it; in the rounds that list only the items consumed, its value label is enough)
+ONLY_CONS = {("NGA", 2010), ("UGA", 2010), ("UGA", 2011), ("UGA", 2013), ("UGA", 2015)}
+inq = (CM.rows_in_file > 0) | pd.Series([(c, r) in ONLY_CONS for c, r in zip(CM.country, CM["round"])], index=CM.index)
+HAS = CM[CM.category.isin(CATS) & inq].groupby(["country", "round"]).category.agg(set).to_dict()
+NC = {k: ", ".join(f"{c}_*" for c in CATS if c not in v) for k, v in HAS.items()}
+D["not_collected"] = [NC.get((c, y), "") for c, y in zip(D.country, D.year)]
 for (c, y), t in ANOMALY.items():
     m = (D.country == c) & (D.year == y)
     D.loc[m, "not_collected"] = [t if not isinstance(v, str) or v == "" else f"{v}; {t}" for v in D.loc[m, "not_collected"]]
+D["not_collected"] = D.not_collected.replace("", np.nan)
 CCOLS = []
 for c in CATS:
     CCOLS += [f"{c}_value", f"{c}_value_pur", f"{c}_value_own", f"{c}_value_gift", f"{c}_value_imp", f"{c}_qty", f"{c}_qty_est", f"{c}_n_items", f"{c}_share"]

@@ -152,8 +152,44 @@ note <- data.frame(nota = c(
   "Autoconsumo e regali non hanno valori osservati: valore = kg x prezzo mediano (spesa/kg acquistati, kg osservati) della categoria nel round x 365/7.",
   "0 = non consumato o fonte non usata; vuoto = mancante. Categorie non raccolte: escluse (foglio controlli).",
   "Quantita' (totale o una fonte) oltre 2 kg per adulto equivalente al giorno in una categoria: kg e valori stimati della riga mancanti (foglio controlli).",
-  "Valori stimati vuoti per le categorie con meno di 5 acquisti nel round (nessun prezzo)."))
-fuori <- list(note = note, quote_spesa_food = t1_quote, quantita_fonti = t2_quantita, valori_stimati = t3_valori, controlli = controlli)
+  "Valori stimati vuoti per le categorie con meno di 5 acquisti nel round (nessun prezzo).",
+  "Foglio media_anni: media semplice dei 5 round (ogni round conta uguale), solo le 14 categorie raccolte in tutti i round (pulses_fresh solo nel 2020).",
+  "Nel foglio media_anni la spesa e i valori in TZS sono nominali: la media mescola prezzi di anni diversi (inflazione), le quote no.",
+  "Le quote sono in percentuale (colonne _pct)."))
+
+## ---------------------------------------------------------------------------
+## 5b. Media tra i round: una riga per categoria (solo categorie raccolte in tutti i round)
+## ---------------------------------------------------------------------------
+n_round <- n_distinct(t1_quote$round)
+tutte <- t1_quote %>% count(categoria) %>% filter(n == n_round) %>% pull(categoria)
+media_anni <- t1_quote %>%
+  left_join(t2_quantita, by = c("round", "categoria", "famiglie")) %>%
+  left_join(t3_valori, by = c("round", "categoria")) %>%
+  filter(categoria %in% tutte) %>%
+  group_by(categoria) %>%
+  summarise(round = n(),
+            spesa_media_annua_TZS = round(mean(spesa_media_annua_TZS)),
+            quota_food_media_household_pct = round(100 * mean(quota_food_media_household), 2),
+            quota_food_aggregata_pesata_pct = round(100 * mean(quota_food_aggregata_pesata), 2),
+            kg_acquistati_medi_7gg = round(mean(kg_acquistati_medi), 3),
+            kg_autoconsumo_medi_7gg = round(mean(kg_autoconsumo_medi), 3),
+            kg_regali_medi_7gg = round(mean(kg_regali_medi), 3),
+            quota_acquisti_kg_pct = round(100 * mean(quota_acquisti_kg_aggregata_pesata), 2),
+            quota_autoconsumo_kg_pct = round(100 * mean(quota_autoconsumo_kg_aggregata_pesata), 2),
+            quota_regali_kg_pct = round(100 * mean(quota_regali_kg_aggregata_pesata), 2),
+            valore_autoconsumo_medio_annuo_TZS = round(mean(valore_autoconsumo_medio_annuo, na.rm = TRUE)),
+            valore_regali_medio_annuo_TZS = round(mean(valore_regali_medio_annuo, na.rm = TRUE)),
+            quota_valore_autoconsumo_pct = round(100 * mean(quota_valore_autoconsumo_aggregata_pesata, na.rm = TRUE), 2),
+            quota_valore_regali_pct = round(100 * mean(quota_valore_regali_aggregata_pesata, na.rm = TRUE), 2),
+            round_con_valori_stimati = sum(!is.na(valore_autoconsumo_medio_annuo)),
+            .groups = "drop") %>%
+  mutate(across(where(is.double), ~ ifelse(is.nan(.x), NA_real_, .x)))
+
+## quote in percentuale anche negli altri fogli: colonne quota_* x 100, nome con _pct
+in_pct <- function(x) x %>% mutate(across(starts_with("quota_") & where(is.numeric), ~ round(100 * .x, 2))) %>%
+  rename_with(~ paste0(.x, "_pct"), starts_with("quota_") & where(is.numeric))
+fuori <- list(media_anni = media_anni, note = note, quote_spesa_food = in_pct(t1_quote), quantita_fonti = in_pct(t2_quantita),
+              valori_stimati = in_pct(t3_valori), controlli = controlli)
 fuori <- lapply(fuori, function(x) mutate(x, across(where(is.factor), as.character)))
 if (requireNamespace("writexl", quietly = TRUE)) writexl::write_xlsx(fuori, uscita) else openxlsx::write.xlsx(fuori, uscita, overwrite = TRUE)
 cat("Risultati in:", uscita, "\n")

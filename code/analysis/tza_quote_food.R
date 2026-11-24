@@ -188,7 +188,17 @@ media_anni <- t1_quote %>%
 ## quote in percentuale anche negli altri fogli: colonne quota_* x 100, nome con _pct
 in_pct <- function(x) x %>% mutate(across(starts_with("quota_") & where(is.numeric), ~ round(100 * .x, 2))) %>%
   rename_with(~ paste0(.x, "_pct"), starts_with("quota_") & where(is.numeric))
-fuori <- list(media_anni = media_anni, note = note, quote_spesa_food = in_pct(t1_quote), quantita_fonti = in_pct(t2_quantita),
+## tabella semplice (primo foglio): quote in %, ordinate per quota aggregata sul food
+tabella <- media_anni %>% arrange(desc(quota_food_aggregata_pesata_pct)) %>%
+  transmute(Categoria = as.character(categoria),
+            `Quota media hh (%)` = quota_food_media_household_pct,
+            `Quota aggregata pesata (%)` = quota_food_aggregata_pesata_pct,
+            `Autoconsumo kg (%)` = round(quota_autoconsumo_kg_pct, 1),
+            `Regali kg (%)` = round(quota_regali_kg_pct, 1),
+            `Autoconsumo valore (%)` = round(quota_valore_autoconsumo_pct, 1),
+            `Regali valore (%)` = round(quota_valore_regali_pct, 1))
+print(as.data.frame(tabella))
+fuori <- list(tabella = tabella, media_anni = media_anni, note = note, quote_spesa_food = in_pct(t1_quote), quantita_fonti = in_pct(t2_quantita),
               valori_stimati = in_pct(t3_valori), controlli = controlli)
 fuori <- lapply(fuori, function(x) mutate(x, across(where(is.factor), as.character)))
 if (requireNamespace("writexl", quietly = TRUE)) writexl::write_xlsx(fuori, uscita) else openxlsx::write.xlsx(fuori, uscita, overwrite = TRUE)

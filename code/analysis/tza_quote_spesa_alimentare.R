@@ -192,9 +192,10 @@ fam <- lungo %>% group_by(year, hhid) %>%
   mutate(val_prot = val_acq + val_auto + val_regali) %>%
   left_join(dati %>% select(year, hhid, food_cons_hh_annual, cons_total_hh_annual, hhsize, rural, region), by = c("year", "hhid")) %>%
   mutate(food_ufficiale_7gg = food_cons_hh_annual * ANNO_A_7GG,
-         quota_prot_spesa_su_food = spesa_prot / food_ufficiale_7gg,           # acquisti proteici / consumo alimentare totale
-         quota_prot_valore_su_food = val_prot / food_ufficiale_7gg,            # consumo proteico (tutte le fonti) / consumo alimentare
-         quota_food_su_totale = food_cons_hh_annual / cons_total_hh_annual,
+         ## denominatore nullo o negativo -> quota non definita (NA), mai infinito
+         quota_prot_spesa_su_food = ifelse(food_ufficiale_7gg > 0, spesa_prot / food_ufficiale_7gg, NA),   # acquisti proteici / consumo alimentare
+         quota_prot_valore_su_food = ifelse(food_ufficiale_7gg > 0, val_prot / food_ufficiale_7gg, NA),    # consumo proteico (tutte le fonti) / consumo alimentare
+         quota_food_su_totale = ifelse(cons_total_hh_annual > 0, food_cons_hh_annual / cons_total_hh_annual, NA),
          q_val_acq = ifelse(val_prot > 0, val_acq / val_prot, NA),
          q_val_auto = ifelse(val_prot > 0, val_auto / val_prot, NA),
          q_val_regali = ifelse(val_prot > 0, val_regali / val_prot, NA))
@@ -203,8 +204,8 @@ fam <- lungo %>% group_by(year, hhid) %>%
 lungo <- lungo %>%
   left_join(fam %>% select(year, hhid, spesa_prot, val_prot, food_ufficiale_7gg), by = c("year", "hhid")) %>%
   mutate(quota_su_spesa_prot = ifelse(spesa_prot > 0, exp / spesa_prot, NA),     # exp_cat / somma exp delle categorie
-         quota_spesa_su_food = exp / food_ufficiale_7gg,                       # exp_cat / consumo alimentare ufficiale
-         quota_valore_su_food = val_tot / food_ufficiale_7gg)                  # valore (tutte le fonti) / consumo alimentare
+         quota_spesa_su_food = ifelse(food_ufficiale_7gg > 0, exp / food_ufficiale_7gg, NA),        # exp_cat / consumo alimentare ufficiale
+         quota_valore_su_food = ifelse(food_ufficiale_7gg > 0, val_tot / food_ufficiale_7gg, NA))   # valore (tutte le fonti) / consumo alimentare
 
 ## ---------------------------------------------------------------------------
 ## 6. Tabelle
@@ -259,8 +260,14 @@ tab_cat <- lungo %>% group_by(year, categoria) %>%
     qv_acq_aggregata_pesata = rapp(val_acq, val_tot, weight),
     qv_auto_aggregata_pesata = rapp(val_auto, val_tot, weight),
     qv_regali_aggregata_pesata = rapp(val_regali, val_tot, weight),
+    con_autoconsumo_o_regali = sum((kg_own > 0 | kg_gift > 0), na.rm = TRUE),
     autoconsumo_regali_senza_prezzo = sum((kg_own > 0 | kg_gift > 0) & is.na(prezzo_unitario), na.rm = TRUE),
-    .groups = "drop")
+    .groups = "drop") %>%
+  ## se piu' del 20% di chi autoconsuma o riceve regali non ha un prezzo (pochi acquisti: semi, frutta a guscio,
+  ## altre carni), le quote in valore non sono attendibili: NA invece di un numero distorto
+  mutate(valore_attendibile = autoconsumo_regali_senza_prezzo <= 0.2 * con_autoconsumo_o_regali,
+         across(c(qv_acq_aggregata_pesata, qv_auto_aggregata_pesata, qv_regali_aggregata_pesata, quota_valore_food_aggregata_pesata,
+                  val_auto_medio_pesato, val_regali_medio_pesato), ~ ifelse(valore_attendibile, .x, NA_real_)))
 
 tab_round <- fam %>% group_by(year) %>%
   summarise(
@@ -384,4 +391,5 @@ print(as.data.frame(tab_cat %>% select(year, categoria, quota_spesa_prot_aggrega
 cat("\n== Quota dell'autoconsumo in quantita' (aggregata pesata) ==\n")
 print(as.data.frame(tab_cat %>% select(year, categoria, q_auto_aggregata_pesata) %>%
   pivot_wider(names_from = year, values_from = q_auto_aggregata_pesata) %>% mutate(across(-categoria, ~ round(.x, 3)))))
+stopifnot(!any(sapply(out[sapply(out, is.data.frame)], function(t) any(sapply(t, function(v) is.numeric(v) && any(is.infinite(v)))))))   # nessun infinito
 cat("\n== Controlli ==\n"); print(as.data.frame(qc_somme)); print(as.data.frame(qc_denominatori)); print(as.data.frame(qc_negativi))

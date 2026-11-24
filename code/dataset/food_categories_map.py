@@ -6,10 +6,11 @@ Categories decided with Paolo (24 Nov 2026):
   - the 17 protein columns of the wide dataset, unchanged (wide_items.csv);
   - 9 new ones: cereals, starches, sugar_sweets, vegetables, fruits, oils_fats, spices_other, beverages
     (alcoholic drinks included, B1 b), other_food;
-  - excluded from the food budget: tobacco (B2), food away from home (B3 b: restaurant items, Malawi cooked
-    foods from vendors), and the items already left out of the protein columns (C3: butter-margarine,
+  - food_away (B3 a, Paolo 24 Nov, changed from B3 b): a separate category, value only, no prices: restaurant items,
+    Malawi cooked foods from vendors (plus the food-away modules, outside this item table);
+  - excluded from the food budget: tobacco (B2), khat and kola nut (stimulants, 24 Nov), and the items already left out of the protein columns (C3: butter-margarine,
     insects, snails, wild birds, tinned meat or fish, "other (specify)" pulses/nuts and meat/fish);
-  - coconut -> fruits, kola nut -> spices_other (C2).
+  - coconut -> fruits (C2).
 Ethiopia 2011 and 2013 stay out (single item for all meat, decision of 23 Nov).
 
 The output is the review table: one row per item x round, with the households reporting the item and its
@@ -49,14 +50,14 @@ nhh_tza20 = {"hh_sec_ja1": x[(x.country == "TZA") & x.file.str.contains("hh_sec_
              "hh_sec_j1": x[(x.country == "TZA") & (x.year == 2020.1)].rows.max()}
 
 ## protein items: the wide dataset's column, or the reason they are left out
-PROT_OUT = {"prepared_food": ("excluded", "food away from home: cooked food from vendors (B3)"),
+PROT_OUT = {"prepared_food": ("food_away", "food away from home: Malawi cooked food from vendors (B3 a)"),
             "butter_margarine": ("excluded", "butter-margarine, left out of the protein columns (C3)"),
             "insects": ("excluded", "insects, left out (C3)"), "snails": ("excluded", "snails, left out (C3)"),
             "wild_birds_insects": ("excluded", "wild birds and insects, left out (C3)"),
             "meat_fish_canned": ("excluded", "tinned meat or fish (one item), left out (C3)"),
             "animal_other": ("excluded", "other (specify) meat/fish, left out (C3)"),
             "pulses_nuts_seeds_other": ("excluded", "other (specify) pulses/nuts/seeds, left out (C3)"),
-            "coconut": ("fruits", "coconut -> fruits (C2)"), "kola_nut": ("spices_other", "kola nut -> spices and other (C2)")}
+            "coconut": ("fruits", "coconut -> fruits (C2)"), "kola_nut": ("excluded", "kola nut: stimulant, excluded like khat (Paolo, 24 Nov)")}
 PREP = {"prepared_meat", "prepared_chicken", "prepared_fish", "prepared_eggs", "prepared_groundnuts"}
 
 ## non-protein items: code overrides first, then label rules in this order (first match wins)
@@ -89,9 +90,9 @@ RULES = [
     ("cereals", r"teff|wheat|barley|maize|\bcorn|sorghum|millet|\brice\b|oats|cereal|grain|injera|bread|loaf|\bbuns?\b|cake|biscuit|biscuts|scone|muffin|doughnut|pofpof|pasta|macaroni|macaroini|spaghetti|noodle|semo|custard|\bpap\b|akanu|fonio|acha|chapati|samosa|cornflakes|popcorn|meat pie|flour|gramill|\bufa\b|mandazi"),
     ("other_food", r"other foods|other ?\(specify\)|prepared food"),
 ]
-EXCL_WHY = {"tobacco": "tobacco: not food (B2)", "fafh": "food away from home (B3)",
+EXCL_WHY = {"tobacco": "tobacco: not food (B2)",
             "c3": "margarine, like butter-margarine in the protein columns (C3)",
-            "khat": "khat (chat): stimulant leaf, treated like tobacco - TO CONFIRM"}
+            "khat": "khat (chat): stimulant, not food, excluded like tobacco (Paolo, 24 Nov)"}
 
 def classify(r):
     c, code = r.country, int(r.code)
@@ -104,16 +105,18 @@ def classify(r):
         if w:
             return w, "protein column of the wide dataset"
         if item in PREP:
-            return "excluded", PROT_OUT["prepared_food"][1]
+            return PROT_OUT["prepared_food"]
         return PROT_OUT.get(item, ("excluded", f"protein item {item} not in the columns"))
     if c == "MWI" and 820 <= code <= 838:
-        return "excluded", "food away from home: Malawi 'cooked foods from vendors' section (codes 820-838)"
+        return "food_away", "food away from home: Malawi 'cooked foods from vendors' section (codes 820-838; B3 a)"
     if c == "UGA" and (157 <= code <= 161 or code == 1603):
-        return "excluded", "food away from home: Uganda restaurant block (codes 157-161, 1603; 'in Restaurants' in 2018-2019)"
+        return "food_away", "food away from home: Uganda restaurant block (codes 157-161, 1603; 'in Restaurants' in 2018-2019; B3 a)"
     if (c, code) in OVR:
         return OVR[(c, code)]
     for cat, rx in RULES:
         if re.search(rx, lab.lower()):
+            if cat == "excluded:fafh":
+                return "food_away", "food away from home (B3 a)"
             if cat.startswith("excluded:"):
                 return "excluded", EXCL_WHY[cat[9:]]
             return cat, "label rule"
@@ -129,7 +132,7 @@ tot = x.groupby(["country", "year"]).purchase_value_sum.transform("sum")
 x["pct_purchase_value"] = (100 * x.purchase_value_sum / tot).where(tot > 0)
 x["in_data"] = (x.rows > 0) & (x.hh_consuming > 0)
 x["status"] = x.category.map(lambda k: "header" if k == "header" else ("excluded" if k == "excluded" else
-              ("unclassified" if k == "UNCLASSIFIED" else "in food budget")))
+              ("food away from home" if k == "food_away" else ("unclassified" if k == "UNCLASSIFIED" else "in food budget"))))
 x.loc[~x.in_data & (x.status != "header"), "status"] = "no household reports it"
 x["clean_label"] = x.label.astype(str).str.replace(r"^\s*\d+\.\s*", "", regex=True).str.replace(r"\s+", " ", regex=True).str.strip()
 x = x[["country", "round", "sample", "code", "clean_label", "label", "label_source", "slot", "category", "status", "reason",

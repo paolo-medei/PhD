@@ -343,6 +343,8 @@ CONV <- list(ETH = conv_eth, TZA = conv_tza, MWI = conv_mwi, NGA = conv_nga, UGA
 ONLY_CONSUMED <- c("NGA_2010", "UGA_2010", "UGA_2011", "UGA_2013", "UGA_2015")   # il modulo elenca solo le voci consumate
 ROUNDS <- list(ETH = names(ETH_W), TZA = names(TZA_W), MWI = names(MWI_W), NGA = names(NGA_W), UGA = names(UGA_W))
 
+## LIB_ONLY: build_allfood_long.R sources this file for the readers and converters only
+if (!exists("LIB_ONLY")) {
 LOG <- list(); HH <- list()
 for (cc in names(ROUNDS)) {
   LONG <- list()
@@ -436,3 +438,4 @@ for (cc in names(ROUNDS)) {
 write.csv(bind_rows(HH), file.path(OUTD, "module_households.csv"), row.names = FALSE, na = "")
 write.csv(bind_rows(LOG), file.path(OUTD, "build_log.csv"), row.names = FALSE)
 cat("done\n")
+}

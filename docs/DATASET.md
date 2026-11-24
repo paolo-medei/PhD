@@ -156,3 +156,33 @@ python3 build_wide_food_dataset.py <out> food_items_long_<data>.csv.gz household
 - Uganda 2018: tolto fnrfxp30, che vale 0 per l'80% delle famiglie (non e' il totale del cibo nonostante l'etichetta).
 - `check_aggregates.R` rilegge i file ufficiali e confronta benessere, consumo totale e alimentare famiglia per
   famiglia: tutti uguali.
+
+## Bilancio alimentare di tutte le voci, per il LA/AIDS (24 novembre 2026)
+
+Una riga per famiglia x round (127.961), tutte le voci del modulo alimentare a 7 giorni in 26 categorie a casa
+(le 17 proteiche + cereals, starches, sugar_sweets, vegetables, fruits, oils_fats, spices_other, beverages, other_food)
+più `food_away` (pasti fuori casa: solo valore, senza prezzi, fuori dalle quote). Decisioni di Paolo del 24 novembre:
+A1-A3, B1 alcol nelle bevande, B2 tabacco fuori, khat e noce di cola fuori, B3 a pasti fuori casa categoria a parte,
+C3 voci escluse anche qui, D1 b prezzi unitari locali degli acquisti (EA -> distretto -> regione -> nazionale, almeno 5),
+E1 a imputazione con la mediana dell'area (parte imputata in `<cat>_value_imp`), E2 a anomali -> mancanti -> imputati,
+F kg (litri per le bevande liquide), G valori a 7 giorni in valuta locale, H2 a 12 gruppi aggregati, H3 denominatore = somma delle 26.
+
+```
+# classificazione voce per voce (anche il workbook di revisione)
+python3 food_categories_map.py item_inventory.csv item_map.csv item_classification.csv wide_items.csv item_hh_counts.csv module_households.csv food_category_map.csv
+python3 food_categories_review.py food_category_map.csv food_category_mapping_review.xlsx
+# estrazione di tutte le voci (lettori di build_protein_dataset.R) + moduli dei pasti fuori casa
+Rscript build_allfood_long.R <_unzipped> <out> item_map.csv food_category_map.csv
+# valorizzazione, quantita', aggregazione per famiglia
+python3 build_allfood_dataset.py <out> _wide_check.csv.gz module_households.csv item_map.csv food_category_map.csv unit_codes.csv <out2>
+# controllo D3 e file Excel
+Rscript official_food_aggregates.R <_unzipped> official_food.csv
+python3 write_allfood_workbooks.py <out2>/_allfood_wide_<data>.csv.gz <out2>/_qc_<data>.pkl official_food.csv food_category_map.csv <out2>/_unit_weights_<data>.csv <xlsx>
+Rscript allfood_to_rds.R <out2>/_allfood_wide_<data>.csv.gz ASF_food_budget_<data>.rds
+```
+
+Nigeria 2018 e 2023: il modulo dei pasti fuori casa (sect10a_harvestw4, sect5a_harvestw5) va preso dagli archivi completi
+(non era tra i file estratti). Controllo con gli aggregati ufficiali (foglio Quality_control, tabella 8): Tanzania 1,00-1,06,
+Etiopia 2018-2021 0,91-1,00, Malawi 0,97-1,16, Nigeria 0,86-1,18 (ufficiale pro capite); Etiopia 2015 1,33-1,41: l'aggregato
+ufficiale del 2015 e' piu' basso in tutte le fonti, anche negli acquisti dichiarati. Problemi nei file: Uganda 2019 zucchero
+(codice 147) dichiarato da nessuna famiglia; Etiopia 2021 tella (805) idem; segnalati in `not_collected`.

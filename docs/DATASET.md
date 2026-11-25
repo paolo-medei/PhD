@@ -186,3 +186,23 @@ Nigeria 2018 e 2023: il modulo dei pasti fuori casa (sect10a_harvestw4, sect5a_h
 Etiopia 2018-2021 0,91-1,00, Malawi 0,97-1,16, Nigeria 0,86-1,18 (ufficiale pro capite); Etiopia 2015 1,33-1,41: l'aggregato
 ufficiale del 2015 e' piu' basso in tutte le fonti, anche negli acquisti dichiarati. Problemi nei file: Uganda 2019 zucchero
 (codice 147) dichiarato da nessuna famiglia; Etiopia 2021 tella (805) idem; segnalati in `not_collected`.
+
+## Dati grezzi per il LA/AIDS degli altri paesi (25 novembre 2026)
+
+Stesso formato del file della Tanzania (`tza_dati_grezzi.R`): una riga per famiglia x round, valori originali del modulo a
+7 giorni in colonne `c<codice>_<variabile>`, fogli `voci`, `unita`, `LEGGIMI`, `controllo_famiglie`.
+
+```
+Rscript dati_grezzi_LAAIDS.R <ETH|MWI|NGA|UGA> <_unzipped> allfood_long_<paese>.csv.gz _wide_check.csv.gz food_category_map.csv unit_codes.csv <paese>_dati_grezzi_LAAIDS_<data>.xlsx
+python3 quote_2stadi_5paesi.py _allfood_wide_<data>.csv.gz food_category_map.csv Quote_2stadi_5paesi_<data>.xlsx
+```
+
+- Variabili in piu' dove il paese le chiede: `taglia_*` (Malawi, Nigeria 2018-2023), `u_altra_*` (unita' scritta a mano),
+  Nigeria `q_da_acq`, `acq_30gg`, `q_ultacq`, `u_ultacq`, `taglia_ultacq`, `spesa_ultacq` (2018 e 2023 non hanno gli acquisti
+  a 7 giorni), Uganda `val_auto`, `val_regali`, `q_fuori`, `val_fuori`.
+- Spesa totale (strumento): dataset armonizzato; Nigeria = aggregato pro capite x hhsize (2023: solo totcons_adj);
+  Uganda 2010-2011 = cpexp30 x 12 (prezzi costanti). Malawi 2010: regione dalla prima cifra del distretto.
+- `cluster` = id_ea del primo round della famiglia (panel_id). Uganda 2013: 7 righe doppie risolte (regola nel LEGGIMI).
+- Malawi e Uganda: le voci "food_away" (cibo dai venditori) restano nel file con gruppo `fuori_casa`, da togliere dal budget.
+- Controllo: somme di quantita' e spesa uguali al file di partenza per round; rilettura con readxl.
+- Quote a due stadi (`quote_2stadi_5paesi.py`) dal dataset alimentare: per la Tanzania uguali a quelle dello script LA/AIDS.

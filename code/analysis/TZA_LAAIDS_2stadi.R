@@ -33,6 +33,8 @@
 ##       SUR with homogeneity and symmetry imposed; adding-up through the omitted (residual) equation
 ##   - elasticities at the sample means: stage 1, stage 2 (conditional), unconditional (Edgerton 1997)
 ##   - standard errors: cluster bootstrap (resample the sampling clusters and redo the whole estimation)
+##   - robustness (section 13): fish as residual of stage 2, no control function, elasticities with respect to
+##     total expenditure, split of the expenditure elasticity into "current buyers" and "new buyers"
 ##
 ##  ITALIAN WORDS USED IN THE NAMES (the dataset is in Italian, and the names are kept as in the dataset)
 ##    voci = food items          famiglie = households       dati = household data (one row per household)
@@ -76,6 +78,7 @@ dir.create(USCITA, showWarnings = FALSE)
 N_MIN  <- 5     # minimum number of purchases needed to compute a local median price
 SOGLIA <- 10    # outlier price: more than 10 times, or less than 1/10 of, the national median of the same item and unit
 B      <- 200   # bootstrap replications (section 11); for a quick test use 20
+B_ROB  <- 200   # bootstrap replications of the robustness checks (section 13); 0 = point estimates only
 SEME   <- 2026  # random seed: with the same seed the bootstrap always gives the same numbers
 
 # 0.1 FROM ITEMS TO THE TWO STAGES
@@ -462,11 +465,13 @@ for (r in ROUND) dati[[r]] <- as.numeric(dati$round == as.numeric(sub("r", "", r
 
 # 9.2 The two specs. prepara_spec adds the derived pieces: estimated groups (all but the residual), relative
 #     prices, regressors, equation names, symmetry restrictions.
+#     cf = TRUE (default): with the control function. cf = FALSE is used only in the robustness check of section 13.
 prepara_spec <- function(S) {
+  if (is.null(S$cf)) S$cf <- TRUE
   S$GS   <- head(S$gruppi, -1)                                  # estimated groups (the residual is the last one)
   S$res  <- tail(S$gruppi, 1)                                   # residual group: equation omitted
   S$PREL <- paste0(S$p, S$GS)                                   # relative prices ln(p_j / p_residual)
-  S$X    <- c(S$PREL, S$x_reale, DEMO, ROUND, "v_hat")          # regressors of the probits and of the shares
+  S$X    <- c(S$PREL, S$x_reale, DEMO, ROUND, if (S$cf) "v_hat")   # regressors of the probits and of the shares
   S$EQ   <- setNames(gsub("_", "", S$GS), S$GS)                 # equation names without "_" (systemfit does not accept it)
   # Symmetry: gamma_ij = gamma_ji for i, j among the estimated groups (homogeneity is already imposed by the
   # relative prices). In systemfit a coefficient is called "<equation>_<regressor>", e.g. "beef_beef_lnp2_pork";
@@ -517,9 +522,10 @@ stima_laaids <- function(d, S, stampa = FALSE) {
   # (a) Control function, step (1): endogenous real expenditure on the instruments and on all the exogenous regressors
   esogene <- c(S$PREL, DEMO, ROUND)
   cf <- lm(as.formula(paste(S$x_reale, "~", paste(c(S$strumenti, esogene), collapse = " + "))), data = d)
-  d$v_hat <- residuals(cf)
+  d$v_hat <- residuals(cf)                     # (with cf = FALSE it is computed but not used)
+  b_cf <- coef(cf)[S$strumenti]                # kept: in stage 1 the coefficient of ln_spesa_tot is used in section 13.2
   strumenti <- NULL
-  if (stampa) {
+  if (stampa && S$cf) {
     strumenti <- data.frame(stage = S$nome, forza_strumenti(cf, S$strumenti, d$cluster))
     cat("\n", S$nome, "- control function, first step (dependent:", S$x_reale, ")\n")
     print(strumenti %>% mutate(across(where(is.numeric), ~ round(.x, 3))))
@@ -596,7 +602,7 @@ stima_laaids <- function(d, S, stampa = FALSE) {
                   "  homogeneity max|row sum of gamma| =", signif(max(abs(rowSums(gam))), 3), "\n")
   tieni <- c("round", paste0(S$w, S$gruppi), paste0("t_", S$GS), S$PREL, S$x_reale, DEMO, ROUND, "v_hat")
   list(d = d[, tieni], S = S, probit = probit, b = b, alfa = alfa, beta = beta, delta = delta, gam = gam,
-       strumenti = strumenti, es_systemfit = es_systemfit)
+       strumenti = strumenti, es_systemfit = es_systemfit, b_cf = b_cf)
 }
 
 fit1 <- stima_laaids(stima1, SPEC1, stampa = TRUE)       # stage 1 on the real sample
@@ -621,11 +627,16 @@ fit2 <- stima_laaids(stima2, SPEC2, stampa = TRUE)       # stage 2 on the real s
 # In stage 1 "x" is the food budget and the prices are group prices; in stage 2 "x" is the PROTEIN budget and the
 # prices are category prices: the stage-2 elasticities are CONDITIONAL on the protein budget.
 # The function uses the parameters of one estimation (fit) and the mean values of a sample d (all, or one round).
+# It also returns the split of the expenditure elasticity used in section 13.1:
+#   intensiva      = 1 + Phi_g beta_g / w_g                   households that already consume g spend more on it
+#   partecipazione = phi_g (f_g - delta_g t_g) c_g / w_g      more households start consuming g
+#   (intensiva + partecipazione = expenditure elasticity; NA for the residual group, whose zeros are not modelled)
 elasticita <- function(fit, d) {
   S  <- fit$S; GR <- S$gruppi; G <- length(GR)
   w  <- colMeans(d[, paste0(S$w, GR)]); names(w) <- GR                       # mean shares
   dX <- setNames(rep(0, G), GR); dP <- matrix(0, G, G, dimnames = list(GR, GR))
-  ALTRE <- c(DEMO, ROUND, "v_hat")
+  dX_int <- dX_par <- setNames(rep(NA_real_, G), GR)
+  ALTRE <- setdiff(S$X, c(S$PREL, S$x_reale))                                # demographics, rounds (and v_hat)
   for (g in S$GS) {
     cp <- fit$probit[[g]]
     t  <- mean(d[[paste0("t_", g)]])                                         # probit index at the means
@@ -635,13 +646,23 @@ elasticita <- function(fit, d) {
     c_x <- cp[S$x_reale]; c_p <- c(cp[S$PREL], -sum(cp[S$PREL])); names(c_p) <- GR
     dX[g]   <- pnorm(t) * fit$beta[g] + k * c_x
     dP[g, ] <- pnorm(t) * (fit$gam[g, ] - fit$beta[g] * S$wbar) + k * (c_p - c_x * S$wbar)
+    dX_int[g] <- pnorm(t) * fit$beta[g]; dX_par[g] <- k * c_x                # the two parts of dX[g]
   }
   dX[S$res] <- -sum(dX[S$GS]); dP[S$res, ] <- -colSums(dP[S$GS, , drop = FALSE])
   e_spesa <- 1 + dX / w
   marsh   <- -diag(G) + dP / w                       # row g divided by w_g
   hicks   <- marsh + outer(e_spesa, w)
   dimnames(marsh) <- dimnames(hicks) <- list(GR, GR)
-  list(w = w, spesa = e_spesa, marshall = marsh, hicks = hicks)
+  list(w = w, spesa = e_spesa, marshall = marsh, hicks = hicks, intensiva = 1 + dX_int / w, partecipazione = dX_par / w)
+}
+
+# Puts a stage-2 result in the order of STAGE2. Needed only when the residual category is changed (section 13.3),
+# because then the categories come out of the estimation in a different order.
+ordina2 <- function(E) {
+  o <- STAGE2
+  E$w <- E$w[o]; E$spesa <- E$spesa[o]; E$marshall <- E$marshall[o, o]; E$hicks <- E$hicks[o, o]
+  E$intensiva <- E$intensiva[o]; E$partecipazione <- E$partecipazione[o]
+  E
 }
 
 # 10.2 UNCONDITIONAL elasticities of the protein categories (two-stage budgeting, Edgerton 1997)
@@ -667,6 +688,7 @@ elasticita <- function(fit, d) {
 # approximation (Edgerton 1997; Carpentier and Guyomard 2001 propose a refined approximation).
 # Stage-1 terms (E_P, e_PP, e_Ps, w_P) are taken at the stage-1 means, stage-2 terms at the stage-2 means.
 elasticita_incondizionate <- function(E1, E2) {
+  E2  <- ordina2(E2)                                                      # categories in the order of STAGE2 (as wbar2)
   wP  <- E1$w["proteins"]; EP <- E1$spesa["proteins"]
   ePP <- E1$marshall["proteins", "proteins"]; ePs <- E1$marshall["proteins", ALTRI1]
   spesa <- E2$spesa * EP                                                  # (1)
@@ -729,6 +751,11 @@ boot_marsh <- lapply(SISTEMI, function(s) array(NA, c(B, length(s$righe), length
 boot_hicks <- boot_marsh
 boot_round <- lapply(SISTEMI, function(s) array(NA, c(B, length(ANNI), length(s$righe), 3),
                                                 dimnames = list(NULL, ANNI, s$righe, c("spesa", "marshall", "hicks"))))
+# also kept for section 13: the elasticity of the food budget to total expenditure, and the two parts of the
+# expenditure elasticity (current buyers / new buyers)
+boot_theta <- rep(NA_real_, B)
+boot_dec   <- lapply(list(s1 = STAGE1, s2 = STAGE2), function(g) array(NA, c(B, length(g), 2),
+                                                     dimnames = list(NULL, g, c("intensiva", "partecipazione"))))
 set.seed(SEME)
 righe1  <- split(seq_len(nrow(stima1)), stima1$cluster)     # rows of each cluster, stage 1
 righe2  <- split(seq_len(nrow(stima2)), stima2$cluster)     # rows of each cluster, stage 2
@@ -736,7 +763,7 @@ CLUSTER <- names(righe1)
 K <- length(CLUSTER)
 cat("\nBootstrap:", B, "replications,", K, "clusters. Each replication redoes control function, probits and SUR of both stages.\n")
 t0 <- Sys.time()
-for (r in 1:B) {
+for (r in seq_len(B)) {
   estratti <- sample(CLUSTER, K, replace = TRUE)                       # K clusters drawn with replacement
   d1 <- stima1[unlist(righe1[estratti], use.names = FALSE), ]          # their households (a cluster drawn twice enters twice)
   d2 <- stima2[unlist(righe2[estratti], use.names = FALSE), ]          # same clusters for stage 2
@@ -749,6 +776,8 @@ for (r in 1:B) {
   for (s in names(SISTEMI)) {
     boot_spesa[[s]][r, ] <- e_b[[s]]$spesa; boot_marsh[[s]][r, , ] <- e_b[[s]]$marshall; boot_hicks[[s]][r, , ] <- e_b[[s]]$hicks
   }
+  boot_theta[r] <- f1$b_cf["ln_spesa_tot"]
+  for (s in c("s1", "s2")) boot_dec[[s]][r, , ] <- cbind(e_b[[s]]$intensiva, e_b[[s]]$partecipazione)
   for (k in seq_along(ANNI)) {
     e_r <- list(s1 = elasticita(f1, f1$d[f1$d$round == ANNI[k], ]), s2 = elasticita(f2, f2$d[f2$d$round == ANNI[k], ]))
     e_r$unc <- elasticita_incondizionate(e_r$s1, e_r$s2)
@@ -852,3 +881,142 @@ write.csv(voci %>% select(round, hhid, codice_voce, voce, categoria, stadio1, st
           file.path(USCITA, "voci_valori_flag.csv"), row.names = FALSE)
 saveRDS(list(spesa = boot_spesa, marshall = boot_marsh, hicks = boot_hicks, per_round = boot_round), file.path(USCITA, "repliche_bootstrap.rds"))
 cat("\nResults saved in:", USCITA, "\n")
+
+
+## =============================================================================
+## 13. ROBUSTNESS CHECKS      (ADDED)
+## =============================================================================
+# Four checks on the two weak points of the main results:
+#   (a) the residual category of stage 2 (plant_protein) has no zero correction and gets its elasticity only
+#       from adding-up -> 13.3 re-estimates stage 2 with FISH as the residual instead;
+#   (b) the expenditure elasticities of meat, dairy and eggs are above 2 -> 13.1 shows how much of each elasticity
+#       comes from households that START buying, 13.2 expresses the elasticities with respect to TOTAL expenditure
+#       (closer to income elasticities, easier to compare with the literature), 13.4 shows what happens WITHOUT
+#       the control function.
+# Run this section after sections 0-12 (it uses their objects). It adds 4 sheets "rob_..." to the results file.
+
+# 13.1 CURRENT BUYERS AND NEW BUYERS (main model, no new estimation)
+# With Shonkwiler-Yen the expenditure elasticity has two parts (computed in the function elasticita, section 10.1):
+#   intensiva      = 1 + Phi beta / w : households that already consume the category spend more on it
+#   partecipazione = the rest          : as the budget grows, more households start consuming the category
+# Example: if beef has 1.78 = 1.02 + 0.76, then about 0.76 / 1.78 = 43% of the response comes from new buyers.
+# The split is computed at the sample means, so it is an approximation; the two parts always sum to the elasticity.
+# Not available for the residual groups ("other", "plant_protein"): their zeros are not modelled.
+tab_scomposizione <- bind_rows(lapply(c("s1", "s2"), function(s) {
+  E <- E_tutti[[s]]; bd <- boot_dec[[s]]
+  data.frame(system = c(s1 = "stage 1", s2 = "stage 2 (conditional)")[s], category = names(E$spesa),
+             mean_share = E$w, expenditure_elasticity = E$spesa, se = apply(boot_spesa[[s]], 2, es),
+             current_buyers = E$intensiva, current_buyers_se = apply(bd[, , "intensiva", drop = FALSE], 2, es),
+             new_buyers = E$partecipazione, new_buyers_se = apply(bd[, , "partecipazione", drop = FALSE], 2, es),
+             pct_from_new_buyers = 100 * E$partecipazione / E$spesa, row.names = NULL)
+}))
+cat("\n13.1 Expenditure elasticity = current buyers + new buyers:\n")
+print(tab_scomposizione %>% select(system, category, expenditure_elasticity, current_buyers, new_buyers, pct_from_new_buyers) %>%
+        mutate(across(where(is.numeric), ~ round(.x, 2))))
+
+# 13.2 ELASTICITIES WITH RESPECT TO TOTAL EXPENDITURE (main model, no new estimation)
+# All elasticities of the model are with respect to the FOOD budget (food consumed at home). To compare them with
+# income elasticities we add a third, upper step: total expenditure -> food budget.
+#   E_k,total = E_k,food x theta
+# theta = elasticity of the real food budget to total expenditure = the coefficient of ln_spesa_tot in the first
+# step of the stage-1 control function (section 9.5 (a)): a log-linear Engel curve of food, holding prices,
+# demographics and round fixed. It is an approximation (food versus non-food is not a full demand system here).
+# Bootstrap: every replication uses its own theta and its own elasticities, so the standard errors include both.
+theta  <- fit1$b_cf["ln_spesa_tot"]
+E_food <- c(E1$spesa, EU$spesa)                                        # 4 stage-1 groups + 9 protein categories (unconditional)
+b_food <- cbind(boot_spesa$s1, boot_spesa$unc)
+b_tot  <- b_food * boot_theta                                          # row r multiplied by theta of replication r
+tab_tot <- data.frame(level = c(rep("stage 1 group", length(STAGE1)), rep("protein category (unconditional)", length(STAGE2))),
+                      category = names(E_food), elasticity_food_budget = E_food, theta = theta,
+                      se_theta = es(boot_theta), elasticity_total_expenditure = E_food * theta, se = apply(b_tot, 2, es),
+                      ci95_low = apply(b_tot, 2, q025), ci95_high = apply(b_tot, 2, q975), row.names = NULL)
+cat("\n13.2 theta (elasticity of the food budget to total expenditure) =", round(theta, 3), "\n")
+print(tab_tot %>% select(category, elasticity_food_budget, elasticity_total_expenditure, se) %>% mutate(across(where(is.numeric), ~ round(.x, 2))))
+
+# 13.3 VARIANT A: FISH AS THE RESIDUAL OF STAGE 2
+# Same model, same data; only the omitted equation changes. Fish is the second most consumed category (75%).
+# Plant proteins now get their own probit (zero correction) and their own equation. Prices are now relative to the
+# price of fish (columns lnf2_<category>); the protein price index and the real protein expenditure do not change.
+# How to read it: if an elasticity is similar in the two versions, it does not depend on the choice of the residual.
+STAGE2_A <- c(setdiff(STAGE2, c("fish", RES2)), RES2, "fish")            # same 9 categories, fish last
+for (k in head(STAGE2_A, -1)) stima2[[paste0("lnf2_", k)]] <- stima2[[paste0("lnP_", k)]] - stima2$lnP_fish
+SPEC2_A <- prepara_spec(list(nome = "stage 2, fish residual", gruppi = STAGE2_A, w = "w2_", p = "lnf2_", x_reale = "ln_x_prot_real",
+                             strumenti = SPEC2$strumenti, wbar = wbar2[STAGE2_A]))   # Stone weights in the same order as the groups
+fit2_A <- stima_laaids(stima2, SPEC2_A, stampa = TRUE)
+E2_A   <- ordina2(elasticita(fit2_A, fit2_A$d))                           # back to the usual order of the categories
+EU_A   <- elasticita_incondizionate(E1, E2_A)                             # stage 1 is unchanged
+
+# 13.4 VARIANT B: NO CONTROL FUNCTION (expenditure treated as exogenous, in both stages)
+# v_hat is removed from the probits and from the share equations. Everything else is the same.
+# How to read it: the difference from the main model shows how much the correction for endogenous expenditure matters.
+# With measurement error in reported food spending, elasticities of luxuries are expected to be LOWER without it.
+SPEC1_B <- prepara_spec(list(nome = "stage 1, no control function", gruppi = STAGE1, w = "w1_", p = "lnp1_", x_reale = "ln_x_food_real",
+                             strumenti = SPEC1$strumenti, wbar = wbar1, cf = FALSE))
+SPEC2_B <- prepara_spec(list(nome = "stage 2, no control function", gruppi = STAGE2, w = "w2_", p = "lnp2_", x_reale = "ln_x_prot_real",
+                             strumenti = SPEC2$strumenti, wbar = wbar2, cf = FALSE))
+fit1_B <- stima_laaids(stima1, SPEC1_B, stampa = TRUE)
+fit2_B <- stima_laaids(stima2, SPEC2_B, stampa = TRUE)
+E1_B <- elasticita(fit1_B, fit1_B$d); E2_B <- elasticita(fit2_B, fit2_B$d); EU_B <- elasticita_incondizionate(E1_B, E2_B)
+
+# 13.5 BOOTSTRAP OF THE TWO VARIANTS
+# Same seed as section 11, so every replication uses the SAME clusters as the main bootstrap: the differences between
+# the versions are not due to different random draws. Variant A also needs stage 1 of the main model (re-estimated here).
+PUNTI <- list(A_s2 = E2_A, A_unc = EU_A, B_s1 = E1_B, B_s2 = E2_B, B_unc = EU_B)
+RIGHE_V <- list(A_s2 = STAGE2, A_unc = STAGE2, B_s1 = STAGE1, B_s2 = STAGE2, B_unc = STAGE2)
+boot_var <- lapply(RIGHE_V, function(g) array(NA, c(max(B_ROB, 1), length(g), 2), dimnames = list(NULL, g, c("spesa", "marshall"))))
+set.seed(SEME)
+cat("\nRobustness bootstrap:", B_ROB, "replications (same clusters as section 11).\n")
+t0 <- Sys.time()
+for (r in seq_len(B_ROB)) {
+  estratti <- sample(CLUSTER, K, replace = TRUE)
+  d1 <- stima1[unlist(righe1[estratti], use.names = FALSE), ]
+  d2 <- stima2[unlist(righe2[estratti], use.names = FALSE), ]
+  stima_ok <- function(d, S) tryCatch(suppressWarnings(stima_laaids(d, S)), error = function(e) NULL)
+  f1 <- stima_ok(d1, SPEC1); fA2 <- stima_ok(d2, SPEC2_A); fB1 <- stima_ok(d1, SPEC1_B); fB2 <- stima_ok(d2, SPEC2_B)
+  rm(d1, d2)
+  if (is.null(f1) || is.null(fA2) || is.null(fB1) || is.null(fB2)) next
+  e1 <- elasticita(f1, f1$d); eA2 <- ordina2(elasticita(fA2, fA2$d)); eB1 <- elasticita(fB1, fB1$d); eB2 <- elasticita(fB2, fB2$d)
+  e_v <- list(A_s2 = eA2, A_unc = elasticita_incondizionate(e1, eA2), B_s1 = eB1, B_s2 = eB2, B_unc = elasticita_incondizionate(eB1, eB2))
+  for (v in names(e_v)) boot_var[[v]][r, , ] <- cbind(e_v[[v]]$spesa, diag(e_v[[v]]$marshall))
+  rm(f1, fA2, fB1, fB2); invisible(gc())
+  if (r %% 10 == 0) cat("  replication", r, "of", B_ROB, "-", round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1), "minutes\n")
+}
+cat("Successful replications:", sum(!is.na(boot_var$A_s2[, 1, 1])), "of", B_ROB, "\n")
+
+# 13.6 COMPARISON TABLE: main model, variant A (fish residual), variant B (no control function)
+# For every system: expenditure elasticity and own-price (Marshall) elasticity, with bootstrap standard errors.
+COL4 <- c("_expenditure", "_expenditure_se", "_own_marshall", "_own_marshall_se")
+col_base <- function(s) setNames(data.frame(TAB[[s]]$spesa$expenditure_elasticity, TAB[[s]]$spesa$se,
+                                            TAB[[s]]$propria$marshall, TAB[[s]]$propria$marshall_se), paste0("main", COL4))
+col_var  <- function(v, nome) { E <- PUNTI[[v]]; b <- boot_var[[v]]
+  setNames(data.frame(E$spesa, apply(b[, , "spesa", drop = FALSE], 2, es), diag(E$marshall), apply(b[, , "marshall", drop = FALSE], 2, es)),
+           paste0(nome, COL4)) }
+col_na   <- function(n, nome) setNames(data.frame(matrix(NA_real_, n, 4)), paste0(nome, COL4))
+tab_rob <- bind_rows(
+  data.frame(system = "stage 1", category = STAGE1, col_base("s1"), col_na(length(STAGE1), "fish_residual"), col_var("B_s1", "no_CF"), row.names = NULL),
+  data.frame(system = "stage 2 (conditional)", category = STAGE2, col_base("s2"), col_var("A_s2", "fish_residual"), col_var("B_s2", "no_CF"), row.names = NULL),
+  data.frame(system = "unconditional", category = STAGE2, col_base("unc"), col_var("A_unc", "fish_residual"), col_var("B_unc", "no_CF"), row.names = NULL))
+tab_rob$note <- case_when(tab_rob$category == RES1 ~ "residual in all versions (stage 1 is the same in main and fish_residual)",
+                          tab_rob$category == RES2 ~ "residual in main and no_CF: elasticity from adding-up",
+                          tab_rob$category == "fish" ~ "residual in fish_residual: elasticity from adding-up",
+                          tab_rob$system == "stage 1" ~ "stage 1 is the same in main and fish_residual",
+                          TRUE ~ "")
+cat("\n13.6 Expenditure elasticities: main model, fish as residual, no control function:\n")
+print(tab_rob %>% select(system, category, main_expenditure, fish_residual_expenditure, no_CF_expenditure) %>%
+        mutate(across(where(is.numeric), ~ round(.x, 2))))
+
+# 13.7 SAVE: 4 sheets added to the results file of section 12, and the bootstrap replications
+nota13 <- data.frame(notes = c(
+  "Robustness checks (section 13 of the script). Bootstrap with the same clusters as the main results.",
+  "rob_comparison: main model vs fish_residual (fish is the omitted equation of stage 2 instead of plant_protein) vs no_CF (no control function).",
+  "   A category that is the residual gets its elasticity from adding-up, without zero correction: compare it with the version where it is estimated.",
+  "rob_decomposition: expenditure elasticity = current_buyers (households already consuming spend more) + new_buyers (more households start consuming).",
+  "rob_total_expenditure: elasticity with respect to TOTAL expenditure = elasticity with respect to the food budget x theta,",
+  "   theta = elasticity of the real food budget to total expenditure (first step of the stage-1 control function). Approximation."))
+file_ris <- file.path(USCITA, "risultati_LAAIDS_2stadi_TZA.xlsx")
+wb <- loadWorkbook(file_ris)
+fogli13 <- list(rob_notes = nota13, rob_comparison = tab_rob, rob_decomposition = tab_scomposizione, rob_total_expenditure = tab_tot)
+for (s in names(fogli13)) { if (s %in% names(wb)) removeWorksheet(wb, s); addWorksheet(wb, s); writeData(wb, s, fogli13[[s]]) }
+saveWorkbook(wb, file_ris, overwrite = TRUE)
+saveRDS(list(varianti = boot_var, theta = boot_theta, scomposizione = boot_dec), file.path(USCITA, "repliche_bootstrap_robustezza.rds"))
+cat("\nRobustness results added to:", file_ris, "\n")

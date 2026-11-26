@@ -1,10 +1,13 @@
 ###############################################################################
-##  TWO-STAGE LA/AIDS (and QUAIDS), ONE COUNTRY AT A TIME: TANZANIA, ETHIOPIA, MALAWI, NIGERIA, UGANDA
-##  The main model is the LA/AIDS (setting MODELLO = "LAAIDS", section 0). The QUAIDS (Banks, Blundell and Lewbel 1997:
-##  the LA/AIDS share equations plus a squared budget term, so that the expenditure effect can bend with income) is
-##  available with MODELLO = "QUAIDS" and, with ALTRO_MODELLO = TRUE, as a robustness check (section 13.4b).
+##  TWO-STAGE QUAIDS (and LA/AIDS), ONE COUNTRY AT A TIME: TANZANIA, ETHIOPIA, MALAWI, NIGERIA, UGANDA
+##  The main model is the QUAIDS (Banks, Blundell and Lewbel 1997; setting MODELLO = "QUAIDS", section 0): the LA/AIDS
+##  share equations plus a squared budget term, so that the expenditure effect can bend with income. The LA/AIDS is
+##  available with MODELLO = "LAAIDS" and, with ALTRO_MODELLO = TRUE, as a robustness check (section 13.4b).
 ##  QUAIDS price index a(p): Stone index (INDICE_A = "stone"), b(p) exact, estimated by iterations (section 9.5).
-##  Test of 26 November 2026 (Tanzania): QUAIDS and LA/AIDS give almost the same elasticities (beef 1.49 vs 1.48).
+##  Why the QUAIDS is the main model (decision of 26 November 2026): on the 5 countries the squared term is
+##  significant in 34 of 54 share equations, so the data reject the LA/AIDS; the elasticities of the two models are
+##  almost the same (animal-source foods: at most 0.07 apart; the fall from Q1 to Q5 holds in both).
+##  The approximate (Stone) QUAIDS is used because with the exact translog a(p) the iterations oscillate (note in 13).
 ##  Choose the country in section 0 (PAESE <- "TZA", "ETH", "MWI", "NGA" or "UGA"): it is the only line to change.
 ##  From the harmonised raw data to conditional and unconditional elasticities
 ##  Teaching script: run it one section at a time (select the lines in RStudio and press Ctrl+Enter).
@@ -94,10 +97,10 @@ library(tidyr)
 library(openxlsx)
 
 PAESE  <- "TZA"   # <-- the country: "TZA" Tanzania, "ETH" Ethiopia, "MWI" Malawi, "NGA" Nigeria, "UGA" Uganda
-MODELLO <- "LAAIDS"   # "LAAIDS" (main model) or "QUAIDS" (Banks, Blundell and Lewbel 1997).
+MODELLO <- "QUAIDS"   # "QUAIDS" (main model, Banks, Blundell and Lewbel 1997) or "LAAIDS" (robustness).
 ALTRO_MODELLO <- FALSE   # TRUE: the other model is also estimated, with its bootstrap, as a robustness check (section 13.4b).
                          # It roughly doubles the time of the robustness bootstrap (QUAIDS iterates the SUR ~15 times).
-                         # Test of 26 Nov 2026 (Tanzania, Ethiopia): QUAIDS and LA/AIDS gave almost the same elasticities.
+                         # Test of 26 Nov 2026 (5 countries): QUAIDS and LA/AIDS gave almost the same elasticities.
 EF_REGIONE <- TRUE    # TRUE: region dummies (regional fixed effects) in all equations of both stages (section 8.7b).
                       # Recommended: without them, prices also pick up regional differences in tastes (Uganda: the
                       # own-price elasticity of proteins comes out positive). FALSE = the specification used before.
@@ -121,6 +124,9 @@ SOGLIA <- 10    # outlier price: more than 10 times, or less than 1/10 of, the n
 B      <- 200   # bootstrap replications (section 11); for a quick test use 20
 B_ROB  <- 200   # bootstrap replications of the robustness checks (section 13); 0 = point estimates only
 SEME   <- 2026  # random seed: with the same seed the bootstrap always gives the same numbers
+# The tables of section 14 need at least 2 bootstrap replications (with B = 0 the script stops there with an
+# obscure error). For point estimates only use B = 2 and ignore the standard errors.
+if (B < 2) stop("B must be at least 2 (use B = 2 for point estimates only; the standard errors are then meaningless)")
 MAX_ITER <- 200   # QUAIDS: maximum number of iterations (section 9.5); in the bootstrap they start from the estimates
 TOLL     <- 1e-6  # QUAIDS: the iterations stop when no parameter changes by more than this
 INDICE_A <- "stone" # QUAIDS price index a(p): "stone" (Stone index with the mean shares, as in the LA/AIDS; b(p) exact)

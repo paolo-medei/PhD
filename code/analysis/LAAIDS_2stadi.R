@@ -2,7 +2,7 @@
 ##  TWO-STAGE LA/AIDS (and QUAIDS), ONE COUNTRY AT A TIME: TANZANIA, ETHIOPIA, MALAWI, NIGERIA, UGANDA
 ##  The main model is the LA/AIDS (setting MODELLO = "LAAIDS", section 0). The QUAIDS (Banks, Blundell and Lewbel 1997:
 ##  the LA/AIDS share equations plus a squared budget term, so that the expenditure effect can bend with income) is
-##  available with MODELLO = "QUAIDS" and is always estimated as a robustness check (section 13.4b).
+##  available with MODELLO = "QUAIDS" and, with ALTRO_MODELLO = TRUE, as a robustness check (section 13.4b).
 ##  QUAIDS price index a(p): Stone index (INDICE_A = "stone"), b(p) exact, estimated by iterations (section 9.5).
 ##  Test of 26 November 2026 (Tanzania): QUAIDS and LA/AIDS give almost the same elasticities (beef 1.49 vs 1.48).
 ##  Choose the country in section 0 (PAESE <- "TZA", "ETH", "MWI", "NGA" or "UGA"): it is the only line to change.
@@ -95,7 +95,9 @@ library(openxlsx)
 
 PAESE  <- "TZA"   # <-- the country: "TZA" Tanzania, "ETH" Ethiopia, "MWI" Malawi, "NGA" Nigeria, "UGA" Uganda
 MODELLO <- "LAAIDS"   # "LAAIDS" (main model) or "QUAIDS" (Banks, Blundell and Lewbel 1997).
-                      # The other model is always estimated too, as a robustness check (section 13.4b).
+ALTRO_MODELLO <- FALSE   # TRUE: the other model is also estimated, with its bootstrap, as a robustness check (section 13.4b).
+                         # It roughly doubles the time of the robustness bootstrap (QUAIDS iterates the SUR ~15 times).
+                         # Test of 26 Nov 2026 (Tanzania, Ethiopia): QUAIDS and LA/AIDS gave almost the same elasticities.
 EF_REGIONE <- TRUE    # TRUE: region dummies (regional fixed effects) in all equations of both stages (section 8.7b).
                       # Recommended: without them, prices also pick up regional differences in tastes (Uganda: the
                       # own-price elasticity of proteins comes out positive). FALSE = the specification used before.
@@ -1406,20 +1408,24 @@ E_gruppi_B <- sapply(GRUPPI, function(g) per_gruppo(fit1_B, fit2_B, g), simplify
 # 13.4b VARIANT C: THE OTHER DEMAND MODEL (LA/AIDS when the main model is the QUAIDS, and the reverse)
 # Same data, same control function, same zero correction; only the demand system changes. How to read it: the QUAIDS
 # lets the expenditure effect bend with income; if the two give similar elasticities, the curvature does not matter much.
+# Estimated only when ALTRO_MODELLO = TRUE (section 0).
 ALTRO  <- if (MODELLO == "QUAIDS") "LAAIDS" else "QUAIDS"; NOME_C <- tolower(ALTRO)
-SPEC1_C <- prepara_spec(modifyList(SPEC1$input, list(nome = paste("stage 1,", ALTRO), quaids = ALTRO == "QUAIDS")))
-SPEC2_C <- prepara_spec(modifyList(SPEC2$input, list(nome = paste("stage 2,", ALTRO), quaids = ALTRO == "QUAIDS")))
-fit1_C <- stima_laaids(stima1, SPEC1_C, stampa = TRUE)
-fit2_C <- stima_laaids(stima2, SPEC2_C, stampa = TRUE)
-if (ALTRO == "QUAIDS") { SPEC1_C$init <- inizio(fit1_C); SPEC2_C$init <- inizio(fit2_C) }
-E1_C <- elasticita(fit1_C, fit1_C$d); E2_C <- elasticita(fit2_C, fit2_C$d); EU_C <- elasticita_incondizionate(E1_C, E2_C)
-EA_C <- aggrega(EU_C)
+if (ALTRO_MODELLO) {
+  SPEC1_C <- prepara_spec(modifyList(SPEC1$input, list(nome = paste("stage 1,", ALTRO), quaids = ALTRO == "QUAIDS")))
+  SPEC2_C <- prepara_spec(modifyList(SPEC2$input, list(nome = paste("stage 2,", ALTRO), quaids = ALTRO == "QUAIDS")))
+  fit1_C <- stima_laaids(stima1, SPEC1_C, stampa = TRUE)
+  fit2_C <- stima_laaids(stima2, SPEC2_C, stampa = TRUE)
+  if (ALTRO == "QUAIDS") { SPEC1_C$init <- inizio(fit1_C); SPEC2_C$init <- inizio(fit2_C) }
+  E1_C <- elasticita(fit1_C, fit1_C$d); E2_C <- elasticita(fit2_C, fit2_C$d); EU_C <- elasticita_incondizionate(E1_C, E2_C)
+  EA_C <- aggrega(EU_C)
+}
 
 # 13.5 BOOTSTRAP OF THE TWO VARIANTS
 # Same seed as section 11, so every replication uses the SAME clusters as the main bootstrap: the differences between
 # the versions are not due to different random draws. Variant A also needs stage 1 of the main model (re-estimated here).
-PUNTI <- list(A_s2 = E2_A, A_unc = EU_A, B_s1 = E1_B, B_s2 = E2_B, B_unc = EU_B, C_s1 = E1_C, C_s2 = E2_C, C_unc = EU_C)
-RIGHE_V <- list(A_s2 = STAGE2, A_unc = STAGE2, B_s1 = STAGE1, B_s2 = STAGE2, B_unc = STAGE2, C_s1 = STAGE1, C_s2 = STAGE2, C_unc = STAGE2)
+PUNTI <- list(A_s2 = E2_A, A_unc = EU_A, B_s1 = E1_B, B_s2 = E2_B, B_unc = EU_B)
+RIGHE_V <- list(A_s2 = STAGE2, A_unc = STAGE2, B_s1 = STAGE1, B_s2 = STAGE2, B_unc = STAGE2)
+if (ALTRO_MODELLO) { PUNTI <- c(PUNTI, list(C_s1 = E1_C, C_s2 = E2_C, C_unc = EU_C)); RIGHE_V <- c(RIGHE_V, list(C_s1 = STAGE1, C_s2 = STAGE2, C_unc = STAGE2)) }
 boot_var <- lapply(RIGHE_V, function(g) array(NA, c(max(B_ROB, 1), length(g), 2), dimnames = list(NULL, g, c("spesa", "marshall"))))
 boot_agg_B   <- array(NA, c(max(B_ROB, 1), length(AGGREGATI), ncol(EA)), dimnames = list(NULL, names(AGGREGATI), colnames(EA)))
 boot_agg_C   <- boot_agg_B
@@ -1433,16 +1439,18 @@ for (r in seq_len(B_ROB)) {
   d2 <- stima2[unlist(righe2[estratti], use.names = FALSE), ]
   stima_ok <- function(d, S) tryCatch(suppressWarnings(stima_laaids(d, S)), error = function(e) NULL)
   f1 <- stima_ok(d1, SPEC1); fA2 <- stima_ok(d2, SPEC2_A); fB1 <- stima_ok(d1, SPEC1_B); fB2 <- stima_ok(d2, SPEC2_B)
-  fC1 <- stima_ok(d1, SPEC1_C); fC2 <- stima_ok(d2, SPEC2_C)
+  fC1 <- fC2 <- list(convergenza = TRUE)                                    # placeholders when the other model is not estimated
+  if (ALTRO_MODELLO) { fC1 <- stima_ok(d1, SPEC1_C); fC2 <- stima_ok(d2, SPEC2_C) }
   rm(d1, d2)
   if (is.null(f1) || is.null(fA2) || is.null(fB1) || is.null(fB2) || is.null(fC1) || is.null(fC2) ||
       !all(f1$convergenza, fA2$convergenza, fB1$convergenza, fB2$convergenza, fC1$convergenza, fC2$convergenza)) next
   e1 <- elasticita(f1, f1$d); eA2 <- ordina2(elasticita(fA2, fA2$d)); eB1 <- elasticita(fB1, fB1$d); eB2 <- elasticita(fB2, fB2$d)
-  eC1 <- elasticita(fC1, fC1$d); eC2 <- elasticita(fC2, fC2$d)
-  e_v <- list(A_s2 = eA2, A_unc = elasticita_incondizionate(e1, eA2), B_s1 = eB1, B_s2 = eB2, B_unc = elasticita_incondizionate(eB1, eB2),
-              C_s1 = eC1, C_s2 = eC2, C_unc = elasticita_incondizionate(eC1, eC2))
+  e_v <- list(A_s2 = eA2, A_unc = elasticita_incondizionate(e1, eA2), B_s1 = eB1, B_s2 = eB2, B_unc = elasticita_incondizionate(eB1, eB2))
+  if (ALTRO_MODELLO) { eC1 <- elasticita(fC1, fC1$d); eC2 <- elasticita(fC2, fC2$d)
+                       e_v <- c(e_v, list(C_s1 = eC1, C_s2 = eC2, C_unc = elasticita_incondizionate(eC1, eC2))) }
   for (v in names(e_v)) boot_var[[v]][r, , ] <- cbind(e_v[[v]]$spesa, diag(e_v[[v]]$marshall))
-  boot_agg_B[r, , ] <- aggrega(e_v$B_unc); boot_agg_C[r, , ] <- aggrega(e_v$C_unc); boot_theta_B[r] <- fB1$b_cf["ln_spesa_tot"]
+  boot_agg_B[r, , ] <- aggrega(e_v$B_unc); boot_theta_B[r] <- fB1$b_cf["ln_spesa_tot"]
+  if (ALTRO_MODELLO) boot_agg_C[r, , ] <- aggrega(e_v$C_unc)
   rm(f1, fA2, fB1, fB2, fC1, fC2); invisible(gc())
   if (r %% 10 == 0) cat("  replication", r, "of", B_ROB, "-", round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1), "minutes\n")
 }
@@ -1461,20 +1469,21 @@ col_var  <- function(v, nome) { E <- PUNTI[[v]]; b <- boot_var[[v]]
   setNames(data.frame(E$spesa, apply(b[, , "spesa", drop = FALSE], 2, es), diag(E$marshall), apply(b[, , "marshall", drop = FALSE], 2, es)),
            paste0(nome, COL4)) }
 col_na   <- function(n, nome) setNames(data.frame(matrix(NA_real_, n, 4)), paste0(nome, COL4))
+col_C    <- function(v, n) if (ALTRO_MODELLO) col_var(v, NOME_C) else as.data.frame(matrix(nrow = n, ncol = 0))   # other model: only when estimated
 tab_rob <- bind_rows(
   data.frame(system = "stage 1", category = STAGE1, col_base("s1"), col_na(length(STAGE1), "alt_residual"), col_var("B_s1", "no_CF"),
-             col_var("PM_s1", "at_means"), col_var("C_s1", NOME_C), row.names = NULL),
+             col_var("PM_s1", "at_means"), col_C("C_s1", length(STAGE1)), row.names = NULL),
   data.frame(system = "stage 2 (conditional)", category = STAGE2, col_base("s2"), col_var("A_s2", "alt_residual"), col_var("B_s2", "no_CF"),
-             col_var("PM_s2", "at_means"), col_var("C_s2", NOME_C), row.names = NULL),
+             col_var("PM_s2", "at_means"), col_C("C_s2", length(STAGE2)), row.names = NULL),
   data.frame(system = "unconditional", category = STAGE2, col_base("unc"), col_var("A_unc", "alt_residual"), col_var("B_unc", "no_CF"),
-             col_var("PM_unc", "at_means"), col_var("C_unc", NOME_C), row.names = NULL))
+             col_var("PM_unc", "at_means"), col_C("C_unc", length(STAGE2)), row.names = NULL))
 tab_rob$note <- case_when(tab_rob$category == RES1 ~ "residual in all versions (stage 1 is the same in main and alt_residual)",
                           tab_rob$category == RES2 ~ "residual in main and no_CF: elasticity from adding-up",
                           tab_rob$category == RES_ALT ~ paste0("residual in alt_residual (", RES_ALT, "): elasticity from adding-up"),
                           tab_rob$system == "stage 1" ~ "stage 1 is the same in main and alt_residual",
                           TRUE ~ "")
 cat("\n13.6 Expenditure elasticities: main model, alternative residual (", RES_ALT, "), no control function, at the means:\n")
-print(tab_rob %>% select(system, category, main_expenditure, alt_residual_expenditure, no_CF_expenditure, at_means_expenditure, all_of(paste0(NOME_C, "_expenditure"))) %>%
+print(tab_rob %>% select(system, category, main_expenditure, alt_residual_expenditure, no_CF_expenditure, at_means_expenditure, any_of(paste0(NOME_C, "_expenditure"))) %>%
         mutate(across(where(is.numeric), ~ round(.x, 2))))
 
 # 13.7 SAVE: 3 sheets added to the results file of section 12, and the bootstrap replications
@@ -1482,7 +1491,8 @@ nota13 <- data.frame(notes = c(
   "Robustness checks (section 13 of the script). Bootstrap with the same clusters as the main results.",
   paste0("rob_comparison: main model vs alt_residual (", RES_ALT, " is the omitted equation of stage 2 instead of plant_protein) vs no_CF (no control function)"),
   "   vs at_means (main model, elasticities of ONE household with all the mean values: the method used before 26 November 2026)",
-  paste0("   vs ", NOME_C, " (the same model with the ", ALTRO, " demand system instead of the ", MODELLO, ")."),
+  if (ALTRO_MODELLO) paste0("   vs ", NOME_C, " (the same model with the ", ALTRO, " demand system instead of the ", MODELLO, ").") else
+    paste0("   (the ", ALTRO, " robustness check was not run: ALTRO_MODELLO = FALSE)."),
   "   A category that is the residual gets its elasticity from adding-up, without zero correction: compare it with the version where it is estimated.",
   "rob_decomposition: expenditure elasticity = current_buyers (households already consuming spend more) + new_buyers (more households start consuming).",
   "All elasticities here are with respect to the FOOD budget (stage 1, unconditional) or the PROTEIN budget (stage 2). For TOTAL expenditure: main_expenditure."))
@@ -1491,7 +1501,7 @@ wb <- loadWorkbook(file_ris)
 fogli13 <- list(rob_notes = nota13, rob_comparison = tab_rob, rob_decomposition = tab_scomposizione)
 for (s in names(fogli13)) { if (s %in% names(wb)) removeWorksheet(wb, s); addWorksheet(wb, s); writeData(wb, s, fogli13[[s]]) }
 saveWorkbook(wb, file_ris, overwrite = TRUE)
-saveRDS(list(varianti = boot_var, theta = boot_theta, scomposizione = boot_dec, aggregati_no_CF = boot_agg_B, aggregati_altro_modello = boot_agg_C,
+saveRDS(list(varianti = boot_var, theta = boot_theta, scomposizione = boot_dec, aggregati_no_CF = boot_agg_B, aggregati_altro_modello = if (ALTRO_MODELLO) boot_agg_C else NULL,
              theta_no_CF = boot_theta_B),
         file.path(USCITA, "repliche_bootstrap_robustezza.rds"))
 cat("\nRobustness results added to:", file_ris, "\n")
@@ -1535,19 +1545,21 @@ b_att   <- cbind(fetta(boot_dec$s1, "intensiva"), fetta(boot_dec$unc, "intensiva
 theta_B <- fit1_B$b_cf["ln_spesa_tot"]                                     # the same first step: equal to theta
 tot     <- cibo * theta;    b_tot   <- b_cibo * boot_theta
 tot_B   <- cibo_B * theta_B; b_tot_B <- b_cibo_B * boot_theta_B
-cibo_C  <- c(E1_C$spesa, EU_C$spesa, EA_C[, "spesa"])                      # the other demand model (13.4b)
-b_cibo_C <- cbind(fetta(boot_var$C_s1, "spesa"), fetta(boot_var$C_unc, "spesa"), fetta(boot_agg_C, "spesa"))
-tot_C   <- cibo_C * theta; b_tot_C <- b_cibo_C * boot_theta_B
 att_tot <- att * theta;     b_att_tot <- b_att * boot_theta
 tab_main <- data.frame(level = livello, category = righe14, mean_share_food_budget = quota,
                        total_expenditure = tot, se = apply(b_tot, 2, es), ci95_low = apply(b_tot, 2, q025), ci95_high = apply(b_tot, 2, q975),
                        total_expenditure_no_CF = tot_B, se_no_CF = apply(b_tot_B, 2, es),
-                       total_expenditure_other_model = tot_C, se_other_model = apply(b_tot_C, 2, es),
                        food_budget = cibo, se_food_budget = apply(b_cibo, 2, es),
                        food_budget_no_CF = cibo_B, se_food_budget_no_CF = apply(b_cibo_B, 2, es),
                        current_buyers = att_tot, current_buyers_se = apply(b_att_tot, 2, es),
                        new_buyers = tot - att_tot, pct_from_new_buyers = 100 * (tot - att_tot) / tot,
                        theta = theta, se_theta = es(boot_theta), row.names = NULL)
+if (ALTRO_MODELLO) {                                                       # the other demand model (13.4b), next to the no-CF columns
+  cibo_C  <- c(E1_C$spesa, EU_C$spesa, EA_C[, "spesa"])
+  b_cibo_C <- cbind(fetta(boot_var$C_s1, "spesa"), fetta(boot_var$C_unc, "spesa"), fetta(boot_agg_C, "spesa"))
+  tot_C   <- cibo_C * theta; b_tot_C <- b_cibo_C * boot_theta_B
+  tab_main <- tab_main %>% mutate(total_expenditure_other_model = tot_C, se_other_model = apply(b_tot_C, 2, es), .after = se_no_CF)
+}
 tab_main$note <- case_when(tab_main$category %in% c(RES1, RES2) ~ "residual group: elasticity from adding-up, no current/new split",
                            tab_main$level == "stage 1 group" ~ "stage 1: with respect to the food budget x theta",
                            TRUE ~ "unconditional (both stages re-optimised) x theta")
@@ -1568,7 +1580,7 @@ tab_prezzi$note <- case_when(tab_prezzi$level == "stage 1 group" ~ "stage 1 (foo
                              tab_prezzi$level == "protein category" ~ "unconditional (both stages re-optimised)",
                              TRUE ~ "aggregate: all prices of the group rise by 1% together")
 cat("\n14. MAIN TABLE - elasticities with respect to TOTAL expenditure (theta =", round(theta, 3), "):\n")
-print(tab_main %>% select(category, total_expenditure, se, total_expenditure_no_CF, total_expenditure_other_model, food_budget, current_buyers, pct_from_new_buyers) %>%
+print(tab_main %>% select(category, total_expenditure, se, total_expenditure_no_CF, any_of("total_expenditure_other_model"), food_budget, current_buyers, pct_from_new_buyers) %>%
         mutate(across(where(is.numeric), ~ round(.x, 2))))
 cat("Own-price elasticities (Marshall):\n")
 print(tab_prezzi %>% select(category, marshall, marshall_se, marshall_no_CF) %>% mutate(across(where(is.numeric), ~ round(.x, 2))))
@@ -1599,11 +1611,11 @@ cat("\n14.3b Elasticities with respect to TOTAL expenditure by quintile and area
 nota14 <- c(
   "main_expenditure: total_expenditure = elasticity with respect to TOTAL household expenditure = food-budget elasticity x theta",
   "   (theta = elasticity of the real food budget to total expenditure, first step of the stage-1 control function). _no_CF = without control function.",
-  paste0("   _other_model = the same with the ", ALTRO, " demand system (main model: ", MODELLO, ")."),
+  if (ALTRO_MODELLO) paste0("   _other_model = the same with the ", ALTRO, " demand system (main model: ", MODELLO, ").") else "",
   "   current_buyers = part of the elasticity from households that already buy (in both stages); new_buyers = the rest (households that start buying",
   "   or buy more often within the 7 days). Aggregates: weighted means of the categories (weights = shares in the food budget).",
   "main_own_price: own-price elasticities; protein categories and aggregates unconditional; aggregate = all prices of the group change together.",
-  "main_by_quintile: elasticities with respect to TOTAL expenditure by national quintile of consumption per person (Q1 = poorest 20% of people) and area.",
+  "main_by_quintile: elasticities with respect to TOTAL expenditure by national quintile of consumption per adult equivalent (Q1 = poorest 20% of people) and area.",
   "main_by_group: the same by quintile, area and quintile x area, with bootstrap se, no-CF values, current/new buyers and own-price elasticities.",
   "   Same model for all groups: the averages are taken over the households of each group (section 10.4b). Groups under 200 households: imprecise.")
 wb <- loadWorkbook(file_ris)

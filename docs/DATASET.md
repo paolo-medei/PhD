@@ -214,3 +214,12 @@ altra carne (con la carne lavorata), pollame, pesce, latte fresco, altri lattici
 niente maiale; cammello nel manzo). Effetti fissi regionali di default (`EF_REGIONE`). Differenze tra paesi solo nelle
 sezioni 1-4 (unita' con taglia, prezzi Nigeria 2018-2023 dall'ultimo acquisto, Uganda autoconsumo ai prezzi locali).
 SUR con restrizioni scritto a mano (stime uguali a systemfit a 1e-11). `confronto_LAAIDS_5paesi.py` raccoglie i risultati.
+
+Dal 26 novembre 2026: elasticita' **medie sulle famiglie** (derivata media / quota media) al posto di quelle al punto
+medio, che con Shonkwiler-Yen gonfiavano i prodotti comprati da poche famiglie (Tanzania, manzo rispetto al cibo:
+2,62 al punto medio, 2,23 in media; il vecchio metodo resta in `rob_comparison`, colonne `at_means_*`). Nuova sezione 14:
+fogli `main_expenditure` e `main_own_price` in testa al file dei risultati, con le elasticita' rispetto alla **spesa
+totale** (x theta), con e senza control function, per categorie e aggregati (carne, carne e pesce, latticini, tutti gli
+ASF) e la scomposizione fra chi compra gia' e i nuovi acquirenti. Motivo: confronto con la letteratura, che usa quasi
+sempre la spesa totale, gruppi ampi e nessuno strumento (con questo metodo semplice i nostri dati danno valori in linea
+con la letteratura in Tanzania, Nigeria e Uganda).

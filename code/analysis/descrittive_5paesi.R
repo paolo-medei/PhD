@@ -185,6 +185,7 @@ fam$anomala <- with(fam, !is.na(cibo_casa_ppp) & !is.na(tot_ppp) & cibo_casa_ppp
 controlli <- fam %>% group_by(Paese = PAESI[paese]) %>% summarise(
   `Famiglie (tutti i round)` = n(), `Escluse: cibo a casa x 52 > 3 volte il consumo totale` = sum(anomala),
   `Escluse (%)` = round(100 * mean(anomala), 2),
+  `Senza quintile o area (fuori dalle tabelle)` = sum(is.na(quintile) | is.na(rurale)),
   `Con cibo ufficiale (%)` = round(100 * mean(!is.na(cibo_ufficiale_annuo)), 1), `Con anno dell'intervista (%)` = round(100 * mean(!is.na(int_year)), 1),
   `Fattore PPP 2021` = round(first(ppp(paese)), 2), `CPI 2021 (2010 = 100)` = round(first(cpi(paese, 2021)), 1), .groups = "drop")
 print(controlli)
@@ -230,7 +231,10 @@ for (k in c(CAT, "carne", "latticini"))
 CELLE <- expand.grid(q = c(paste0("Q", 1:5), "Tutti"), area = c("Tutte", "Rurali", "Urbane"), stringsAsFactors = FALSE)
 risultati <- list()
 for (p in names(PAESI)) {
-  t <- fam %>% filter(paese == p)
+  # only households with a quintile and an area: the "Tutti" / "Tutte" totals are then the union of the cells.
+  # (Households without the official consumption aggregate have no quintile; before 26 Nov 2026 they entered the
+  #  totals only, and a few of them with large gift values pushed e.g. Tanzania's meat gifts to 15%.)
+  t <- fam %>% filter(paese == p, q %in% paste0("Q", 1:5), !is.na(area))
   for (i in seq_len(nrow(CELLE))) {
     d <- t
     if (CELLE$q[i] != "Tutti")    d <- d %>% filter(q == CELLE$q[i])
@@ -255,7 +259,7 @@ fonte <- function(v) { tot <- sum(v$w_fam * (v$val_acq + v$val_auto + v$val_rega
     regali = 100 * sum(v$w_fam * v$val_regali) / tot, non_attribuito = 100 * sum(v$w_fam * v$val_solo_tot) / tot) }
 merc <- list()
 for (p in names(PAESI)) for (i in seq_len(nrow(CELLE))) {
-  v <- voci %>% filter(paese == p)
+  v <- voci %>% filter(paese == p, q %in% paste0("Q", 1:5), !is.na(area))     # households with a quintile and an area
   if (CELLE$q[i] != "Tutti")    v <- v %>% filter(q == CELLE$q[i])
   if (CELLE$area[i] != "Tutte") v <- v %>% filter(area == CELLE$area[i])
   for (g in c("asf", "carne", "fish", "latticini", "eggs")) {
@@ -290,7 +294,7 @@ uv <- uv %>%
   mutate(m_loc = coalesce(m_dis, m_reg, m_naz), rel_loc = log(uv / m_loc), rel_naz = log(uv / m_naz)) %>% filter(!is.na(rel_loc))
 qual <- list()
 for (p in names(PAESI)) for (i in seq_len(nrow(CELLE))) {
-  u <- uv %>% filter(paese == p)
+  u <- uv %>% filter(paese == p, q %in% paste0("Q", 1:5), !is.na(area))       # households with a quintile and an area
   if (CELLE$q[i] != "Tutti")    u <- u %>% filter(q == CELLE$q[i])
   if (CELLE$area[i] != "Tutte") u <- u %>% filter(area == CELLE$area[i])
   for (g in c("asf", "carne", "fish", "latticini", "eggs")) {
@@ -399,6 +403,7 @@ LEGGIMI <- c(
   "Qualita': valore unitario di ogni acquisto / mediana dello stesso prodotto e unita' nello stesso distretto (o regione, o paese se meno di 5 acquisti), media del logaritmo, in %.",
   "  +10% = paga il 10% in piu' dei vicini per lo stesso prodotto: segno di qualita' migliore (tagli, prodotti trasformati). La versione NAZIONALE include anche le differenze di prezzo fra luoghi.",
   "Escluse: famiglie con cibo a casa (7 giorni x 52) piu' di 3 volte il consumo totale annuo: errori di misura nei nostri valori (0,1-1% per paese, foglio controlli).",
+  "Famiglie senza quintile (senza aggregato ufficiale di consumo) o senza area: fuori da tutte le tabelle, anche dai totali (foglio controlli).",
   "Grafici: cartella 'grafici' accanto a questo file.")
 addWorksheet(wb_out, "leggimi"); writeData(wb_out, "leggimi", data.frame(Note = LEGGIMI), headerStyle = st_hdr); setColWidths(wb_out, "leggimi", 1, 180)
 worksheetOrder(wb_out) <- match(c("leggimi", names(TITOLI), "per_round", "controlli", "dati_lunghi"), names(wb_out))

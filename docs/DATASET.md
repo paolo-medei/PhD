@@ -206,3 +206,11 @@ python3 quote_2stadi_5paesi.py _allfood_wide_<data>.csv.gz food_category_map.csv
 - Malawi e Uganda: le voci "food_away" (cibo dai venditori) restano nel file con gruppo `fuori_casa`, da togliere dal budget.
 - Controllo: somme di quantita' e spesa uguali al file di partenza per round; rilettura con readxl.
 - Quote a due stadi (`quote_2stadi_5paesi.py`) dal dataset alimentare: per la Tanzania uguali a quelle dello script LA/AIDS.
+
+## LA/AIDS a due stadi per i 5 paesi (25-26 novembre 2026)
+
+`LAAIDS_2stadi.R`: lo stesso script per tutti i paesi (PAESE in testa). Categorie proteiche: manzo, ovicaprini, maiale e
+altra carne (con la carne lavorata), pollame, pesce, latte fresco, altri latticini, uova, proteine vegetali (Etiopia 8:
+niente maiale; cammello nel manzo). Effetti fissi regionali di default (`EF_REGIONE`). Differenze tra paesi solo nelle
+sezioni 1-4 (unita' con taglia, prezzi Nigeria 2018-2023 dall'ultimo acquisto, Uganda autoconsumo ai prezzi locali).
+SUR con restrizioni scritto a mano (stime uguali a systemfit a 1e-11). `confronto_LAAIDS_5paesi.py` raccoglie i risultati.

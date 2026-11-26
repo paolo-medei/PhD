@@ -109,21 +109,23 @@ for spec in ["EF", "noEF"]:
     # tabella principale: spesa totale, con e senza control function, aggregati, nuovi acquirenti
     ws = wb.create_sheet(f"principale_{spec}")
     ws["A1"] = f"TABELLA PRINCIPALE - elasticita' rispetto alla SPESA TOTALE - {lab}"; ws["A1"].font = TIT
-    ws["A2"] = ("QUAIDS a due stadi (dal 26/11/2026). Medie sulle famiglie. Spesa totale = elasticita' sul budget alimentare x theta (primo passo della control function). "
+    ws["A2"] = ("LA/AIDS a due stadi. Medie sulle famiglie. Spesa totale = elasticita' sul budget alimentare x theta (primo passo della control function). "
                 "Proteine e aggregati: non condizionate. Tra parentesi l'errore standard del bootstrap a cluster (200 repliche).")
     ws["A2"].font = SUB
     r = 4
     r = blocco(ws, r, "Con control function (principale)", S2 + AGG + S1, valore(spec, "main_expenditure", "total_expenditure", "se"))
     r = blocco(ws, r, "Senza control function", S2 + AGG + S1, valore(spec, "main_expenditure", "total_expenditure_no_CF", "se_no_CF"))
-    r = blocco(ws, r, "Con l'altro modello di domanda (LA/AIDS se il principale e' il QUAIDS)", S2 + AGG + S1,
-               valore(spec, "main_expenditure", "total_expenditure_other_model", "se_other_model"))
+    me = [leggi(p, spec, "main_expenditure") for p in PAESI]
+    if any(d is not None and "total_expenditure_other_model" in d.columns for d in me):   # only if the other model was estimated
+        r = blocco(ws, r, "Con l'altro modello di domanda (QUAIDS se il principale e' il LA/AIDS)", S2 + AGG + S1,
+                   valore(spec, "main_expenditure", "total_expenditure_other_model", "se_other_model"))
     r = blocco(ws, r, "Solo famiglie che gia' comprano (con control function)", S2 + AGG, valore(spec, "main_expenditure", "current_buyers", "current_buyers_se"),
                "il resto dell'elasticita' viene da famiglie che iniziano a comprare (o comprano piu' spesso)")
     pct = valore(spec, "main_expenditure", "pct_from_new_buyers")
     r0 = r
     r = blocco(ws, r, "Quota dell'elasticita' dovuta ai NUOVI acquirenti", S2 + AGG,
                lambda p, c: None if pct(p, c) is None else (pct(p, c)[0] / 100, None),
-               "uova: la parte 'nuovi acquirenti' esce negativa, la scomposizione non e' interpretabile")
+               "negativa = a parita' di prezzi un budget piu' alto riduce la probabilita' di consumare (es. uova e ovicaprini in Tanzania)")
     for row in ws.iter_rows(min_row=r0, max_row=r):
         for c in row[1:]:
             if isinstance(c.value, float) and c.number_format == "0.00":
@@ -138,6 +140,38 @@ for spec in ["EF", "noEF"]:
         if v is not None:
             ws.cell(r, j, float(v[0])).number_format = "0.000"
     ws.column_dimensions["A"].width = 26
+    for j in range(2, 8):
+        ws.column_dimensions[get_column_letter(j)].width = 13
+    # per quintile e area (foglio main_by_group dei risultati), con l'errore standard del bootstrap
+    ws = wb.create_sheet(f"quintili_area_{spec}")
+    ws["A1"] = f"Elasticita' rispetto alla SPESA TOTALE per quintile e area - {lab}"; ws["A1"].font = TIT
+    ws["A2"] = ("Stesso modello per paese: cambiano solo le famiglie su cui si fa la media. Quintili nazionali di consumo per adulto equivalente "
+                "(Q1 = 20% piu' povero). Tra parentesi l'errore standard del bootstrap a cluster (200 repliche). Celle con meno di 200 famiglie: imprecise.")
+    ws["A2"].font = SUB
+    r = 4
+    cache3 = {}
+
+    def gruppo(g, col, colse=None):
+        def f(p, cat, spec=spec):
+            if p not in cache3:
+                cache3[p] = leggi(p, spec, "main_by_group")
+            d = cache3[p]
+            if d is None:
+                return None
+            x = d[(d.group == g) & (d.category == cat)]
+            return None if x.empty else (x.iloc[0][col], None if (NO_SE or colse is None) else x.iloc[0][colse])
+        return f
+    TIT_G = {"Q1": "Q1 (20% piu' povero)", "Q2": "Q2", "Q3": "Q3", "Q4": "Q4", "Q5": "Q5 (20% piu' ricco)", "rural": "Famiglie rurali", "urban": "Famiglie urbane"}
+    for g, t in TIT_G.items():
+        r = blocco(ws, r, t, S2 + AGG, gruppo(g, "total_expenditure", "se"))
+    r0 = r
+    r = blocco(ws, r, "Quota dovuta ai NUOVI acquirenti - Q1", S2 + AGG, lambda p, c: (lambda v: None if v is None else (v[0] / 100, None))(gruppo("Q1", "pct_from_new_buyers")(p, c)))
+    r = blocco(ws, r, "Quota dovuta ai NUOVI acquirenti - Q5", S2 + AGG, lambda p, c: (lambda v: None if v is None else (v[0] / 100, None))(gruppo("Q5", "pct_from_new_buyers")(p, c)))
+    for row in ws.iter_rows(min_row=r0, max_row=r):                  # the two blocks of shares: percentages
+        for c in row[1:]:
+            if isinstance(c.value, float) and c.number_format == "0.00":
+                c.number_format = "0%"
+    ws.column_dimensions["A"].width = 24
     for j in range(2, 8):
         ws.column_dimensions[get_column_letter(j)].width = 13
     # robustezza
@@ -237,7 +271,10 @@ NOTE = [("Modello", "LA/AIDS a due stadi (separabilita' debole assunta): stadio 
                          "categorie e aggregati (carne, carne e pesce, latticini, tutti gli ASF). Condizionate: a budget proteico fisso. Non condizionate: "
                          "rispetto al budget alimentare, rifacendo le scelte dei due stadi."),
         ("Medie", "Dal 26/11/2026 le elasticita' sono MEDIE SULLE FAMIGLIE (derivata media / quota media). Prima erano calcolate al punto medio, che con "
-                  "Shonkwiler-Yen gonfia i prodotti comprati da poche famiglie (Tanzania manzo 2,62 contro 2,23 rispetto al cibo). Il vecchio metodo e' nei fogli robustezza_*."),
+                  "Shonkwiler-Yen gonfia i prodotti comprati da poche famiglie (Tanzania, carne rispetto alla spesa totale: 1,78 al punto medio, 1,58 come media). "
+                  "Il vecchio metodo e' nei fogli robustezza_*."),
+        ("Campione", "Quintili di consumo totale per ADULTO EQUIVALENTE (scala OCSE modificata). Escluse le famiglie con budget alimentare implausibile "
+                     "(cibo dei 7 giorni x 52 > 3 volte il consumo totale annuo). Fogli quintili_area_*: risultati per quintile e area rurale/urbana."),
         ("Letteratura", "Foglio letteratura: valori di altri studi su paesi simili, con la base (spesa alimentare o totale). Confrontare solo sulla stessa base."),
         ("Paesi", "Tanzania 2008-2020 (5 round), Etiopia 2015-2021 (3), Malawi 2010-2024 (4), Nigeria 2010-2023 (5), Uganda 2010-2019 (6)."),
         ("Codice", "confronto_LAAIDS_5paesi.py, LAAIDS_2stadi.R (github.com/paolo-medei/PhD, code/analysis).")]
@@ -249,6 +286,12 @@ for i, (a, b) in enumerate(NOTE, 3):
     ws.row_dimensions[i].height = 48
 ws.column_dimensions["A"].width = 14; ws.column_dimensions["B"].width = 140
 wb.move_sheet("leggimi", offset=-(len(wb.sheetnames) - 1))
+# Blocks without a standard error (e.g. the share of the elasticity due to new buyers, which is a ratio and has
+# no bootstrap SE): drop the "(es)" label when the whole row is empty, so the reader does not see blank SE rows.
+for w in wb.worksheets:
+    for row in w.iter_rows():
+        if row[0].value == "  (es)" and all(c.value in (None, "") for c in row[1:]):
+            row[0].value = None
 if NO_SE:   # point estimates only: remove the "(es)" labels and say so in the subtitles
     for w in wb.worksheets:
         for row in w.iter_rows():

@@ -1,6 +1,7 @@
 """Confronto fra i 5 paesi dei risultati del LA/AIDS a due stadi (LAAIDS_2stadi.R), con e senza effetti fissi regionali.
 
-USO  python3 confronto_LAAIDS_5paesi.py <cartella OUTPUT con analisi_<paese>> <data minima dei risultati, es. 2026-11-25> <uscita.xlsx>
+USO  python3 confronto_LAAIDS_5paesi.py <cartella OUTPUT con analisi_<paese>> <data minima dei risultati, es. 2026-11-25> <uscita.xlsx> [senza_es]
+     senza_es: per risultati senza bootstrap (B piccolo): gli errori standard non vengono riportati
 Legge  analisi_<P>/risultati_LAAIDS_2stadi_<P>_<data>/risultati_LAAIDS_2stadi_<P>.xlsx            (con effetti fissi)
        analisi_<P>/risultati_LAAIDS_2stadi_<P>_senza_EF_<data>/risultati_LAAIDS_2stadi_<P>.xlsx   (senza)
 """
@@ -13,6 +14,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 CART, DATA, OUT = sys.argv[1:4]
+NO_SE = len(sys.argv) > 4 and sys.argv[4] == "senza_es"      # point estimates only: do not report standard errors
 PAESI = {"TZA": "Tanzania", "ETH": "Etiopia", "MWI": "Malawi", "NGA": "Nigeria", "UGA": "Uganda"}
 NOMI = {"staples": "Staples", "proteins": "Proteine", "fruits_veg": "Frutta e verdura", "other": "Altro",
         "beef": "Manzo", "sheep_goat": "Ovicaprini", "pork_other_meat": "Maiale e altra carne", "poultry": "Pollame",
@@ -81,7 +83,7 @@ def valore(spec, foglio, col, colse=None, key="category"):
         if d is None or cat not in set(d[key]):
             return None
         x = d[d[key] == cat].iloc[0]
-        return (x[col], x[colse] if colse else None)
+        return (x[col], x[colse] if colse and not NO_SE else None)
     return f
 
 
@@ -152,7 +154,7 @@ for spec in ["EF", "noEF"]:
             if d is None:
                 return None
             x = d[(d.category == cat) & (d.system == "unconditional")]
-            return None if x.empty else (x.iloc[0][col], x.iloc[0][colse])
+            return None if x.empty else (x.iloc[0][col], None if NO_SE else x.iloc[0][colse])
         return f
     r = blocco(ws, r, "Modello principale", S2, rob("main_expenditure", "main_expenditure_se"))
     r = blocco(ws, r, "Altra categoria residua nello stadio 2", S2, rob("alt_residual_expenditure", "alt_residual_expenditure_se"))
@@ -232,12 +234,21 @@ NOTE = [("Modello", "LA/AIDS a due stadi (separabilita' debole assunta): stadio 
         ("Letteratura", "Foglio letteratura: valori di altri studi su paesi simili, con la base (spesa alimentare o totale). Confrontare solo sulla stessa base."),
         ("Paesi", "Tanzania 2008-2020 (5 round), Etiopia 2015-2021 (3), Malawi 2010-2024 (4), Nigeria 2010-2023 (5), Uganda 2010-2019 (6)."),
         ("Codice", "confronto_LAAIDS_5paesi.py, LAAIDS_2stadi.R (github.com/paolo-medei/PhD, code/analysis).")]
-ws["A1"] = "Confronto LA/AIDS a due stadi - 5 paesi"; ws["A1"].font = TIT
+ws["A1"] = "Confronto LA/AIDS a due stadi - 5 paesi" + (" - SOLO STIME PUNTUALI, SENZA BOOTSTRAP (errori standard non riportati)" if NO_SE else "")
+ws["A1"].font = TIT
 for i, (a, b) in enumerate(NOTE, 3):
     ws.cell(i, 1, a).font = BOLD
     c = ws.cell(i, 2, b); c.font = BODY; c.alignment = Alignment(wrap_text=True, vertical="top")
     ws.row_dimensions[i].height = 48
 ws.column_dimensions["A"].width = 14; ws.column_dimensions["B"].width = 140
 wb.move_sheet("leggimi", offset=-(len(wb.sheetnames) - 1))
+if NO_SE:   # point estimates only: remove the "(es)" labels and say so in the subtitles
+    for w in wb.worksheets:
+        for row in w.iter_rows():
+            for c in row:
+                if c.value == "  (es)":
+                    c.value = None
+                elif isinstance(c.value, str) and "Tra parentesi l'errore standard del bootstrap a cluster (200 repliche)." in c.value:
+                    c.value = c.value.replace("Tra parentesi l'errore standard del bootstrap a cluster (200 repliche).", "STIME PUNTUALI: errori standard non ancora disponibili (bootstrap in corso).")
 wb.save(OUT)
 print("salvato", OUT, wb.sheetnames)

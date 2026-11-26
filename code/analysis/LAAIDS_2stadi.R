@@ -1282,16 +1282,19 @@ cat("\nRobustness results added to:", file_ris, "\n")
 
 # 14.1 Elasticities with respect to the food budget of all rows, with their bootstrap replications
 #      rows: 4 stage-1 groups, the protein categories (unconditional), the aggregates
+# fetta(a, k): the replications x categories matrix of the 3-D array a for the quantity k (always a matrix, also
+# when there is only 1 replication, e.g. B_ROB = 0)
+fetta <- function(a, k) matrix(a[, , k], nrow = dim(a)[1], dimnames = dimnames(a)[1:2])
 righe14 <- c(STAGE1, STAGE2, names(AGGREGATI))
 livello <- c(rep("stage 1 group", length(STAGE1)), rep("protein category", length(STAGE2)), rep("aggregate of protein categories", length(AGGREGATI)))
 quota   <- c(E1$w, EU$w, EA[, "share"])                                    # mean shares of the FOOD budget
 cibo    <- c(E1$spesa, EU$spesa, EA[, "spesa"])                            # with control function
 cibo_B  <- c(E1_B$spesa, EU_B$spesa, EA_B[, "spesa"])                      # without control function
-b_cibo  <- cbind(boot_spesa$s1, boot_spesa$unc, boot_agg[, , "spesa"])
-b_cibo_B <- cbind(boot_var$B_s1[, , "spesa"], boot_var$B_unc[, , "spesa"], boot_agg_B[, , "spesa"])
+b_cibo  <- cbind(boot_spesa$s1, boot_spesa$unc, fetta(boot_agg, "spesa"))
+b_cibo_B <- cbind(fetta(boot_var$B_s1, "spesa"), fetta(boot_var$B_unc, "spesa"), fetta(boot_agg_B, "spesa"))
 # current buyers (intensive part), with respect to the food budget. NA for the residual groups.
 att     <- c(E1$intensiva, EU$intensiva, EA[, "intensiva"])
-b_att   <- cbind(boot_dec$s1[, , "intensiva"], boot_dec$unc[, , "intensiva"], boot_agg[, , "intensiva"])
+b_att   <- cbind(fetta(boot_dec$s1, "intensiva"), fetta(boot_dec$unc, "intensiva"), fetta(boot_agg, "intensiva"))
 
 # 14.2 Conversion to TOTAL expenditure: x theta (every replication with its own theta)
 theta_B <- fit1_B$b_cf["ln_spesa_tot"]                                     # the same first step: equal to theta
@@ -1313,10 +1316,10 @@ tab_main$note <- case_when(tab_main$category %in% c(RES1, RES2) ~ "residual grou
 # 14.3 Own-price elasticities (Marshall and Hicks), with and without control function
 marsh   <- c(diag(E1$marshall), diag(EU$marshall), EA[, "marshall"])
 hicks   <- c(diag(E1$hicks), diag(EU$hicks), EA[, "hicks"])
-b_marsh <- cbind(t(apply(boot_marsh$s1, 1, diag)), t(apply(boot_marsh$unc, 1, diag)), boot_agg[, , "marshall"])
-b_hicks <- cbind(t(apply(boot_hicks$s1, 1, diag)), t(apply(boot_hicks$unc, 1, diag)), boot_agg[, , "hicks"])
+b_marsh <- cbind(t(apply(boot_marsh$s1, 1, diag)), t(apply(boot_marsh$unc, 1, diag)), fetta(boot_agg, "marshall"))
+b_hicks <- cbind(t(apply(boot_hicks$s1, 1, diag)), t(apply(boot_hicks$unc, 1, diag)), fetta(boot_agg, "hicks"))
 marsh_B <- c(diag(E1_B$marshall), diag(EU_B$marshall), EA_B[, "marshall"])
-b_marsh_B <- cbind(boot_var$B_s1[, , "marshall"], boot_var$B_unc[, , "marshall"], boot_agg_B[, , "marshall"])
+b_marsh_B <- cbind(fetta(boot_var$B_s1, "marshall"), fetta(boot_var$B_unc, "marshall"), fetta(boot_agg_B, "marshall"))
 tab_prezzi <- data.frame(level = livello, category = righe14, mean_share_food_budget = quota,
                          marshall = marsh, marshall_se = apply(b_marsh, 2, es),
                          marshall_ci95_low = apply(b_marsh, 2, q025), marshall_ci95_high = apply(b_marsh, 2, q975),

@@ -223,3 +223,14 @@ totale** (x theta), con e senza control function, per categorie e aggregati (car
 ASF) e la scomposizione fra chi compra gia' e i nuovi acquirenti. Motivo: confronto con la letteratura, che usa quasi
 sempre la spesa totale, gruppi ampi e nessuno strumento (con questo metodo semplice i nostri dati danno valori in linea
 con la letteratura in Tanzania, Nigeria e Uganda).
+
+## Analisi descrittiva per quintile e area (26 novembre 2026)
+
+`descrittive_5paesi.R`: demografia, consumo totale e cibo (dollari PPP 2021 al giorno), quota del cibo, ASF (spesa,
+quote, famiglie che consumano), mercato/autoproduzione/regali, qualita' (valori unitari rispetto alla mediana del
+distretto), per paese x quintile nazionale di consumo per persona x area. Input: i risultati di `LAAIDS_2stadi.R`
+(ora con la colonna `quintile` e l'unita' del prezzo `pr_u`), `famiglie_extra_5paesi.csv` (cibo ufficiale e anno
+dell'intervista, da `famiglie_extra_5paesi.py`; contiene gli identificativi: solo sul PC) e `data_ext/wb_ppp_cpi.csv`
+(CPI e PPP 2021 della Banca Mondiale). Escluse dalle descrittive le famiglie con cibo dei 7 giorni x 52 > 3 volte il
+consumo totale (0,1-1,2% per paese). `LAAIDS_2stadi.R` sezione 10.4b: elasticita' per quintile e area (stesso modello,
+medie dentro ogni gruppo), fogli `main_by_quintile` e `main_by_group`.

@@ -510,6 +510,20 @@ if (EF_REGIONE) {
   cat("Regional fixed effects:", length(livelli) - 1, "dummies\n")
 }
 
+# 8.7c CONSUMPTION QUINTILES (used for the results by quintile, sections 10.4b and 14, and for the descriptive tables)
+#      Quintile of total consumption PER PERSON (official aggregate / household size), within each round, with
+#      weights = survey weight x household size, so that every quintile holds 20% of the PEOPLE of the country.
+#      Quintile 1 = the poorest 20%. Households without a weight still get the quintile of their consumption.
+quintile_pesato <- function(x, w) {
+  ok <- !is.na(x) & !is.na(w) & w > 0
+  o  <- order(x[ok]); cw <- cumsum(w[ok][o]) / sum(w[ok])
+  tagli <- sapply(c(0.2, 0.4, 0.6, 0.8), function(p) x[ok][o][which(cw >= p)[1]])    # the 4 cut-off points
+  findInterval(x, tagli, left.open = TRUE) + 1                                        # 1 ... 5 (NA stays NA)
+}
+dati <- dati %>% group_by(round) %>% mutate(quintile = quintile_pesato(spesa_totale_annua / ampiezza, peso * ampiezza)) %>%
+  ungroup() %>% as.data.frame()
+cat("Households by quintile (all rounds):\n"); print(table(dati$quintile, useNA = "ifany"))
+
 # 8.8 Clean-up: the large intermediate objects are no longer needed (the bootstrap needs memory)
 rm(dati_grezzi, griglia, pp, pg, pa, pr, pq, pt, pd); invisible(gc())
 
@@ -760,7 +774,7 @@ stima_laaids <- function(d, S, stampa = FALSE) {
   alfa[S$res] <- 1 - sum(alfa[S$GS]); beta[S$res] <- -sum(beta[S$GS]); gam[S$res, ] <- -colSums(gam[S$GS, , drop = FALSE])
   if (stampa) cat("  checks: symmetry max|gamma - t(gamma)| =", signif(max(abs(gam - t(gam))), 3),
                   "  homogeneity max|row sum of gamma| =", signif(max(abs(rowSums(gam))), 3), "\n")
-  tieni <- c("round", paste0(S$w, S$gruppi), paste0("t_", S$GS), S$PREL, S$x_reale, DEMO, ROUND, "v_hat")
+  tieni <- c("round", "quintile", paste0(S$w, S$gruppi), paste0("t_", S$GS), S$PREL, S$x_reale, DEMO, ROUND, "v_hat")
   list(d = d[, tieni], S = S, probit = probit, b = b, alfa = alfa, beta = beta, delta = delta, gam = gam,
        strumenti = strumenti, es_systemfit = es_systemfit, b_cf = b_cf)
 }
@@ -900,6 +914,7 @@ elasticita_incondizionate <- function(E1, E2) {
 #   current buyers:        sum over k in A of s_k x (current-buyer part of E_k)
 aggrega <- function(EU) {
   t(sapply(AGGREGATI, function(A) {
+    A <- A[EU$w[A] > 0]                     # a category nobody buys in a group of households (10.4b) has no elasticity
     s <- EU$w[A] / sum(EU$w[A])
     c(share = sum(EU$w[A]), spesa = sum(s * EU$spesa[A]), marshall = sum(s * rowSums(EU$marshall[A, A, drop = FALSE])),
       hicks = sum(s * rowSums(EU$hicks[A, A, drop = FALSE])), intensiva = sum(s * EU$intensiva[A]))
@@ -934,6 +949,40 @@ cat("  adding-up unconditional: sum_k w_k E_k + sum_s w_s E_s =",
     round(sum(EU$w * EU$spesa) + sum(E1$w[ALTRI1] * E1$spesa[ALTRI1]), 4), "(must be 1)\n")
 cat("  homogeneity (max |row sum of Marshall + expenditure elasticity|): stage 1", signif(max(abs(rowSums(E1$marshall) + E1$spesa)), 3),
     " stage 2", signif(max(abs(rowSums(E2$marshall) + E2$spesa)), 3), " unconditional", signif(max(abs(rowSums(EU$marshall) + EU$spesa)), 3), "\n")
+
+# 10.4b RESULTS BY QUINTILE AND AREA (same model, averages within each group of households)
+# The parameters are those of the whole sample: what changes between groups are the households over which the
+# derivatives are averaged (their shares, their probability of buying, their prices). So a group of poor households
+# with low shares and low probabilities gets higher elasticities, as the descriptive data show. The quintiles
+# (8.7c) are national; area = rural / urban. Averages are over the sample households (unweighted, like the model).
+# Cells: Q1 ... Q5, rural, urban, and the 10 cells quintile x area (some urban cells of the poorest quintiles are
+# small: look at n_households in the results).
+GRUPPI    <- c(paste0("Q", 1:5), "rural", "urban", paste0("Q", rep(1:5, each = 2), "_", c("rural", "urban")))
+RIGHE_TAB <- c(STAGE1, STAGE2, names(AGGREGATI))        # rows of the tables: stage-1 groups, categories, aggregates
+MISURE    <- c("spesa", "intensiva", "marshall", "hicks")
+filtro <- function(d, g) {                               # TRUE for the households of group g
+  q <- suppressWarnings(as.integer(sub("^Q([1-5]).*$", "\\1", g)))
+  a <- if (grepl("rural", g)) 1 else if (grepl("urban", g)) 0 else NA
+  (is.na(q) | d$quintile %in% q) & (is.na(a) | d$rurale == a)
+}
+# one group -> matrix RIGHE_TAB x MISURE (food-budget elasticities; x theta later for total expenditure)
+per_gruppo <- function(f1, f2, g) {
+  e1 <- elasticita(f1, f1$d[filtro(f1$d, g), ]); e2 <- elasticita(f2, f2$d[filtro(f2$d, g), ])
+  eu <- elasticita_incondizionate(e1, e2); ea <- aggrega(eu)
+  m <- cbind(spesa     = c(e1$spesa, eu$spesa, ea[, "spesa"]),
+             intensiva = c(e1$intensiva, eu$intensiva, ea[, "intensiva"]),
+             marshall  = c(diag(e1$marshall), diag(eu$marshall), ea[, "marshall"]),
+             hicks     = c(diag(e1$hicks), diag(eu$hicks), ea[, "hicks"]))
+  m[!is.finite(m)] <- NA                                 # a category nobody in the group buys has no elasticity
+  rownames(m) <- RIGHE_TAB; m
+}
+E_gruppi <- sapply(GRUPPI, function(g) per_gruppo(fit1, fit2, g), simplify = "array")   # RIGHE_TAB x MISURE x GRUPPI
+N_gruppi <- sapply(GRUPPI, function(g) sum(filtro(fit2$d, g)))                          # households (stage 2) per group
+quota_gr <- sapply(GRUPPI, function(g) { e1 <- elasticita(fit1, fit1$d[filtro(fit1$d, g), ]); e2 <- elasticita(fit2, fit2$d[filtro(fit2$d, g), ])
+  wP <- unname(e1$w["proteins"]); c(e1$w, e2$w * wP, sapply(AGGREGATI, function(A) sum(e2$w[A]) * wP)) })   # mean shares of the food budget
+rownames(quota_gr) <- RIGHE_TAB
+cat("\nUnconditional expenditure elasticities (food budget) by quintile:\n")
+print(round(E_gruppi[STAGE2, "spesa", paste0("Q", 1:5)], 2))
 
 # 10.5 Same estimates, round by round (averaged over the households of each round)
 E_round <- list(s1 = list(), s2 = list(), unc = list())
@@ -971,6 +1020,7 @@ boot_dec   <- lapply(list(s1 = STAGE1, s2 = STAGE2, unc = STAGE2), function(g) a
                                                      dimnames = list(NULL, g, c("intensiva", "partecipazione"))))
 boot_agg   <- array(NA, c(B, length(AGGREGATI), ncol(EA)), dimnames = list(NULL, names(AGGREGATI), colnames(EA)))
 boot_pm    <- lapply(SISTEMI, function(s) array(NA, c(B, length(s$righe), 2), dimnames = list(NULL, s$righe, c("spesa", "marshall"))))
+boot_gr    <- array(NA, c(B, length(RIGHE_TAB), length(MISURE), length(GRUPPI)), dimnames = list(NULL, RIGHE_TAB, MISURE, GRUPPI))   # by quintile and area
 set.seed(SEME)
 righe1  <- split(seq_len(nrow(stima1)), stima1$cluster)     # rows of each cluster, stage 1
 righe2  <- split(seq_len(nrow(stima2)), stima2$cluster)     # rows of each cluster, stage 2
@@ -998,6 +1048,7 @@ for (r in seq_len(B)) {
   e_pm <- list(s1 = elasticita(f1, f1$d, "punto_medio"), s2 = elasticita(f2, f2$d, "punto_medio"))
   e_pm$unc <- elasticita_incondizionate(e_pm$s1, e_pm$s2)
   for (s in names(SISTEMI)) boot_pm[[s]][r, , ] <- cbind(e_pm[[s]]$spesa, diag(e_pm[[s]]$marshall))
+  boot_gr[r, , , ] <- sapply(GRUPPI, function(g) per_gruppo(f1, f2, g), simplify = "array")
   for (k in seq_along(ANNI)) {
     e_r <- list(s1 = elasticita(f1, f1$d[f1$d$round == ANNI[k], ]), s2 = elasticita(f2, f2$d[f2$d$round == ANNI[k], ]))
     e_r$unc <- elasticita_incondizionate(e_r$s1, e_r$s2)
@@ -1104,11 +1155,11 @@ fogli$s1_probit <- pb(fit1);                 fogli$s2_probit <- pb(fit2)
 for (s in names(fogli)) { addWorksheet(wb, s); writeData(wb, s, fogli[[s]]) }
 saveWorkbook(wb, file.path(USCITA, paste0("risultati_LAAIDS_2stadi_", PAESE, ".xlsx")), overwrite = TRUE)
 write.csv(dati,  file.path(USCITA, "famiglie_quote_prezzi.csv"), row.names = FALSE)           # estimation dataset, with the flags
-write.csv(voci %>% select(round, hhid, codice_voce, voce, categoria, stadio1, stadio2, cella, uv, flag_uv_anomalo, liv_prezzo_auto, liv_prezzo_regali,
+write.csv(voci %>% select(round, hhid, codice_voce, voce, categoria, stadio1, stadio2, cella, uv, pr_u, flag_uv_anomalo, liv_prezzo_auto, liv_prezzo_regali,
                           val_acq, val_auto, val_regali, val_solo_tot, val_tot, flag_acq_rivalutato, flag_imputato, flag_senza_valore),
           file.path(USCITA, "voci_valori_flag.csv"), row.names = FALSE)
 saveRDS(list(spesa = boot_spesa, marshall = boot_marsh, hicks = boot_hicks, per_round = boot_round, aggregati = boot_agg,
-             punto_medio = boot_pm), file.path(USCITA, "repliche_bootstrap.rds"))
+             punto_medio = boot_pm, per_gruppo = boot_gr, theta = boot_theta), file.path(USCITA, "repliche_bootstrap.rds"))
 cat("\nResults saved in:", USCITA, "\n")
 
 
@@ -1186,6 +1237,7 @@ fit1_B <- stima_laaids(stima1, SPEC1_B, stampa = TRUE)
 fit2_B <- stima_laaids(stima2, SPEC2_B, stampa = TRUE)
 E1_B <- elasticita(fit1_B, fit1_B$d); E2_B <- elasticita(fit2_B, fit2_B$d); EU_B <- elasticita_incondizionate(E1_B, E2_B)
 EA_B <- aggrega(EU_B)                                                     # aggregates without control function
+E_gruppi_B <- sapply(GRUPPI, function(g) per_gruppo(fit1_B, fit2_B, g), simplify = "array")   # by quintile and area (point estimates)
 
 # 13.5 BOOTSTRAP OF THE TWO VARIANTS
 # Same seed as section 11, so every replication uses the SAME clusters as the main bootstrap: the differences between
@@ -1334,19 +1386,47 @@ print(tab_main %>% select(category, total_expenditure, se, total_expenditure_no_
 cat("Own-price elasticities (Marshall):\n")
 print(tab_prezzi %>% select(category, marshall, marshall_se, marshall_no_CF) %>% mutate(across(where(is.numeric), ~ round(.x, 2))))
 
-# 14.4 SAVE: the two sheets go right after "notes", at the front of the results file
+# 14.3b RESULTS BY QUINTILE AND AREA (section 10.4b): one row per group x category, and a compact view
+#       total_expenditure = food-budget elasticity x theta (theta is the same for all groups: an approximation)
+info_gr <- data.frame(group = GRUPPI, quintile = ifelse(grepl("^Q", GRUPPI), sub("^Q([1-5]).*$", "\\1", GRUPPI), "all"),
+                      area = ifelse(grepl("rural", GRUPPI), "rural", ifelse(grepl("urban", GRUPPI), "urban", "all")),
+                      n_households = N_gruppi[GRUPPI], row.names = NULL)
+tab_gruppi <- bind_rows(lapply(GRUPPI, function(g) {
+  bs <- boot_gr[, , "spesa", g, drop = FALSE] * boot_theta                 # total-expenditure elasticities, each replication
+  bi <- boot_gr[, , "intensiva", g, drop = FALSE] * boot_theta
+  bm <- boot_gr[, , "marshall", g, drop = FALSE]
+  tot <- E_gruppi[, "spesa", g] * theta; att <- E_gruppi[, "intensiva", g] * theta
+  data.frame(info_gr[info_gr$group == g, ], level = livello, category = RIGHE_TAB, mean_share_food_budget = quota_gr[, g],
+             total_expenditure = tot, se = apply(bs, 2, es), ci95_low = apply(bs, 2, q025), ci95_high = apply(bs, 2, q975),
+             total_expenditure_no_CF = E_gruppi_B[, "spesa", g] * theta_B, food_budget = E_gruppi[, "spesa", g],
+             current_buyers = att, current_buyers_se = apply(bi, 2, es), pct_from_new_buyers = 100 * (tot - att) / tot,
+             own_marshall = E_gruppi[, "marshall", g], own_marshall_se = apply(bm, 2, es), own_hicks = E_gruppi[, "hicks", g],
+             row.names = NULL)
+}))
+tab_gruppi$note <- ifelse(tab_gruppi$n_households < 200, "fewer than 200 households in the group: imprecise", "")
+vista_q <- data.frame(level = livello, category = RIGHE_TAB, round(E_gruppi[, "spesa", c(paste0("Q", 1:5), "rural", "urban")] * theta, 3),
+                      check.names = FALSE, row.names = NULL)
+cat("\n14.3b Elasticities with respect to TOTAL expenditure by quintile and area:\n"); print(vista_q, row.names = FALSE)
+
+# 14.4 SAVE: the sheets go right after "notes", at the front of the results file
 nota14 <- c(
   "main_expenditure: total_expenditure = elasticity with respect to TOTAL household expenditure = food-budget elasticity x theta",
   "   (theta = elasticity of the real food budget to total expenditure, first step of the stage-1 control function). _no_CF = without control function.",
   "   current_buyers = part of the elasticity from households that already buy (in both stages); new_buyers = the rest (households that start buying",
   "   or buy more often within the 7 days). Aggregates: weighted means of the categories (weights = shares in the food budget).",
-  "main_own_price: own-price elasticities; protein categories and aggregates unconditional; aggregate = all prices of the group change together.")
+  "main_own_price: own-price elasticities; protein categories and aggregates unconditional; aggregate = all prices of the group change together.",
+  "main_by_quintile: elasticities with respect to TOTAL expenditure by national quintile of consumption per person (Q1 = poorest 20% of people) and area.",
+  "main_by_group: the same by quintile, area and quintile x area, with bootstrap se, no-CF values, current/new buyers and own-price elasticities.",
+  "   Same model for all groups: the averages are taken over the households of each group (section 10.4b). Groups under 200 households: imprecise.")
 wb <- loadWorkbook(file_ris)
-for (s in c("main_expenditure", "main_own_price")) if (s %in% names(wb)) removeWorksheet(wb, s)
+for (s in c("main_expenditure", "main_own_price", "main_by_quintile", "main_by_group")) if (s %in% names(wb)) removeWorksheet(wb, s)
 addWorksheet(wb, "main_expenditure"); writeData(wb, "main_expenditure", tab_main)
 addWorksheet(wb, "main_own_price");   writeData(wb, "main_own_price", tab_prezzi)
+addWorksheet(wb, "main_by_quintile"); writeData(wb, "main_by_quintile", vista_q)
+addWorksheet(wb, "main_by_group");    writeData(wb, "main_by_group", tab_gruppi)
 writeData(wb, "notes", data.frame(notes = nota14), startRow = nrow(nota) + 3, colNames = FALSE)
 nomi_fogli <- names(wb)
-worksheetOrder(wb) <- match(c("notes", "main_expenditure", "main_own_price", setdiff(nomi_fogli, c("notes", "main_expenditure", "main_own_price"))), nomi_fogli)
+PRIMI <- c("notes", "main_expenditure", "main_own_price", "main_by_quintile", "main_by_group")
+worksheetOrder(wb) <- match(c(PRIMI, setdiff(nomi_fogli, PRIMI)), nomi_fogli)
 saveWorkbook(wb, file_ris, overwrite = TRUE)
 cat("\nMain table added to:", file_ris, "\n")

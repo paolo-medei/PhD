@@ -1,8 +1,10 @@
 ###############################################################################
-##  TWO-STAGE QUAIDS (and LA/AIDS), ONE COUNTRY AT A TIME: TANZANIA, ETHIOPIA, MALAWI, NIGERIA, UGANDA
-##  Since 26 November 2026 the main model is the QUAIDS (Banks, Blundell and Lewbel 1997, setting MODELLO, section 0):
-##  the LA/AIDS share equations plus a squared budget term, so that the expenditure effect can bend with income.
-##  Price index a(p): Stone index (INDICE_A = "stone"), b(p) exact, estimated by iterations (section 9.5).
+##  TWO-STAGE LA/AIDS (and QUAIDS), ONE COUNTRY AT A TIME: TANZANIA, ETHIOPIA, MALAWI, NIGERIA, UGANDA
+##  The main model is the LA/AIDS (setting MODELLO = "LAAIDS", section 0). The QUAIDS (Banks, Blundell and Lewbel 1997:
+##  the LA/AIDS share equations plus a squared budget term, so that the expenditure effect can bend with income) is
+##  available with MODELLO = "QUAIDS" and is always estimated as a robustness check (section 13.4b).
+##  QUAIDS price index a(p): Stone index (INDICE_A = "stone"), b(p) exact, estimated by iterations (section 9.5).
+##  Test of 26 November 2026 (Tanzania): QUAIDS and LA/AIDS give almost the same elasticities (beef 1.49 vs 1.48).
 ##  Choose the country in section 0 (PAESE <- "TZA", "ETH", "MWI", "NGA" or "UGA"): it is the only line to change.
 ##  From the harmonised raw data to conditional and unconditional elasticities
 ##  Teaching script: run it one section at a time (select the lines in RStudio and press Ctrl+Enter).
@@ -92,8 +94,8 @@ library(tidyr)
 library(openxlsx)
 
 PAESE  <- "TZA"   # <-- the country: "TZA" Tanzania, "ETH" Ethiopia, "MWI" Malawi, "NGA" Nigeria, "UGA" Uganda
-MODELLO <- "QUAIDS"   # "QUAIDS" (main, Banks, Blundell and Lewbel 1997) or "LAAIDS" (the linear model used until 26 November
-                      # 2026). The other model is always estimated too, as a robustness check (section 13.4b).
+MODELLO <- "LAAIDS"   # "LAAIDS" (main model) or "QUAIDS" (Banks, Blundell and Lewbel 1997).
+                      # The other model is always estimated too, as a robustness check (section 13.4b).
 EF_REGIONE <- TRUE    # TRUE: region dummies (regional fixed effects) in all equations of both stages (section 8.7b).
                       # Recommended: without them, prices also pick up regional differences in tastes (Uganda: the
                       # own-price elasticity of proteins comes out positive). FALSE = the specification used before.
@@ -104,7 +106,7 @@ FILE   <- file.path(CARTELLA, paste0("analisi_", PAESE),
                       MWI = "MWI_dati_grezzi_LAAIDS_2026-11-25.xlsx", NGA = "NGA_dati_grezzi_LAAIDS_2026-11-25.xlsx",
                       UGA = "UGA_dati_grezzi_LAAIDS_2026-11-25.xlsx")[PAESE])
 USCITA <- file.path(dirname(FILE), paste0("risultati_LAAIDS_2stadi_", PAESE, if (EF_REGIONE) "" else "_senza_EF",
-                                           if (MODELLO == "QUAIDS") "" else "_modello_LAAIDS", "_", Sys.Date()))   # new folder: the input data are never touched
+                                           if (MODELLO == "LAAIDS") "" else "_modello_QUAIDS", "_", Sys.Date()))   # new folder: the input data are never touched
 # Share of members under 15 of every household (for the adult-equivalent scale, 8.7c), built by famiglie_extra_5paesi.py
 EXTRA  <- file.path(CARTELLA, "dataset", "famiglie_extra_5paesi.csv")
 ESCLUDI_ANOMALE   <- TRUE    # TRUE: leave out households whose 7-day food budget x 52 is more than 3 times their total
@@ -637,7 +639,7 @@ for (r in ROUND) dati[[r]] <- as.numeric(dati$round == as.numeric(sub("r", "", r
 # 9.2 The two specs. prepara_spec adds the derived pieces: estimated groups (all but the residual), relative
 #     prices, regressors, equation names, symmetry restrictions.
 #     cf = TRUE (default): with the control function. cf = FALSE is used only in the robustness check of section 13.
-#     quaids = TRUE when MODELLO = "QUAIDS" (default); the robustness check of section 13.4b sets the other model.
+#     quaids = TRUE when MODELLO = "QUAIDS"; the robustness check of section 13.4b sets the other model.
 prepara_spec <- function(S) {
   S$input <- S                                                  # the fields as given (to build variants in section 13)
   if (is.null(S$cf)) S$cf <- TRUE

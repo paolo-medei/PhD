@@ -127,7 +127,9 @@ SEME   <- 2026  # random seed: with the same seed the bootstrap always gives the
 # The tables of section 14 need at least 2 bootstrap replications (with B = 0 the script stops there with an
 # obscure error). For point estimates only use B = 2 and ignore the standard errors.
 if (B < 2) stop("B must be at least 2 (use B = 2 for point estimates only; the standard errors are then meaningless)")
-MAX_ITER <- 200   # QUAIDS: maximum number of iterations (section 9.5); in the bootstrap they start from the estimates
+MAX_ITER <- 500   # QUAIDS: maximum number of iterations (section 9.5); in the bootstrap they start from the estimates
+ITER_SMORZA <- 100 # QUAIDS: after this many iterations without convergence the step is halved (damping, section 9.5),
+                   # and halved again every ITER_SMORZA iterations. The whole-sample estimates need 7-76 iterations.
 TOLL     <- 1e-6  # QUAIDS: the iterations stop when no parameter changes by more than this
 INDICE_A <- "stone" # QUAIDS price index a(p): "stone" (Stone index with the mean shares, as in the LA/AIDS; b(p) exact)
                     # or "translog" (exact a(p) as in Banks et al. 1997). With "translog" the iterations of section 9.5
@@ -871,14 +873,30 @@ stima_laaids <- function(d, S, stampa = FALSE) {
                                  b = exp(as.vector(lnp %*% par$beta)))
     par <- if (!is.null(S$init)) S$init else                      # start: Stone index (mean shares) and b(p) = 1
       list(alfa_a = S$wbar[S$gruppi], gam = matrix(0, G, G), beta = setNames(rep(0, G), S$gruppi), lambda = setNames(rep(0, G), S$gruppi))
+    # Damping (added 27 November 2026). In about 1 bootstrap replication out of 15 the plain iterations do not converge:
+    # they jump back and forth between two values of beta for ever (a "2-cycle"; in Ethiopia, replication 10, stage 2,
+    # the largest change stays at 0.243 for 190 iterations). The cure is the standard one for fixed-point iterations:
+    # move only part of the way towards the new estimate,
+    #     beta_next = beta_old + omega * (beta_new - beta_old),
+    # with omega = 1 (plain iterations, as before) for the first ITER_SMORZA iterations, then 1/2, then 1/4, then 1/8,
+    # halving every ITER_SMORZA iterations. Damping does NOT change the solution: at the solution beta_new = beta_old,
+    # whatever omega. It only changes the path to it. The stopping rule is the same (the FULL step beta_new - beta_old
+    # below TOLL), and all the whole-sample estimates converge in less than ITER_SMORZA iterations, so they are unchanged.
+    omega <- 1
     for (it in seq_len(MAX_ITER)) {
       ix <- indici(par)
       d$L_quaids <- d[[S$ln_m]] - ix$lna; d$Q_quaids <- d$L_quaids^2 / ix$b
       nuovo <- stima_quote(d, stampa = FALSE)
       cambio <- if (INDICE_A == "translog") max(abs(c(nuovo$alfa_a - par$alfa_a, nuovo$gam - par$gam, nuovo$beta - par$beta, nuovo$lambda - par$lambda)))
                 else max(abs(c(nuovo$beta - par$beta, nuovo$lambda - par$lambda)))     # only b(p) changes between iterations
-      par <- nuovo
-      if (cambio < TOLL) break
+      if (cambio < TOLL) { par <- nuovo; break }
+      if (it %% ITER_SMORZA == 0) omega <- omega / 2                # not converged yet: damp (more)
+      vecchio <- par; par <- nuovo
+      if (omega < 1) {                                               # only the parameters that enter a(p) and b(p) move partially
+        par$beta <- vecchio$beta + omega * (nuovo$beta - vecchio$beta)
+        if (INDICE_A == "translog") { par$alfa_a <- vecchio$alfa_a + omega * (nuovo$alfa_a - vecchio$alfa_a)
+                                      par$gam    <- vecchio$gam    + omega * (nuovo$gam    - vecchio$gam) }
+      }
     }
     iterazioni <- it; convergenza <- cambio < TOLL
     ix <- indici(par)                                              # indices with the final parameters

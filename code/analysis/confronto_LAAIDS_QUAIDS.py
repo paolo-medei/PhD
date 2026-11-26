@@ -8,8 +8,9 @@
 # the decline across quintiles is tested rather than assumed.
 #
 # Usage: python3 confronto_LAAIDS_QUAIDS.py <folder with analisi_<P>/> <date of the LA/AIDS runs> <output.xlsx>
-# The QUAIDS runs are point estimates (no bootstrap); the SE of lambda is the SUR one, which ignores that Phi, phi and
-# v_hat are estimated: read its t-value as indicative only.
+# Both models have cluster-bootstrap standard errors (200 replications) when the full QUAIDS runs are available
+# (folders ..._modello_QUAIDS_<date>); the SE of lambda is the SUR one, which ignores that Phi, phi and v_hat are
+# estimated: read its t-value as indicative only.
 import glob, sys
 import pandas as pd
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -47,7 +48,7 @@ for p, nome in PAESI.items():
             continue
         r = {"Paese": nome, "Categoria": NOMI[k],
              "LA/AIDS": m_la.loc[k, "total_expenditure"], "LA/AIDS es": m_la.loc[k, "se"],
-             "QUAIDS": m_qu.loc[k, "total_expenditure"]}
+             "QUAIDS": m_qu.loc[k, "total_expenditure"], "QUAIDS es": m_qu.loc[k, "se"]}
         r["Differenza"] = r["QUAIDS"] - r["LA/AIDS"]
         r["Differenza in es"] = r["Differenza"] / r["LA/AIDS es"] if r["LA/AIDS es"] else None
         r["Prezzo LA/AIDS"] = pr_la.loc[k, "marshall"] if k in pr_la.index else None
@@ -73,7 +74,7 @@ for p, nome in PAESI.items():
 
 R, QT, L, C = pd.DataFrame(righe), pd.DataFrame(quint), pd.DataFrame(lam), pd.DataFrame(conv)
 note = pd.DataFrame({"Nota": [
-    "Confronto LA/AIDS (modello principale, con bootstrap) e QUAIDS (stime puntuali), stesso script, stessi dati, effetti fissi regionali.",
+    "Confronto QUAIDS (modello principale dal 26/11/2026) e LA/AIDS, stesso script, stessi dati, effetti fissi regionali; errori standard: bootstrap a cluster, 200 repliche.",
     "Elasticita' rispetto alla spesa totale, medie sulle famiglie. 'Differenza in es' = (QUAIDS - LA/AIDS) / errore standard bootstrap del LA/AIDS.",
     "Perche' il test: nel LA/AIDS l'elasticita' e' circa 1 + beta/w, quindi il calo da Q1 a Q5 e' in parte imposto dalla forma funzionale.",
     "Il QUAIDS aggiunge lambda (ln x)^2 / b(p) nelle quote e il quadrato del budget nei probit: l'elasticita' puo' cambiare con il reddito liberamente.",

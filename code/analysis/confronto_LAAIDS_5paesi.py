@@ -1,9 +1,10 @@
-"""Confronto fra i 5 paesi dei risultati del LA/AIDS a due stadi (LAAIDS_2stadi.R), con e senza effetti fissi regionali.
+"""Confronto fra i 5 paesi dei risultati del sistema di domanda a due stadi (LAAIDS_2stadi.R), con e senza effetti fissi regionali.
 
-USO  python3 confronto_LAAIDS_5paesi.py <cartella OUTPUT con analisi_<paese>> <data minima dei risultati, es. 2026-11-25> <uscita.xlsx> [senza_es]
+USO  python3 confronto_LAAIDS_5paesi.py <cartella OUTPUT con analisi_<paese>> <data minima dei risultati, es. 2026-11-25> <uscita.xlsx> [senza_es] [QUAIDS]
      senza_es: per risultati senza bootstrap (B piccolo): gli errori standard non vengono riportati
-Legge  analisi_<P>/risultati_LAAIDS_2stadi_<P>_<data>/risultati_LAAIDS_2stadi_<P>.xlsx            (con effetti fissi)
-       analisi_<P>/risultati_LAAIDS_2stadi_<P>_senza_EF_<data>/risultati_LAAIDS_2stadi_<P>.xlsx   (senza)
+     QUAIDS:   legge i risultati del QUAIDS (cartelle ..._modello_QUAIDS_<data>) invece di quelli del LA/AIDS
+Legge  analisi_<P>/risultati_LAAIDS_2stadi_<P>[_modello_QUAIDS]_<data>/risultati_LAAIDS_2stadi_<P>.xlsx            (con effetti fissi)
+       analisi_<P>/risultati_LAAIDS_2stadi_<P>_senza_EF[_modello_QUAIDS]_<data>/risultati_LAAIDS_2stadi_<P>.xlsx   (senza)
 """
 import glob
 import os
@@ -14,7 +15,9 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 CART, DATA, OUT = sys.argv[1:4]
-NO_SE = len(sys.argv) > 4 and sys.argv[4] == "senza_es"      # point estimates only: do not report standard errors
+NO_SE = "senza_es" in sys.argv[4:]      # point estimates only: do not report standard errors
+QUAIDS = "QUAIDS" in sys.argv[4:]       # results of the QUAIDS (folders with the suffix _modello_QUAIDS)
+MOD = "QUAIDS" if QUAIDS else "LA/AIDS"; SUF = "_modello_QUAIDS" if QUAIDS else ""
 PAESI = {"TZA": "Tanzania", "ETH": "Etiopia", "MWI": "Malawi", "NGA": "Nigeria", "UGA": "Uganda"}
 NOMI = {"staples": "Staples", "proteins": "Proteine", "fruits_veg": "Frutta e verdura", "other": "Altro",
         "beef": "Manzo", "sheep_goat": "Ovicaprini", "pork_other_meat": "Maiale e altra carne", "poultry": "Pollame",
@@ -28,7 +31,7 @@ SPEC = {"EF": ("con effetti fissi regionali (principale)", ""), "noEF": ("senza 
 
 def leggi(p, spec, foglio):
     # the most recent results folder of that country and specification, dated DATA or later (a run can end after midnight)
-    cand = sorted(glob.glob(os.path.join(CART, f"analisi_{p}", f"risultati_LAAIDS_2stadi_{p}{SPEC[spec][1]}_20??-??-??")))
+    cand = sorted(glob.glob(os.path.join(CART, f"analisi_{p}", f"risultati_LAAIDS_2stadi_{p}{SPEC[spec][1]}{SUF}_20??-??-??")))
     cand = [c for c in cand if c[-10:] >= DATA and os.path.exists(os.path.join(c, f"risultati_LAAIDS_2stadi_{p}.xlsx"))]
     if not cand:
         return None
@@ -92,7 +95,7 @@ for spec in ["EF", "noEF"]:
     lab = SPEC[spec][0]
     # elasticita'
     ws = wb.create_sheet(f"elasticita_{spec}")
-    ws["A1"] = f"Elasticita' del LA/AIDS a due stadi - {lab}"; ws["A1"].font = TIT
+    ws["A1"] = f"Elasticita' del {MOD} a due stadi - {lab}"; ws["A1"].font = TIT
     ws["A2"] = "Rispetto al budget alimentare (o proteico). Medie sulle famiglie. Tra parentesi l'errore standard del bootstrap a cluster (200 repliche). - = categoria non presente (Etiopia: niente maiale)."
     ws["A2"].font = SUB
     r = 4
@@ -109,15 +112,16 @@ for spec in ["EF", "noEF"]:
     # tabella principale: spesa totale, con e senza control function, aggregati, nuovi acquirenti
     ws = wb.create_sheet(f"principale_{spec}")
     ws["A1"] = f"TABELLA PRINCIPALE - elasticita' rispetto alla SPESA TOTALE - {lab}"; ws["A1"].font = TIT
-    ws["A2"] = ("LA/AIDS a due stadi. Medie sulle famiglie. Spesa totale = elasticita' sul budget alimentare x theta (primo passo della control function). "
-                "Proteine e aggregati: non condizionate. Tra parentesi l'errore standard del bootstrap a cluster (200 repliche).")
+    ws["A2"] = (f"{MOD} a due stadi. Medie sulle famiglie. Spesa totale = elasticita' sul budget alimentare x theta (primo passo della control function). "
+                "Proteine e aggregati: non condizionate. Tra parentesi l'errore standard del bootstrap a cluster (200 repliche)."
+                + (" Blocco senza control function: bootstrap di robustezza, 100 repliche con il QUAIDS (fuori tempo con 200)." if QUAIDS else ""))
     ws["A2"].font = SUB
     r = 4
     r = blocco(ws, r, "Con control function (principale)", S2 + AGG + S1, valore(spec, "main_expenditure", "total_expenditure", "se"))
     r = blocco(ws, r, "Senza control function", S2 + AGG + S1, valore(spec, "main_expenditure", "total_expenditure_no_CF", "se_no_CF"))
     me = [leggi(p, spec, "main_expenditure") for p in PAESI]
     if any(d is not None and "total_expenditure_other_model" in d.columns for d in me):   # only if the other model was estimated
-        r = blocco(ws, r, "Con l'altro modello di domanda (QUAIDS se il principale e' il LA/AIDS)", S2 + AGG + S1,
+        r = blocco(ws, r, "Con l'altro modello di domanda (" + ("LA/AIDS" if QUAIDS else "QUAIDS") + ")", S2 + AGG + S1,
                    valore(spec, "main_expenditure", "total_expenditure_other_model", "se_other_model"))
     r = blocco(ws, r, "Solo famiglie che gia' comprano (con control function)", S2 + AGG, valore(spec, "main_expenditure", "current_buyers", "current_buyers_se"),
                "il resto dell'elasticita' viene da famiglie che iniziano a comprare (o comprano piu' spesso)")
@@ -260,7 +264,8 @@ for i, x in enumerate(LETT, 5):
 for j, w in enumerate([34, 10, 14, 22, 58, 58], 1):
     ws.column_dimensions[get_column_letter(j)].width = w
 ws = wb.create_sheet("leggimi")
-NOTE = [("Modello", "LA/AIDS a due stadi (separabilita' debole assunta): stadio 1 budget alimentare a casa fra staples, proteine, frutta e verdura, altro; "
+NOTE = [("Modello", MOD + " a due stadi (separabilita' debole assunta)" + (" - QUAIDS di Banks, Blundell e Lewbel (1997) con indice di Stone per a(p) e b(p) esatto, "
+                    "stimato per iterazioni; modello principale dal 26/11/2026 perche' il termine quadratico e' significativo in 34 equazioni su 54" if QUAIDS else "") + ": stadio 1 budget alimentare a casa fra staples, proteine, frutta e verdura, altro; "
                     "stadio 2 budget proteico fra 9 categorie (8 in Etiopia). Shonkwiler-Yen per gli zeri, control function per la spesa, SUR con omogeneita' "
                     "e simmetria, elasticita' non condizionate con Edgerton (1997). Script: LAAIDS_2stadi.R."),
         ("Categorie", "Ovicaprini = capra e pecora. Maiale e altra carne = maiale + altre carni (domestiche e selvatiche, frattaglie, piccoli animali) + carne "
@@ -271,14 +276,14 @@ NOTE = [("Modello", "LA/AIDS a due stadi (separabilita' debole assunta): stadio 
                          "categorie e aggregati (carne, carne e pesce, latticini, tutti gli ASF). Condizionate: a budget proteico fisso. Non condizionate: "
                          "rispetto al budget alimentare, rifacendo le scelte dei due stadi."),
         ("Medie", "Dal 26/11/2026 le elasticita' sono MEDIE SULLE FAMIGLIE (derivata media / quota media). Prima erano calcolate al punto medio, che con "
-                  "Shonkwiler-Yen gonfia i prodotti comprati da poche famiglie (Tanzania, carne rispetto alla spesa totale: 1,78 al punto medio, 1,58 come media). "
+                  "Shonkwiler-Yen gonfia i prodotti comprati da poche famiglie (Tanzania, carne rispetto alla spesa totale, LA/AIDS: 1,78 al punto medio, 1,58 come media). "
                   "Il vecchio metodo e' nei fogli robustezza_*."),
         ("Campione", "Quintili di consumo totale per ADULTO EQUIVALENTE (scala OCSE modificata). Escluse le famiglie con budget alimentare implausibile "
                      "(cibo dei 7 giorni x 52 > 3 volte il consumo totale annuo). Fogli quintili_area_*: risultati per quintile e area rurale/urbana."),
         ("Letteratura", "Foglio letteratura: valori di altri studi su paesi simili, con la base (spesa alimentare o totale). Confrontare solo sulla stessa base."),
         ("Paesi", "Tanzania 2008-2020 (5 round), Etiopia 2015-2021 (3), Malawi 2010-2024 (4), Nigeria 2010-2023 (5), Uganda 2010-2019 (6)."),
         ("Codice", "confronto_LAAIDS_5paesi.py, LAAIDS_2stadi.R (github.com/paolo-medei/PhD, code/analysis).")]
-ws["A1"] = "Confronto LA/AIDS a due stadi - 5 paesi" + (" - SOLO STIME PUNTUALI, SENZA BOOTSTRAP (errori standard non riportati)" if NO_SE else "")
+ws["A1"] = f"Confronto {MOD} a due stadi - 5 paesi" + (" - SOLO STIME PUNTUALI, SENZA BOOTSTRAP (errori standard non riportati)" if NO_SE else "")
 ws["A1"].font = TIT
 for i, (a, b) in enumerate(NOTE, 3):
     ws.cell(i, 1, a).font = BOLD

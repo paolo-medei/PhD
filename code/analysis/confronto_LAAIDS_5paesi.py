@@ -109,12 +109,14 @@ for spec in ["EF", "noEF"]:
     # tabella principale: spesa totale, con e senza control function, aggregati, nuovi acquirenti
     ws = wb.create_sheet(f"principale_{spec}")
     ws["A1"] = f"TABELLA PRINCIPALE - elasticita' rispetto alla SPESA TOTALE - {lab}"; ws["A1"].font = TIT
-    ws["A2"] = ("Medie sulle famiglie. Spesa totale = elasticita' sul budget alimentare x theta (primo passo della control function). "
+    ws["A2"] = ("QUAIDS a due stadi (dal 26/11/2026). Medie sulle famiglie. Spesa totale = elasticita' sul budget alimentare x theta (primo passo della control function). "
                 "Proteine e aggregati: non condizionate. Tra parentesi l'errore standard del bootstrap a cluster (200 repliche).")
     ws["A2"].font = SUB
     r = 4
     r = blocco(ws, r, "Con control function (principale)", S2 + AGG + S1, valore(spec, "main_expenditure", "total_expenditure", "se"))
     r = blocco(ws, r, "Senza control function", S2 + AGG + S1, valore(spec, "main_expenditure", "total_expenditure_no_CF", "se_no_CF"))
+    r = blocco(ws, r, "Con l'altro modello di domanda (LA/AIDS se il principale e' il QUAIDS)", S2 + AGG + S1,
+               valore(spec, "main_expenditure", "total_expenditure_other_model", "se_other_model"))
     r = blocco(ws, r, "Solo famiglie che gia' comprano (con control function)", S2 + AGG, valore(spec, "main_expenditure", "current_buyers", "current_buyers_se"),
                "il resto dell'elasticita' viene da famiglie che iniziano a comprare (o comprano piu' spesso)")
     pct = valore(spec, "main_expenditure", "pct_from_new_buyers")
@@ -181,7 +183,8 @@ for p in PAESI:
 C = pd.DataFrame(righe)
 cols = ["paese", "households in the stage-1 estimation", "households in the stage-2 estimation", "mean share of the food budget imputed (%)",
         "mean share of the protein budget imputed (%)", "stage 2: households NOT consuming the residual 'plant_protein' (%) - zeros not modelled",
-        "F strumenti stadio 1", "F strumenti stadio 2", "successful bootstrap replications", "bootstrap clusters"]
+        "F strumenti stadio 1", "F strumenti stadio 2", "successful bootstrap replications", "bootstrap clusters", "demand model",
+        "QUAIDS iterations stage 1 (1 = LA/AIDS)", "QUAIDS iterations stage 2 (1 = LA/AIDS)"]
 cols = [x for x in cols if x in C.columns]
 for j, h in enumerate(cols, 1):
     cc = ws.cell(3, j, h); cc.font = HDR; cc.fill = FH; cc.border = BD; cc.alignment = Alignment(wrap_text=True, vertical="center")
@@ -189,7 +192,11 @@ ws.row_dimensions[3].height = 60
 for i, (_, x) in enumerate(C.iterrows(), 4):
     for j, h in enumerate(cols, 1):
         v = x[h]
-        cc = ws.cell(i, j, v if isinstance(v, str) else float(v)); cc.font = BODY; cc.border = BD
+        try:
+            v = float(v)                        # the checks sheet can hold numbers as text (it also has the model name)
+        except (TypeError, ValueError):
+            pass
+        cc = ws.cell(i, j, v); cc.font = BODY; cc.border = BD
         if not isinstance(v, str):
             cc.number_format = "#,##0" if float(v) > 100 else "0.0"
 for j in range(1, len(cols) + 1):

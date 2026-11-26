@@ -234,3 +234,9 @@ dell'intervista, da `famiglie_extra_5paesi.py`; contiene gli identificativi: sol
 (CPI e PPP 2021 della Banca Mondiale). Escluse dalle descrittive le famiglie con cibo dei 7 giorni x 52 > 3 volte il
 consumo totale (0,1-1,2% per paese). `LAAIDS_2stadi.R` sezione 10.4b: elasticita' per quintile e area (stesso modello,
 medie dentro ogni gruppo), fogli `main_by_quintile` e `main_by_group`.
+
+Dal 26 novembre 2026 (sera): modello principale QUAIDS (`MODELLO <- "QUAIDS"`): termine al quadrato della spesa
+reale, b(p) esatto, a(p) = indice di Stone (`INDICE_A`; il translog esatto oscilla e non converge con le iterazioni di
+Blundell-Robin in questo sistema). Il LA/AIDS e' stimato sempre come controllo (variante C, colonne `*_other_model` e
+`laaids_*`). Quintili per adulto equivalente (scala OCSE modificata, quota di under 15 dai registri; Nigeria da
+`nga_quota_bambini.R`). Escluse le famiglie con budget alimentare implausibile (`ESCLUDI_ANOMALE`).

@@ -1,5 +1,8 @@
 ###############################################################################
-##  TWO-STAGE LA/AIDS, ONE COUNTRY AT A TIME: TANZANIA, ETHIOPIA, MALAWI, NIGERIA, UGANDA
+##  TWO-STAGE QUAIDS (and LA/AIDS), ONE COUNTRY AT A TIME: TANZANIA, ETHIOPIA, MALAWI, NIGERIA, UGANDA
+##  Since 26 November 2026 the main model is the QUAIDS (Banks, Blundell and Lewbel 1997, setting MODELLO, section 0):
+##  the LA/AIDS share equations plus a squared budget term, so that the expenditure effect can bend with income.
+##  Price index a(p): Stone index (INDICE_A = "stone"), b(p) exact, estimated by iterations (section 9.5).
 ##  Choose the country in section 0 (PAESE <- "TZA", "ETH", "MWI", "NGA" or "UGA"): it is the only line to change.
 ##  From the harmonised raw data to conditional and unconditional elasticities
 ##  Teaching script: run it one section at a time (select the lines in RStudio and press Ctrl+Enter).
@@ -89,6 +92,8 @@ library(tidyr)
 library(openxlsx)
 
 PAESE  <- "TZA"   # <-- the country: "TZA" Tanzania, "ETH" Ethiopia, "MWI" Malawi, "NGA" Nigeria, "UGA" Uganda
+MODELLO <- "QUAIDS"   # "QUAIDS" (main, Banks, Blundell and Lewbel 1997) or "LAAIDS" (the linear model used until 26 November
+                      # 2026). The other model is always estimated too, as a robustness check (section 13.4b).
 EF_REGIONE <- TRUE    # TRUE: region dummies (regional fixed effects) in all equations of both stages (section 8.7b).
                       # Recommended: without them, prices also pick up regional differences in tastes (Uganda: the
                       # own-price elasticity of proteins comes out positive). FALSE = the specification used before.
@@ -98,7 +103,8 @@ FILE   <- file.path(CARTELLA, paste0("analisi_", PAESE),
                     c(TZA = "TZA_dati_grezzi_LAAIDS_2026-11-24.xlsx", ETH = "ETH_dati_grezzi_LAAIDS_2026-11-25.xlsx",
                       MWI = "MWI_dati_grezzi_LAAIDS_2026-11-25.xlsx", NGA = "NGA_dati_grezzi_LAAIDS_2026-11-25.xlsx",
                       UGA = "UGA_dati_grezzi_LAAIDS_2026-11-25.xlsx")[PAESE])
-USCITA <- file.path(dirname(FILE), paste0("risultati_LAAIDS_2stadi_", PAESE, if (EF_REGIONE) "" else "_senza_EF", "_", Sys.Date()))   # new folder: the input data are never touched
+USCITA <- file.path(dirname(FILE), paste0("risultati_LAAIDS_2stadi_", PAESE, if (EF_REGIONE) "" else "_senza_EF",
+                                           if (MODELLO == "QUAIDS") "" else "_modello_LAAIDS", "_", Sys.Date()))   # new folder: the input data are never touched
 # Share of members under 15 of every household (for the adult-equivalent scale, 8.7c), built by famiglie_extra_5paesi.py
 EXTRA  <- file.path(CARTELLA, "dataset", "famiglie_extra_5paesi.csv")
 ESCLUDI_ANOMALE   <- TRUE    # TRUE: leave out households whose 7-day food budget x 52 is more than 3 times their total
@@ -111,6 +117,11 @@ SOGLIA <- 10    # outlier price: more than 10 times, or less than 1/10 of, the n
 B      <- 200   # bootstrap replications (section 11); for a quick test use 20
 B_ROB  <- 200   # bootstrap replications of the robustness checks (section 13); 0 = point estimates only
 SEME   <- 2026  # random seed: with the same seed the bootstrap always gives the same numbers
+MAX_ITER <- 200   # QUAIDS: maximum number of iterations (section 9.5); in the bootstrap they start from the estimates
+TOLL     <- 1e-6  # QUAIDS: the iterations stop when no parameter changes by more than this
+INDICE_A <- "stone" # QUAIDS price index a(p): "stone" (Stone index with the mean shares, as in the LA/AIDS; b(p) exact)
+                    # or "translog" (exact a(p) as in Banks et al. 1997). With "translog" the iterations of section 9.5
+                    # oscillate and do not converge in this system (tested on Tanzania, 26 November 2026): see the note there.
 
 # 0.1 FROM ITEMS TO THE TWO STAGES
 # Every item of the dictionary (sheet "voci") has a "categoria" (the same 26 categories in the 5 countries).
@@ -512,6 +523,22 @@ RES1 <- tail(STAGE1, 1); RES2 <- tail(STAGE2, 1)                                
 for (g in head(STAGE1, -1)) dati[[paste0("lnp1_", g)]] <- dati[[paste0("lnP_", g)]] - dati[[paste0("lnP_", RES1)]]
 for (k in head(STAGE2, -1)) dati[[paste0("lnp2_", k)]] <- dati[[paste0("lnP_", k)]] - dati[[paste0("lnP_", RES2)]]
 
+# 8.7a QUAIDS INGREDIENTS (used only when MODELLO = "QUAIDS", section 9.5)
+#      - log price LEVELS of the groups of each stage, normalised to 0 at the sample mean (prices = 1 at the mean):
+#        lnq1_<group> (stage 1, the protein group price is the Stone index of 8.5), lnq2_<category> (stage 2);
+#        relative prices with the same normalisation: lnqr1_<group>, lnqr2_<category> (homogeneity, as in 8.7);
+#      - the squared real budget (centred at its mean), an extra regressor of the probits only;
+#      - alfa_0 of the price index a(p): the smallest log budget minus 0.1 (Deaton and Muellbauer 1980).
+pr2 <- !dati$flag_prot_zero
+for (g in STAGE1) dati[[paste0("lnq1_", g)]] <- dati[[paste0("lnP_", g)]] - mean(dati[[paste0("lnP_", g)]], na.rm = TRUE)
+for (k in STAGE2) dati[[paste0("lnq2_", k)]] <- dati[[paste0("lnP_", k)]] - mean(dati[[paste0("lnP_", k)]][pr2], na.rm = TRUE)
+for (g in head(STAGE1, -1)) dati[[paste0("lnqr1_", g)]] <- dati[[paste0("lnq1_", g)]] - dati[[paste0("lnq1_", RES1)]]
+for (k in head(STAGE2, -1)) dati[[paste0("lnqr2_", k)]] <- dati[[paste0("lnq2_", k)]] - dati[[paste0("lnq2_", RES2)]]
+CENTRO <- c(s1 = mean(dati$ln_x_food_real, na.rm = TRUE), s2 = mean(dati$ln_x_prot_real[pr2], na.rm = TRUE))
+dati$q_x_food_real <- (dati$ln_x_food_real - CENTRO["s1"])^2
+dati$q_x_prot_real <- (dati$ln_x_prot_real - CENTRO["s2"])^2
+ALFA0 <- c(s1 = min(dati$ln_x_food, na.rm = TRUE) - 0.1, s2 = min(dati$ln_x_prot[pr2], na.rm = TRUE) - 0.1)
+
 # 8.7b Regional fixed effects (only if EF_REGIONE is TRUE): one dummy per region (the largest region is the base).
 #      They take away the differences between regions that are not due to prices or income (tastes, climate,
 #      religion, ...); prices are then measured only from the differences WITHIN a region (districts, EAs, rounds).
@@ -610,12 +637,18 @@ for (r in ROUND) dati[[r]] <- as.numeric(dati$round == as.numeric(sub("r", "", r
 # 9.2 The two specs. prepara_spec adds the derived pieces: estimated groups (all but the residual), relative
 #     prices, regressors, equation names, symmetry restrictions.
 #     cf = TRUE (default): with the control function. cf = FALSE is used only in the robustness check of section 13.
+#     quaids = TRUE when MODELLO = "QUAIDS" (default); the robustness check of section 13.4b sets the other model.
 prepara_spec <- function(S) {
+  S$input <- S                                                  # the fields as given (to build variants in section 13)
   if (is.null(S$cf)) S$cf <- TRUE
+  if (is.null(S$quaids)) S$quaids <- (MODELLO == "QUAIDS")
+  if (S$quaids) S$p <- S$p_q                                    # QUAIDS: normalised relative prices (8.7a)
   S$GS   <- head(S$gruppi, -1)                                  # estimated groups (the residual is the last one)
   S$res  <- tail(S$gruppi, 1)                                   # residual group: equation omitted
   S$PREL <- paste0(S$p, S$GS)                                   # relative prices ln(p_j / p_residual)
-  S$X    <- c(S$PREL, S$x_reale, DEMO, ROUND, if (S$cf) "v_hat")   # regressors of the probits and of the shares
+  S$x_eq <- if (S$quaids) "L_quaids" else S$x_reale             # budget in the share equations: ln(x/a(p)) or ln(x/P)
+  S$X    <- c(S$PREL, S$x_eq, if (S$quaids) "Q_quaids", DEMO, ROUND, if (S$cf) "v_hat")   # regressors of the shares
+  S$XP   <- c(S$PREL, S$x_reale, if (S$quaids) S$x2, DEMO, ROUND, if (S$cf) "v_hat")     # regressors of the probits
   S$EQ   <- setNames(gsub("_", "", S$GS), S$GS)                 # equation names without "_" (as in systemfit, see 9.4b)
   # Symmetry: gamma_ij = gamma_ji for i, j among the estimated groups (homogeneity is already imposed by the
   # relative prices). A coefficient is called "<equation>_<regressor>", e.g. "beef_beef_lnp2_pork";
@@ -629,10 +662,15 @@ prepara_spec <- function(S) {
   S$simm <- simm
   S
 }
+#     QUAIDS fields: p_q = normalised relative prices, pq = normalised price levels, ln_m = log NOMINAL budget,
+#     x2 = squared real budget for the probits (centred at x_centro), alfa0 = alfa_0 of a(p) (all from 8.7a)
 SPEC1 <- prepara_spec(list(nome = "stage 1", gruppi = STAGE1, w = "w1_", p = "lnp1_", x_reale = "ln_x_food_real",
-                           strumenti = c("ln_spesa_tot"), wbar = wbar1))
+                           strumenti = c("ln_spesa_tot"), wbar = wbar1,
+                           p_q = "lnqr1_", pq = "lnq1_", ln_m = "ln_x_food", x2 = "q_x_food_real", x_centro = unname(CENTRO["s1"]), alfa0 = unname(ALFA0["s1"])))
 SPEC2 <- prepara_spec(list(nome = "stage 2", gruppi = STAGE2, w = "w2_", p = "lnp2_", x_reale = "ln_x_prot_real",
-                           strumenti = c("ln_spesa_tot", "lnP_staples", "lnP_fruits_veg", "lnP_other"), wbar = wbar2))
+                           strumenti = c("ln_spesa_tot", "lnP_staples", "lnP_fruits_veg", "lnP_other"), wbar = wbar2,
+                           p_q = "lnqr2_", pq = "lnq2_", ln_m = "ln_x_prot", x2 = "q_x_prot_real", x_centro = unname(CENTRO["s2"]), alfa0 = unname(ALFA0["s2"])))
+cat("\nModel:", MODELLO, "\n")
 cat("\nSymmetry restrictions: stage 1", length(SPEC1$simm), " stage 2", length(SPEC2$simm), "\n")
 
 # 9.3 Estimation samples: households with all prices, demographics, instruments and cluster.
@@ -734,9 +772,9 @@ stima_laaids <- function(d, S, stampa = FALSE) {
   for (g in S$GS) {
     d[[paste0("d_", g)]] <- as.numeric(d[[paste0(S$w, g)]] > 0)
     sep <- Filter(function(v) { y <- d[[paste0("d_", g)]][d[[v]] == 1]; length(y) == 0 || all(y == 0) || all(y == 1) },
-                  grep("^reg_", S$X, value = TRUE))
+                  grep("^reg_", S$XP, value = TRUE))
     if (stampa && length(sep) > 0) cat("  ", g, ": region dummies left out of the probit (perfect prediction):", paste(sep, collapse = ", "), "\n")
-    m <- glm(as.formula(paste0("d_", g, " ~ ", paste(setdiff(S$X, sep), collapse = " + "))), family = binomial(link = "probit"), data = d)
+    m <- glm(as.formula(paste0("d_", g, " ~ ", paste(setdiff(S$XP, sep), collapse = " + "))), family = binomial(link = "probit"), data = d)
     probit[[g]] <- coef(m)
     t_g <- predict(m, type = "link")                                 # linear index z'c
     rm(m)
@@ -749,62 +787,109 @@ stima_laaids <- function(d, S, stampa = FALSE) {
                           S$res, 100 * mean(d[[paste0(S$w, S$res)]] > 0)))
 
   # (c) Shonkwiler-Yen, step 2. For each estimated group g:
-  #     w_g = Phi_g * [ a_g + sum_j gamma_gj ln(p_j/p_res) + beta_g ln(x/P) + demographics + rounds + rho_g v_hat ] + delta_g phi_g
+  #     w_g = Phi_g * [ a_g + sum_j gamma_gj ln(p_j/p_res) + beta_g X + lambda_g X^2 / b(p) + demographics + rounds + rho_g v_hat ] + delta_g phi_g
   #     The expected share is "probability of consuming x share if consuming" plus a correction delta_g phi_g.
-  #     The equation is linear in the parameters: every regressor in the brackets is multiplied by Phi_g.
+  #     LA/AIDS: X = ln(x/P), P = Stone index (8.5-8.6), no X^2 term.
+  #     QUAIDS (Banks, Blundell and Lewbel 1997), the model of most food-demand studies on household surveys:
+  #        X = ln(x / a(p)),  ln a(p) = alfa_0 + sum_k alfa_k ln p_k + 1/2 sum_k sum_j gamma_kj ln p_k ln p_j   (translog index)
+  #                           b(p)    = prod_k p_k^beta_k                                                     (Cobb-Douglas index)
+  #        The X^2 term lets the expenditure effect change with income (a share can first rise, then fall).
+  #        a(p) and b(p) contain the parameters themselves, so the model is not linear. It is estimated as Blundell and
+  #        Robin (1999) suggest (the method of Boysen 2016 for Uganda): for given a(p) and b(p) the equations ARE linear, so
+  #          start with a(p) = Stone index and b(p) = 1; estimate the linear system; recompute a(p) and b(p) with the new
+  #          alfa, gamma, beta; estimate again ... until no parameter changes by more than TOLL.
+  #        Prices: log levels normalised to 1 at the sample mean (8.7a). In a(p) the alfa_k are those of the household with
+  #        the mean demographics (intercept + demographic, regional, round terms at the sample means).
+  #     Every regressor in the brackets is multiplied by Phi_g, so for given a(p), b(p) the system is linear in the parameters.
   #     A column that is zero in the sample (e.g. a region dummy when the region is not in a bootstrap sample)
   #     cannot be estimated: it is left out of that equation and its coefficient counts as 0.
-  eqs <- list()
-  for (g in S$GS) {
-    e <- S$EQ[g]
-    for (v in S$X) d[[paste0(e, "_", v)]] <- d[[paste0("Phi_", g)]] * d[[v]]
-    xs <- S$X[sapply(S$X, function(v) max(abs(d[[paste0(e, "_", v)]])) > 1e-8)]
-    if (stampa && length(xs) < length(S$X)) cat("  ", g, ": left out (nobody consumes it there):", paste(setdiff(S$X, xs), collapse = ", "), "\n")
-    nomi <- c(paste0(e, "_cost"), paste0(e, "_", xs), paste0(e, "_phi"))
-    d[[nomi[1]]] <- d[[paste0("Phi_", g)]]                                     # constant a_g
-    d[[nomi[length(nomi)]]] <- d[[paste0("phi_", g)]]                          # term delta_g * phi_g
-    eqs[[e]] <- list(y = paste0(S$w, g), x = nomi)                            # share and regressors (no intercept)
-  }
-
-  # (d) SUR (seemingly unrelated regressions) on all the estimated equations together, with symmetry imposed (9.4b)
-  sur <- sur_vincolato(d, eqs, S$simm, varianza = stampa)
-  b   <- sur$b
-  es_systemfit <- sur$es
-  if (stampa) { cat(" ", S$nome, "- SUR estimated. R2 by equation:\n"); print(round(sur$r2, 3)) }
-  rm(sur)
-
-  # (e) Parameters of the AIDS part (inside the brackets): matrix gamma, alfa, beta, delta.
-  #     ADDING-UP AND THE OMITTED EQUATION. The observed shares sum to 1, but with Shonkwiler-Yen the expected
-  #     shares of the estimated equations do not sum to 1 automatically. So the residual equation is NOT estimated:
-  #     its expected share is DEFINED as 1 minus the sum of the others. Adding-up then holds exactly, for the shares
-  #     and for the elasticities (section 10). Its AIDS parameters below are recovered from the adding-up conditions
-  #     (sum of alfa = 1, sum of beta = 0, every column of gamma sums to 0) and are only reported.
-  #     The price: the zeros of the residual group are not modelled. This is why the residual must be the most
-  #     commonly consumed group: "other" in stage 1 (almost everybody), "plant_protein" in stage 2 (82-95% of the households, depending on the country).
-  #     Homogeneity holds exactly also for the expected shares (the probits use relative prices and real
-  #     expenditure); symmetry holds for the AIDS parameters gamma, not exactly for the expected shares
-  #     (a known property of the Shonkwiler-Yen system).
   G <- length(S$gruppi)
-  gam <- matrix(0, G, G, dimnames = list(S$gruppi, S$gruppi))
-  alfa <- beta <- delta <- setNames(rep(0, G), S$gruppi)
-  for (g in S$GS) {
-    e <- S$EQ[g]
-    alfa[g]  <- b[paste0(e, "_", e, "_cost")]
-    beta[g]  <- b[paste0(e, "_", e, "_", S$x_reale)]
-    delta[g] <- b[paste0(e, "_", e, "_phi")]
-    for (j in S$GS) gam[g, j] <- b[paste0(e, "_", e, "_", S$p, j)]
-    gam[g, S$res] <- -sum(gam[g, S$GS])                      # homogeneity: every row of gamma sums to zero
+  ALTRE <- setdiff(S$X, c(S$PREL, S$x_eq, "Q_quaids"))         # demographics, regions, rounds (and v_hat)
+  stima_quote <- function(d, stampa) {
+    eqs <- list()
+    for (g in S$GS) {
+      e <- S$EQ[g]
+      for (v in S$X) d[[paste0(e, "_", v)]] <- d[[paste0("Phi_", g)]] * d[[v]]
+      xs <- S$X[sapply(S$X, function(v) max(abs(d[[paste0(e, "_", v)]])) > 1e-8)]
+      if (stampa && length(xs) < length(S$X)) cat("  ", g, ": left out (nobody consumes it there):", paste(setdiff(S$X, xs), collapse = ", "), "\n")
+      nomi <- c(paste0(e, "_cost"), paste0(e, "_", xs), paste0(e, "_phi"))
+      d[[nomi[1]]] <- d[[paste0("Phi_", g)]]                                     # constant a_g
+      d[[nomi[length(nomi)]]] <- d[[paste0("phi_", g)]]                          # term delta_g * phi_g
+      eqs[[e]] <- list(y = paste0(S$w, g), x = nomi)                            # share and regressors (no intercept)
+    }
+    # (d) SUR (seemingly unrelated regressions) on all the estimated equations together, with symmetry imposed (9.4b)
+    sur <- sur_vincolato(d, eqs, S$simm, varianza = stampa)
+    b   <- sur$b
+    if (stampa) { cat(" ", S$nome, "- SUR estimated. R2 by equation:\n"); print(round(sur$r2, 3)) }
+    # (e) Parameters of the demand part (inside the brackets): matrix gamma, alfa, beta, lambda, delta.
+    #     ADDING-UP AND THE OMITTED EQUATION. The observed shares sum to 1, but with Shonkwiler-Yen the expected
+    #     shares of the estimated equations do not sum to 1 automatically. So the residual equation is NOT estimated:
+    #     its expected share is DEFINED as 1 minus the sum of the others. Adding-up then holds exactly, for the shares
+    #     and for the elasticities (section 10). Its parameters below are recovered from the adding-up conditions
+    #     (sum of alfa = 1, sum of beta = 0, sum of lambda = 0, every column of gamma sums to 0) and are only reported
+    #     (QUAIDS: they also enter a(p) and b(p)).
+    #     The price: the zeros of the residual group are not modelled. This is why the residual must be the most
+    #     commonly consumed group: "other" in stage 1 (almost everybody), "plant_protein" in stage 2 (82-95% of the households, depending on the country).
+    #     Homogeneity holds exactly also for the expected shares (the probits use relative prices and real
+    #     expenditure); symmetry holds for the parameters gamma, not exactly for the expected shares
+    #     (a known property of the Shonkwiler-Yen system).
+    gam <- matrix(0, G, G, dimnames = list(S$gruppi, S$gruppi))
+    alfa <- beta <- lambda <- delta <- setNames(rep(0, G), S$gruppi)
+    for (g in S$GS) {
+      e <- S$EQ[g]
+      alfa[g]  <- b[paste0(e, "_", e, "_cost")]
+      beta[g]  <- b[paste0(e, "_", e, "_", S$x_eq)]
+      if (S$quaids) lambda[g] <- b[paste0(e, "_", e, "_Q_quaids")]
+      delta[g] <- b[paste0(e, "_", e, "_phi")]
+      for (j in S$GS) gam[g, j] <- b[paste0(e, "_", e, "_", S$p, j)]
+      gam[g, S$res] <- -sum(gam[g, S$GS])                      # homogeneity: every row of gamma sums to zero
+    }
+    alfa[S$res] <- 1 - sum(alfa[S$GS]); beta[S$res] <- -sum(beta[S$GS]); lambda[S$res] <- -sum(lambda[S$GS])
+    gam[S$res, ] <- -colSums(gam[S$GS, , drop = FALSE])
+    # alfa of the household with the mean demographics (QUAIDS price index a(p)); they sum to 1
+    zbar <- colMeans(d[, ALTRE, drop = FALSE]); alfa_a <- alfa
+    for (g in S$GS) { bb <- b[paste0(S$EQ[g], "_", S$EQ[g], "_", ALTRE)]; bb[is.na(bb)] <- 0; alfa_a[g] <- alfa[g] + sum(bb * zbar) }
+    alfa_a[S$res] <- 1 - sum(alfa_a[S$GS])
+    list(b = b, es = sur$es, alfa = alfa, beta = beta, lambda = lambda, delta = delta, gam = gam, alfa_a = alfa_a)
   }
-  alfa[S$res] <- 1 - sum(alfa[S$GS]); beta[S$res] <- -sum(beta[S$GS]); gam[S$res, ] <- -colSums(gam[S$GS, , drop = FALSE])
-  if (stampa) cat("  checks: symmetry max|gamma - t(gamma)| =", signif(max(abs(gam - t(gam))), 3),
-                  "  homogeneity max|row sum of gamma| =", signif(max(abs(rowSums(gam))), 3), "\n")
-  tieni <- c("round", "quintile", paste0(S$w, S$gruppi), paste0("t_", S$GS), S$PREL, S$x_reale, DEMO, ROUND, "v_hat")
-  list(d = d[, tieni], S = S, probit = probit, b = b, alfa = alfa, beta = beta, delta = delta, gam = gam,
-       strumenti = strumenti, es_systemfit = es_systemfit, b_cf = b_cf)
+
+  iterazioni <- 1; convergenza <- TRUE
+  if (S$quaids) {
+    lnp <- as.matrix(d[, paste0(S$pq, S$gruppi)])                 # normalised log price levels, households x groups
+    indici <- function(par) list(lna = if (INDICE_A == "translog") S$alfa0 + as.vector(lnp %*% par$alfa_a) + 0.5 * rowSums((lnp %*% par$gam) * lnp)
+                                       else S$alfa0 + as.vector(lnp %*% S$wbar[S$gruppi]),     # Stone index (fixed weights)
+                                 b = exp(as.vector(lnp %*% par$beta)))
+    par <- if (!is.null(S$init)) S$init else                      # start: Stone index (mean shares) and b(p) = 1
+      list(alfa_a = S$wbar[S$gruppi], gam = matrix(0, G, G), beta = setNames(rep(0, G), S$gruppi), lambda = setNames(rep(0, G), S$gruppi))
+    for (it in seq_len(MAX_ITER)) {
+      ix <- indici(par)
+      d$L_quaids <- d[[S$ln_m]] - ix$lna; d$Q_quaids <- d$L_quaids^2 / ix$b
+      nuovo <- stima_quote(d, stampa = FALSE)
+      cambio <- if (INDICE_A == "translog") max(abs(c(nuovo$alfa_a - par$alfa_a, nuovo$gam - par$gam, nuovo$beta - par$beta, nuovo$lambda - par$lambda)))
+                else max(abs(c(nuovo$beta - par$beta, nuovo$lambda - par$lambda)))     # only b(p) changes between iterations
+      par <- nuovo
+      if (cambio < TOLL) break
+    }
+    iterazioni <- it; convergenza <- cambio < TOLL
+    ix <- indici(par)                                              # indices with the final parameters
+    d$L_quaids <- d[[S$ln_m]] - ix$lna; d$b_quaids <- ix$b; d$Q_quaids <- d$L_quaids^2 / d$b_quaids
+    q <- if (stampa) stima_quote(d, stampa = TRUE) else par         # last pass with standard errors (printing only)
+    if (stampa) cat("  QUAIDS:", iterazioni, "iterations,", if (convergenza) "converged" else "NOT CONVERGED", "\n")
+  } else q <- stima_quote(d, stampa)
+  if (stampa) cat("  checks: symmetry max|gamma - t(gamma)| =", signif(max(abs(q$gam - t(q$gam))), 3),
+                  "  homogeneity max|row sum of gamma| =", signif(max(abs(rowSums(q$gam))), 3), "\n")
+  tieni <- unique(c("round", "quintile", paste0(S$w, S$gruppi), paste0("t_", S$GS), S$PREL, S$x_reale, S$x_eq, DEMO, ROUND, "v_hat",
+                    if (S$quaids) c("Q_quaids", "b_quaids", S$x2, paste0(S$pq, S$gruppi))))
+  list(d = d[, tieni], S = S, probit = probit, b = q$b, alfa = q$alfa, beta = q$beta, lambda = q$lambda, delta = q$delta, gam = q$gam,
+       alfa_a = q$alfa_a, iterazioni = iterazioni, convergenza = convergenza, strumenti = strumenti, es_systemfit = q$es, b_cf = b_cf)
 }
+# QUAIDS: the bootstrap replications start the iterations from the estimates of the whole sample (much faster)
+inizio <- function(fit, ordine = fit$S$gruppi) list(alfa_a = fit$alfa_a[ordine], gam = fit$gam[ordine, ordine],
+                                                     beta = fit$beta[ordine], lambda = fit$lambda[ordine])
 
 fit1 <- stima_laaids(stima1, SPEC1, stampa = TRUE)       # stage 1 on the real sample
 fit2 <- stima_laaids(stima2, SPEC2, stampa = TRUE)       # stage 2 on the real sample
+if (MODELLO == "QUAIDS") { SPEC1$init <- inizio(fit1); SPEC2$init <- inizio(fit2) }
 
 
 ## =============================================================================
@@ -846,8 +931,14 @@ fit2 <- stima_laaids(stima2, SPEC2, stampa = TRUE)       # stage 2 on the real s
 #   intensiva      = 1 + Phi_g beta_g / w_g                   households that already consume g spend more on it
 #   partecipazione = phi_g (f_g - delta_g t_g) c_g / w_g      more households start consuming g
 #   (intensiva + partecipazione = expenditure elasticity; NA for the residual group, whose zeros are not modelled)
+# QUAIDS (Banks, Blundell and Lewbel 1997), with X = ln(x/a(p)) of every household and b = b(p):
+#   df_g/d ln x   = mu_g = beta_g + 2 lambda_g X / b
+#   df_g/d ln p_j = gamma_gj - mu_g (alfa_j + sum_k gamma_jk ln p_k) - lambda_g beta_j X^2 / b
+#   the probits use the Stone-deflated budget and its square: dt_g/d ln x = c_g + 2 c2_g (ln(x/P) - centre)
+#   and then the same Shonkwiler-Yen formula as above, averaged over the households (or at the means).
 elasticita <- function(fit, d, metodo = "media") {
   stopifnot(metodo %in% c("media", "punto_medio"))
+  if (isTRUE(fit$S$quaids)) return(elasticita_quaids(fit, d, metodo))
   S  <- fit$S; GR <- S$gruppi; G <- length(GR)
   w  <- colMeans(d[, paste0(S$w, GR)]); names(w) <- GR                       # mean shares
   dX <- setNames(rep(0, G), GR); dP <- matrix(0, G, G, dimnames = list(GR, GR))
@@ -875,6 +966,43 @@ elasticita <- function(fit, d, metodo = "media") {
   dX[S$res] <- -sum(dX[S$GS]); dP[S$res, ] <- -colSums(dP[S$GS, , drop = FALSE])
   e_spesa <- 1 + dX / w
   marsh   <- -diag(G) + dP / w                       # row g divided by w_g
+  hicks   <- marsh + outer(e_spesa, w)
+  dimnames(marsh) <- dimnames(hicks) <- list(GR, GR)
+  list(w = w, spesa = e_spesa, marshall = marsh, hicks = hicks, intensiva = 1 + dX_int / w, partecipazione = dX_par / w)
+}
+
+elasticita_quaids <- function(fit, d, metodo) {
+  S  <- fit$S; GR <- S$gruppi; G <- length(GR)
+  w  <- colMeans(d[, paste0(S$w, GR)]); names(w) <- GR                       # mean shares
+  ALTRE <- setdiff(S$X, c(S$PREL, S$x_eq, "Q_quaids"))                       # demographics, regions, rounds (and v_hat)
+  PQ <- paste0(S$pq, GR)
+  if (metodo == "punto_medio")                                               # one household with all the mean values
+    d <- as.data.frame(as.list(colMeans(d[, unique(c(PQ, S$PREL, ALTRE, S$x_reale, paste0("t_", S$GS), S$x_eq, "b_quaids"))])))
+  lnp <- as.matrix(d[, PQ, drop = FALSE]); L <- d[[S$x_eq]]; bq <- d$b_quaids; Q <- L^2 / bq
+  Smat <- if (INDICE_A == "translog") sweep(lnp %*% t(fit$gam), 2, fit$alfa_a, "+")   # d ln a(p) / d ln p_j = alfa_j + sum_k gamma_jk ln p_k
+          else matrix(S$wbar[GR], nrow(lnp), G, byrow = TRUE)                          # Stone index: d ln a / d ln p_j = wbar_j
+  xr <- d[[S$x_reale]]
+  dX <- setNames(rep(0, G), GR); dP <- matrix(0, G, G, dimnames = list(GR, GR))
+  dX_int <- dX_par <- setNames(rep(NA_real_, G), GR)
+  for (g in S$GS) {
+    cp <- fit$probit[[g]]
+    bb <- fit$b[paste0(S$EQ[g], "_", S$EQ[g], "_", ALTRE)]; bb[is.na(bb)] <- 0
+    t  <- d[[paste0("t_", g)]]
+    f  <- fit$alfa[g] + as.vector(as.matrix(d[, S$PREL, drop = FALSE]) %*% fit$gam[g, S$GS]) + fit$beta[g] * L +
+          fit$lambda[g] * Q + as.vector(as.matrix(d[, ALTRE, drop = FALSE]) %*% bb)      # QUAIDS part of every household
+    mu  <- fit$beta[g] + 2 * fit$lambda[g] * L / bq                          # d f / d ln x
+    Phi <- pnorm(t); k <- dnorm(t) * (f - fit$delta[g] * t)
+    c2  <- cp[S$x2]; if (is.na(c2)) c2 <- 0
+    cx  <- cp[S$x_reale] + 2 * c2 * (xr - S$x_centro)                        # d t / d ln x
+    c_p <- c(cp[S$PREL], -sum(cp[S$PREL])); names(c_p) <- GR
+    dX[g]   <- mean(Phi * mu + k * cx)
+    dP[g, ] <- mean(Phi) * fit$gam[g, ] - colMeans((Phi * mu) * Smat) - fit$lambda[g] * fit$beta * mean(Phi * L^2 / bq) +
+               mean(k) * c_p - mean(k * cx) * S$wbar
+    dX_int[g] <- mean(Phi * mu); dX_par[g] <- mean(k * cx)                   # the two parts of dX[g]
+  }
+  dX[S$res] <- -sum(dX[S$GS]); dP[S$res, ] <- -colSums(dP[S$GS, , drop = FALSE])
+  e_spesa <- 1 + dX / w
+  marsh   <- -diag(G) + dP / w
   hicks   <- marsh + outer(e_spesa, w)
   dimnames(marsh) <- dimnames(hicks) <- list(GR, GR)
   list(w = w, spesa = e_spesa, marshall = marsh, hicks = hicks, intensiva = 1 + dX_int / w, partecipazione = dX_par / w)
@@ -1059,7 +1187,7 @@ for (r in seq_len(B)) {
   f1 <- tryCatch(suppressWarnings(stima_laaids(d1, SPEC1)), error = function(e) NULL)
   f2 <- tryCatch(suppressWarnings(stima_laaids(d2, SPEC2)), error = function(e) NULL)
   rm(d1, d2)
-  if (is.null(f1) || is.null(f2)) next                                 # failed replication: skipped (counted below)
+  if (is.null(f1) || is.null(f2) || !f1$convergenza || !f2$convergenza) next   # failed (or QUAIDS not converged): skipped, counted below
   e_b <- list(s1 = elasticita(f1, f1$d), s2 = elasticita(f2, f2$d))
   e_b$unc <- elasticita_incondizionate(e_b$s1, e_b$s2)
   for (s in names(SISTEMI)) {
@@ -1132,21 +1260,23 @@ controlli <- data.frame(check = c(
   "stage 1: households NOT consuming the residual group 'other' (%) - zeros not modelled",
   "stage 2: households NOT consuming the residual 'plant_protein' (%) - zeros not modelled",
   "stage 1: joint F of the instrument (cluster-robust)", "stage 2: joint F of the 4 instruments (cluster-robust)",
-  "symmetry restrictions stage 1", "symmetry restrictions stage 2", "successful bootstrap replications", "bootstrap clusters"),
+  "symmetry restrictions stage 1", "symmetry restrictions stage 2", "successful bootstrap replications", "bootstrap clusters",
+  "demand model", "QUAIDS iterations stage 1 (1 = LA/AIDS)", "QUAIDS iterations stage 2 (1 = LA/AIDS)"),
   value = c(nrow(voci), nrow(famiglie), sum(!is.na(voci$uv)), sum(voci$flag_uv_anomalo), sum(voci$flag_acq_rivalutato, na.rm = TRUE),
             sum(voci$flag_imputato), round(100 * mean(dati$quota_imputata), 2), round(100 * mean(dati$quota_imputata_prot, na.rm = TRUE), 2),
             n_budget_zero, n_anomale, n_prot_zero, nrow(stima1), nrow(stima2),
             round(100 * mean(stima1[[paste0("w1_", RES1)]] == 0), 2), round(100 * mean(stima2[[paste0("w2_", RES2)]] == 0), 2),
             round(fit1$strumenti$joint_F_cluster[1], 1), round(fit2$strumenti$joint_F_cluster[1], 1),
-            length(SPEC1$simm), length(SPEC2$simm), sum(ok), K))
+            length(SPEC1$simm), length(SPEC2$simm), sum(ok), K, MODELLO, fit1$iterazioni, fit2$iterazioni))
 coeff <- function(fit) data.frame(coefficient = names(fit$b), estimate = fit$b, se_sur = fit$es_systemfit, row.names = NULL)
-parametri <- function(fit) data.frame(group = fit$S$gruppi, alfa = fit$alfa, beta = fit$beta, delta = fit$delta, fit$gam, row.names = NULL, check.names = FALSE)
+parametri <- function(fit) data.frame(group = fit$S$gruppi, alfa = fit$alfa, alfa_mean_household = fit$alfa_a, beta = fit$beta, lambda = fit$lambda,
+                                      delta = fit$delta, fit$gam, row.names = NULL, check.names = FALSE)
 pb <- function(fit) bind_rows(lapply(fit$S$GS, function(g) data.frame(group = g, variable = names(fit$probit[[g]]), coefficient = fit$probit[[g]], row.names = NULL)))
 test_v_hat <- function(fit) { n <- paste0(fit$S$EQ, "_", fit$S$EQ, "_v_hat")
   data.frame(stage = fit$S$nome, equation = fit$S$GS, coefficient_v_hat = fit$b[n], se_sur = fit$es_systemfit[n],
              t = fit$b[n] / fit$es_systemfit[n], row.names = NULL) }
 nota <- data.frame(notes = c(
-  paste0("Two-stage LA/AIDS, ", NOME_PAESE, " (", paste(ANNI, collapse = ", "), "). Weak separability is assumed, not tested. Regional fixed effects: ",
+  paste0("Two-stage ", MODELLO, " (Shonkwiler-Yen, control function, SUR with homogeneity and symmetry), ", NOME_PAESE, " (", paste(ANNI, collapse = ", "), "). Weak separability is assumed, not tested. Regional fixed effects: ",
          if (EF_REGIONE) "yes (region dummies in all equations)." else "no."),
   c(TZA = "Tanzania: grams and millilitres converted to kg and litres; 2020 sample hh_sec_j1 excluded.",
     ETH = "Ethiopia: no pork in the questionnaire (8 protein categories); camel meat (4 households, 2021) in beef. Original unit codes.",
@@ -1197,9 +1327,15 @@ cat("\nResults saved in:", USCITA, "\n")
 #       (fish in Tanzania, Malawi, Nigeria, Uganda; fluid milk in Ethiopia);
 #   (b) the expenditure elasticities of meat, dairy and eggs are high -> 13.1 shows how much of each elasticity
 #       comes from households that START buying, 13.4 shows what happens WITHOUT the control function, and the
-#       comparison table (13.6) also shows the old elasticities AT THE SAMPLE MEANS (section 10.1).
+#       comparison table (13.6) also shows the old elasticities AT THE SAMPLE MEANS (section 10.1);
+#   (c) the demand model: 13.4b estimates the other model (LA/AIDS when the main one is the QUAIDS).
 # The elasticities with respect to TOTAL expenditure (theta, 13.2) are in the main table of section 14.
 # Run this section after sections 0-12 (it uses their objects). It adds 3 sheets "rob_..." to the results file.
+# NOTE ON THE QUAIDS PRICE INDEX (INDICE_A, section 0). The exact QUAIDS uses the translog index a(p), whose parameters
+# are the same alfa and gamma of the share equations. Estimated by the iterations of Blundell and Robin (9.5), in this
+# system (9 categories, Shonkwiler-Yen, control function, regional and round dummies) the iterations oscillate: on Tanzania
+# stage 2, a beta jumped between -0.13 and -1.0 at every pass and, with half steps, was still moving after 40 passes.
+# With the Stone index for a(p) and the exact b(p) (the usual choice in censored systems) they converge in 13-15 passes.
 
 # 13.1 CURRENT BUYERS AND NEW BUYERS (main model, no new estimation)
 # With Shonkwiler-Yen the expenditure elasticity has two parts (computed in the function elasticita, section 10.1):
@@ -1243,9 +1379,11 @@ consumo2 <- colMeans(stima2[, paste0("v_", STAGE2)] > 0); names(consumo2) <- STA
 RES_ALT  <- names(which.max(consumo2[setdiff(STAGE2, RES2)]))
 cat("\n13.3 Alternative residual:", RES_ALT, "(consumed by", round(100 * consumo2[RES_ALT], 1), "% of the households with protein spending)\n")
 STAGE2_A <- c(setdiff(STAGE2, c(RES_ALT, RES2)), RES2, RES_ALT)          # same categories, RES_ALT last
-for (k in head(STAGE2_A, -1)) stima2[[paste0("lnf2_", k)]] <- stima2[[paste0("lnP_", k)]] - stima2[[paste0("lnP_", RES_ALT)]]
-SPEC2_A <- prepara_spec(list(nome = paste0("stage 2, ", RES_ALT, " residual"), gruppi = STAGE2_A, w = "w2_", p = "lnf2_", x_reale = "ln_x_prot_real",
-                             strumenti = SPEC2$strumenti, wbar = wbar2[STAGE2_A]))   # Stone weights in the same order as the groups
+base_p <- if (SPEC2$quaids) "lnq2_" else "lnP_"                             # QUAIDS: normalised prices (8.7a)
+for (k in head(STAGE2_A, -1)) stima2[[paste0("lnf2_", k)]] <- stima2[[paste0(base_p, k)]] - stima2[[paste0(base_p, RES_ALT)]]
+SPEC2_A <- prepara_spec(modifyList(SPEC2$input, list(nome = paste0("stage 2, ", RES_ALT, " residual"), gruppi = STAGE2_A,
+                                                     p = "lnf2_", p_q = "lnf2_", wbar = wbar2[STAGE2_A])))   # Stone weights in the same order as the groups
+if (SPEC2_A$quaids) SPEC2_A$init <- inizio(fit2, STAGE2_A)
 fit2_A <- stima_laaids(stima2, SPEC2_A, stampa = TRUE)
 E2_A   <- ordina2(elasticita(fit2_A, fit2_A$d))                           # back to the usual order of the categories
 EU_A   <- elasticita_incondizionate(E1, E2_A)                             # stage 1 is unchanged
@@ -1254,23 +1392,35 @@ EU_A   <- elasticita_incondizionate(E1, E2_A)                             # stag
 # v_hat is removed from the probits and from the share equations. Everything else is the same.
 # How to read it: the difference from the main model shows how much the correction for endogenous expenditure matters.
 # With measurement error in reported food spending, elasticities of luxuries are expected to be LOWER without it.
-SPEC1_B <- prepara_spec(list(nome = "stage 1, no control function", gruppi = STAGE1, w = "w1_", p = "lnp1_", x_reale = "ln_x_food_real",
-                             strumenti = SPEC1$strumenti, wbar = wbar1, cf = FALSE))
-SPEC2_B <- prepara_spec(list(nome = "stage 2, no control function", gruppi = STAGE2, w = "w2_", p = "lnp2_", x_reale = "ln_x_prot_real",
-                             strumenti = SPEC2$strumenti, wbar = wbar2, cf = FALSE))
+SPEC1_B <- prepara_spec(modifyList(SPEC1$input, list(nome = "stage 1, no control function", cf = FALSE)))
+SPEC2_B <- prepara_spec(modifyList(SPEC2$input, list(nome = "stage 2, no control function", cf = FALSE)))
+SPEC1_B$init <- SPEC1$init; SPEC2_B$init <- SPEC2$init
 fit1_B <- stima_laaids(stima1, SPEC1_B, stampa = TRUE)
 fit2_B <- stima_laaids(stima2, SPEC2_B, stampa = TRUE)
 E1_B <- elasticita(fit1_B, fit1_B$d); E2_B <- elasticita(fit2_B, fit2_B$d); EU_B <- elasticita_incondizionate(E1_B, E2_B)
 EA_B <- aggrega(EU_B)                                                     # aggregates without control function
 E_gruppi_B <- sapply(GRUPPI, function(g) per_gruppo(fit1_B, fit2_B, g), simplify = "array")   # by quintile and area (point estimates)
 
+# 13.4b VARIANT C: THE OTHER DEMAND MODEL (LA/AIDS when the main model is the QUAIDS, and the reverse)
+# Same data, same control function, same zero correction; only the demand system changes. How to read it: the QUAIDS
+# lets the expenditure effect bend with income; if the two give similar elasticities, the curvature does not matter much.
+ALTRO  <- if (MODELLO == "QUAIDS") "LAAIDS" else "QUAIDS"; NOME_C <- tolower(ALTRO)
+SPEC1_C <- prepara_spec(modifyList(SPEC1$input, list(nome = paste("stage 1,", ALTRO), quaids = ALTRO == "QUAIDS")))
+SPEC2_C <- prepara_spec(modifyList(SPEC2$input, list(nome = paste("stage 2,", ALTRO), quaids = ALTRO == "QUAIDS")))
+fit1_C <- stima_laaids(stima1, SPEC1_C, stampa = TRUE)
+fit2_C <- stima_laaids(stima2, SPEC2_C, stampa = TRUE)
+if (ALTRO == "QUAIDS") { SPEC1_C$init <- inizio(fit1_C); SPEC2_C$init <- inizio(fit2_C) }
+E1_C <- elasticita(fit1_C, fit1_C$d); E2_C <- elasticita(fit2_C, fit2_C$d); EU_C <- elasticita_incondizionate(E1_C, E2_C)
+EA_C <- aggrega(EU_C)
+
 # 13.5 BOOTSTRAP OF THE TWO VARIANTS
 # Same seed as section 11, so every replication uses the SAME clusters as the main bootstrap: the differences between
 # the versions are not due to different random draws. Variant A also needs stage 1 of the main model (re-estimated here).
-PUNTI <- list(A_s2 = E2_A, A_unc = EU_A, B_s1 = E1_B, B_s2 = E2_B, B_unc = EU_B)
-RIGHE_V <- list(A_s2 = STAGE2, A_unc = STAGE2, B_s1 = STAGE1, B_s2 = STAGE2, B_unc = STAGE2)
+PUNTI <- list(A_s2 = E2_A, A_unc = EU_A, B_s1 = E1_B, B_s2 = E2_B, B_unc = EU_B, C_s1 = E1_C, C_s2 = E2_C, C_unc = EU_C)
+RIGHE_V <- list(A_s2 = STAGE2, A_unc = STAGE2, B_s1 = STAGE1, B_s2 = STAGE2, B_unc = STAGE2, C_s1 = STAGE1, C_s2 = STAGE2, C_unc = STAGE2)
 boot_var <- lapply(RIGHE_V, function(g) array(NA, c(max(B_ROB, 1), length(g), 2), dimnames = list(NULL, g, c("spesa", "marshall"))))
 boot_agg_B   <- array(NA, c(max(B_ROB, 1), length(AGGREGATI), ncol(EA)), dimnames = list(NULL, names(AGGREGATI), colnames(EA)))
+boot_agg_C   <- boot_agg_B
 boot_theta_B <- rep(NA_real_, max(B_ROB, 1))                               # theta of each replication (for section 14)
 set.seed(SEME)
 cat("\nRobustness bootstrap:", B_ROB, "replications (same clusters as section 11).\n")
@@ -1281,13 +1431,17 @@ for (r in seq_len(B_ROB)) {
   d2 <- stima2[unlist(righe2[estratti], use.names = FALSE), ]
   stima_ok <- function(d, S) tryCatch(suppressWarnings(stima_laaids(d, S)), error = function(e) NULL)
   f1 <- stima_ok(d1, SPEC1); fA2 <- stima_ok(d2, SPEC2_A); fB1 <- stima_ok(d1, SPEC1_B); fB2 <- stima_ok(d2, SPEC2_B)
+  fC1 <- stima_ok(d1, SPEC1_C); fC2 <- stima_ok(d2, SPEC2_C)
   rm(d1, d2)
-  if (is.null(f1) || is.null(fA2) || is.null(fB1) || is.null(fB2)) next
+  if (is.null(f1) || is.null(fA2) || is.null(fB1) || is.null(fB2) || is.null(fC1) || is.null(fC2) ||
+      !all(f1$convergenza, fA2$convergenza, fB1$convergenza, fB2$convergenza, fC1$convergenza, fC2$convergenza)) next
   e1 <- elasticita(f1, f1$d); eA2 <- ordina2(elasticita(fA2, fA2$d)); eB1 <- elasticita(fB1, fB1$d); eB2 <- elasticita(fB2, fB2$d)
-  e_v <- list(A_s2 = eA2, A_unc = elasticita_incondizionate(e1, eA2), B_s1 = eB1, B_s2 = eB2, B_unc = elasticita_incondizionate(eB1, eB2))
+  eC1 <- elasticita(fC1, fC1$d); eC2 <- elasticita(fC2, fC2$d)
+  e_v <- list(A_s2 = eA2, A_unc = elasticita_incondizionate(e1, eA2), B_s1 = eB1, B_s2 = eB2, B_unc = elasticita_incondizionate(eB1, eB2),
+              C_s1 = eC1, C_s2 = eC2, C_unc = elasticita_incondizionate(eC1, eC2))
   for (v in names(e_v)) boot_var[[v]][r, , ] <- cbind(e_v[[v]]$spesa, diag(e_v[[v]]$marshall))
-  boot_agg_B[r, , ] <- aggrega(e_v$B_unc); boot_theta_B[r] <- fB1$b_cf["ln_spesa_tot"]
-  rm(f1, fA2, fB1, fB2); invisible(gc())
+  boot_agg_B[r, , ] <- aggrega(e_v$B_unc); boot_agg_C[r, , ] <- aggrega(e_v$C_unc); boot_theta_B[r] <- fB1$b_cf["ln_spesa_tot"]
+  rm(f1, fA2, fB1, fB2, fC1, fC2); invisible(gc())
   if (r %% 10 == 0) cat("  replication", r, "of", B_ROB, "-", round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1), "minutes\n")
 }
 cat("Successful replications:", sum(!is.na(boot_var$A_s2[, 1, 1])), "of", B_ROB, "\n")
@@ -1307,25 +1461,26 @@ col_var  <- function(v, nome) { E <- PUNTI[[v]]; b <- boot_var[[v]]
 col_na   <- function(n, nome) setNames(data.frame(matrix(NA_real_, n, 4)), paste0(nome, COL4))
 tab_rob <- bind_rows(
   data.frame(system = "stage 1", category = STAGE1, col_base("s1"), col_na(length(STAGE1), "alt_residual"), col_var("B_s1", "no_CF"),
-             col_var("PM_s1", "at_means"), row.names = NULL),
+             col_var("PM_s1", "at_means"), col_var("C_s1", NOME_C), row.names = NULL),
   data.frame(system = "stage 2 (conditional)", category = STAGE2, col_base("s2"), col_var("A_s2", "alt_residual"), col_var("B_s2", "no_CF"),
-             col_var("PM_s2", "at_means"), row.names = NULL),
+             col_var("PM_s2", "at_means"), col_var("C_s2", NOME_C), row.names = NULL),
   data.frame(system = "unconditional", category = STAGE2, col_base("unc"), col_var("A_unc", "alt_residual"), col_var("B_unc", "no_CF"),
-             col_var("PM_unc", "at_means"), row.names = NULL))
+             col_var("PM_unc", "at_means"), col_var("C_unc", NOME_C), row.names = NULL))
 tab_rob$note <- case_when(tab_rob$category == RES1 ~ "residual in all versions (stage 1 is the same in main and alt_residual)",
                           tab_rob$category == RES2 ~ "residual in main and no_CF: elasticity from adding-up",
                           tab_rob$category == RES_ALT ~ paste0("residual in alt_residual (", RES_ALT, "): elasticity from adding-up"),
                           tab_rob$system == "stage 1" ~ "stage 1 is the same in main and alt_residual",
                           TRUE ~ "")
 cat("\n13.6 Expenditure elasticities: main model, alternative residual (", RES_ALT, "), no control function, at the means:\n")
-print(tab_rob %>% select(system, category, main_expenditure, alt_residual_expenditure, no_CF_expenditure, at_means_expenditure) %>%
+print(tab_rob %>% select(system, category, main_expenditure, alt_residual_expenditure, no_CF_expenditure, at_means_expenditure, all_of(paste0(NOME_C, "_expenditure"))) %>%
         mutate(across(where(is.numeric), ~ round(.x, 2))))
 
 # 13.7 SAVE: 3 sheets added to the results file of section 12, and the bootstrap replications
 nota13 <- data.frame(notes = c(
   "Robustness checks (section 13 of the script). Bootstrap with the same clusters as the main results.",
   paste0("rob_comparison: main model vs alt_residual (", RES_ALT, " is the omitted equation of stage 2 instead of plant_protein) vs no_CF (no control function)"),
-  "   vs at_means (main model, elasticities of ONE household with all the mean values: the method used before 26 November 2026).",
+  "   vs at_means (main model, elasticities of ONE household with all the mean values: the method used before 26 November 2026)",
+  paste0("   vs ", NOME_C, " (the same model with the ", ALTRO, " demand system instead of the ", MODELLO, ")."),
   "   A category that is the residual gets its elasticity from adding-up, without zero correction: compare it with the version where it is estimated.",
   "rob_decomposition: expenditure elasticity = current_buyers (households already consuming spend more) + new_buyers (more households start consuming).",
   "All elasticities here are with respect to the FOOD budget (stage 1, unconditional) or the PROTEIN budget (stage 2). For TOTAL expenditure: main_expenditure."))
@@ -1334,7 +1489,8 @@ wb <- loadWorkbook(file_ris)
 fogli13 <- list(rob_notes = nota13, rob_comparison = tab_rob, rob_decomposition = tab_scomposizione)
 for (s in names(fogli13)) { if (s %in% names(wb)) removeWorksheet(wb, s); addWorksheet(wb, s); writeData(wb, s, fogli13[[s]]) }
 saveWorkbook(wb, file_ris, overwrite = TRUE)
-saveRDS(list(varianti = boot_var, theta = boot_theta, scomposizione = boot_dec, aggregati_no_CF = boot_agg_B, theta_no_CF = boot_theta_B),
+saveRDS(list(varianti = boot_var, theta = boot_theta, scomposizione = boot_dec, aggregati_no_CF = boot_agg_B, aggregati_altro_modello = boot_agg_C,
+             theta_no_CF = boot_theta_B),
         file.path(USCITA, "repliche_bootstrap_robustezza.rds"))
 cat("\nRobustness results added to:", file_ris, "\n")
 
@@ -1377,10 +1533,14 @@ b_att   <- cbind(fetta(boot_dec$s1, "intensiva"), fetta(boot_dec$unc, "intensiva
 theta_B <- fit1_B$b_cf["ln_spesa_tot"]                                     # the same first step: equal to theta
 tot     <- cibo * theta;    b_tot   <- b_cibo * boot_theta
 tot_B   <- cibo_B * theta_B; b_tot_B <- b_cibo_B * boot_theta_B
+cibo_C  <- c(E1_C$spesa, EU_C$spesa, EA_C[, "spesa"])                      # the other demand model (13.4b)
+b_cibo_C <- cbind(fetta(boot_var$C_s1, "spesa"), fetta(boot_var$C_unc, "spesa"), fetta(boot_agg_C, "spesa"))
+tot_C   <- cibo_C * theta; b_tot_C <- b_cibo_C * boot_theta_B
 att_tot <- att * theta;     b_att_tot <- b_att * boot_theta
 tab_main <- data.frame(level = livello, category = righe14, mean_share_food_budget = quota,
                        total_expenditure = tot, se = apply(b_tot, 2, es), ci95_low = apply(b_tot, 2, q025), ci95_high = apply(b_tot, 2, q975),
                        total_expenditure_no_CF = tot_B, se_no_CF = apply(b_tot_B, 2, es),
+                       total_expenditure_other_model = tot_C, se_other_model = apply(b_tot_C, 2, es),
                        food_budget = cibo, se_food_budget = apply(b_cibo, 2, es),
                        food_budget_no_CF = cibo_B, se_food_budget_no_CF = apply(b_cibo_B, 2, es),
                        current_buyers = att_tot, current_buyers_se = apply(b_att_tot, 2, es),
@@ -1406,7 +1566,7 @@ tab_prezzi$note <- case_when(tab_prezzi$level == "stage 1 group" ~ "stage 1 (foo
                              tab_prezzi$level == "protein category" ~ "unconditional (both stages re-optimised)",
                              TRUE ~ "aggregate: all prices of the group rise by 1% together")
 cat("\n14. MAIN TABLE - elasticities with respect to TOTAL expenditure (theta =", round(theta, 3), "):\n")
-print(tab_main %>% select(category, total_expenditure, se, total_expenditure_no_CF, food_budget, current_buyers, pct_from_new_buyers) %>%
+print(tab_main %>% select(category, total_expenditure, se, total_expenditure_no_CF, total_expenditure_other_model, food_budget, current_buyers, pct_from_new_buyers) %>%
         mutate(across(where(is.numeric), ~ round(.x, 2))))
 cat("Own-price elasticities (Marshall):\n")
 print(tab_prezzi %>% select(category, marshall, marshall_se, marshall_no_CF) %>% mutate(across(where(is.numeric), ~ round(.x, 2))))
@@ -1437,6 +1597,7 @@ cat("\n14.3b Elasticities with respect to TOTAL expenditure by quintile and area
 nota14 <- c(
   "main_expenditure: total_expenditure = elasticity with respect to TOTAL household expenditure = food-budget elasticity x theta",
   "   (theta = elasticity of the real food budget to total expenditure, first step of the stage-1 control function). _no_CF = without control function.",
+  paste0("   _other_model = the same with the ", ALTRO, " demand system (main model: ", MODELLO, ")."),
   "   current_buyers = part of the elasticity from households that already buy (in both stages); new_buyers = the rest (households that start buying",
   "   or buy more often within the 7 days). Aggregates: weighted means of the categories (weights = shares in the food budget).",
   "main_own_price: own-price elasticities; protein categories and aggregates unconditional; aggregate = all prices of the group change together.",

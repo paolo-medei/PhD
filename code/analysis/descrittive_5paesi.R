@@ -5,9 +5,9 @@
 ##  WHAT IT PRODUCES (one Excel file + charts in PNG, in a new folder):
 ##    leggimi        definitions, sources, warnings
 ##    demografia     household size, adult equivalents, female head, age of the head, share of the population
-##    consumo        total consumption and food consumption per person per day (2021 PPP dollars), food share,
+##    consumo        total consumption and food consumption per adult equivalent per day (2021 PPP dollars), food share,
 ##                   share of people below 3.00 dollars a day
-##    asf            animal-source foods (ASF): spending per person, share of the food budget, % of households that
+##    asf            animal-source foods (ASF): spending per adult equivalent, share of the food budget, % of households that
 ##                   consumed each category in the last 7 days, share of each category in the food budget
 ##    mercato        where ASF come from: purchases, own production, gifts (% of the value consumed)
 ##    qualita        unit values of ASF purchases relative to the local median of the same item and unit (a sign of quality)
@@ -22,12 +22,13 @@
 ##    3. wb_ppp_cpi.csv             World Bank: consumer price index and 2021 PPP factor (see README_wb_ppp_cpi.txt)
 ##
 ##  DEFINITIONS (written again in the sheet "leggimi")
-##   - Quintile: of total consumption PER PERSON, national, within each round, so that each quintile holds 20% of
+##   - Quintile: of total consumption PER ADULT EQUIVALENT (OECD-modified scale), national, within each round, so that each quintile holds 20% of
 ##     the people (built in LAAIDS_2stadi.R, section 8.7c). Q1 = poorest 20%.
 ##   - Rounds pooled: every round counts the same (the survey weights are rescaled to sum to 1 in each round).
-##   - Means per PERSON (weights = survey weight x household size) for consumption per person and for poverty;
+##   - Adult equivalents: OECD-modified scale (1 first adult, 0.5 other members 15+, 0.3 children under 15), from LAAIDS_2stadi.R 8.7c.
+##   - Means per PERSON (weights = survey weight x household size) for consumption and for poverty;
 ##     means per HOUSEHOLD (weights = survey weight) for shares, % of households and demographics.
-##   - 2021 PPP dollars per person per day = annual value / household size / 365 x CPI(2021) / CPI(year of the prices)
+##   - 2021 PPP dollars per adult equivalent per day = annual value / adult equivalents / 365 x CPI(2021) / CPI(year of the prices)
 ##     / PPP factor 2021. Year of the prices: interview year when known, otherwise the middle of the fieldwork.
 ##     Malawi: the official aggregates are already in real terms (prices of the start of the survey); Uganda 2010-2011:
 ##     official total consumption is at constant 2005/06 prices. The conversion is an approximation (10-15% in rounds
@@ -140,7 +141,7 @@ for (p in names(PAESI)) {
            k_tot  = cpi(p, 2021) / cpi(p, anno_tot) / ppp(p),
            id_distretto = as.character(id_distretto), regione = as.character(regione))
   # only the columns used here (the countries have different extra columns and types)
-  FAM[[p]] <- f[, c("paese", "round", "hhid", "peso", "rurale", "ampiezza", "adulti_eq", "capo_donna", "eta_capo", "quintile",
+  FAM[[p]] <- f[, c("paese", "round", "hhid", "peso", "rurale", "ampiezza", "adulti_eq_oecd", "share_child", "capo_donna", "eta_capo", "quintile",
                     "id_distretto", "regione", "spesa_totale_annua", "x_food", "v_proteins", paste0("v_", CAT),
                     "int_year", "cibo_ufficiale_annuo", "anno_cibo", "anno_tot", "k_cibo", "k_tot")]
   v <- read.csv(file.path(cart, "voci_valori_flag.csv"), colClasses = c(hhid = "character", pr_u = "character"))
@@ -163,14 +164,15 @@ fam <- fam %>%
          v_carne     = v_beef + v_sheep_goat + v_pork_other_meat + v_poultry,
          v_latticini = v_fluid_milk + v_other_dairy,
          v_asf       = v_carne + v_fish + v_latticini + v_eggs,
-         # 2021 PPP dollars per person per day
-         tot_ppp     = spesa_totale_annua / ampiezza / 365 * k_tot,
-         cibo_uff_ppp = cibo_ufficiale_annuo / ampiezza / 365 * k_tot,
-         cibo_casa_ppp = x_food / 7 / ampiezza * k_cibo,                      # our food at home (7-day value / 7 = per day)
-         asf_ppp     = v_asf / 7 / ampiezza * k_cibo,
+         # 2021 PPP dollars per ADULT EQUIVALENT per day (OECD-modified scale)
+         tot_ppp     = spesa_totale_annua / adulti_eq_oecd / 365 * k_tot,
+         cibo_uff_ppp = cibo_ufficiale_annuo / adulti_eq_oecd / 365 * k_tot,
+         cibo_casa_ppp = x_food / 7 / adulti_eq_oecd * k_cibo,                # our food at home (7-day value / 7 = per day)
+         asf_ppp     = v_asf / 7 / adulti_eq_oecd * k_cibo,
+         tot_ppp_pc  = spesa_totale_annua / ampiezza / 365 * k_tot,          # per PERSON: only for the poverty line
          # food share of total consumption: official where available, otherwise ours (Uganda)
          quota_cibo  = ifelse(!is.na(cibo_uff_ppp), cibo_uff_ppp / tot_ppp, cibo_casa_ppp / tot_ppp),
-         povero      = as.numeric(tot_ppp < SOGLIA_POVERTA),
+         povero      = as.numeric(tot_ppp_pc < SOGLIA_POVERTA),                # the international line is per person
          quota_asf   = v_asf / x_food, quota_prot = v_proteins / x_food)
 for (k in c(CAT, "carne", "latticini", "asf")) {
   fam[[paste0("cons_", k)]]  <- as.numeric(fam[[paste0("v_", k)]] > 0)       # consumed in the last 7 days (1/0)
@@ -204,17 +206,18 @@ IND <- list(
   list("n_famiglie",  "demografia", "Famiglie nel campione (tutti i round)",      "numero", function(d, t) nrow(d)),
   list("quota_pop",   "demografia", "Quota della popolazione del paese",          "%",      function(d, t) 100 * sum(d$w_per) / sum(t$w_per)),
   list("ampiezza",    "demografia", "Ampiezza della famiglia",                    "persone", function(d, t) wmean(d$ampiezza, d$w_fam)),
-  list("adulti_eq",   "demografia", "Adulti equivalenti",                         "numero", function(d, t) wmean(d$adulti_eq, d$w_fam)),
+  list("adulti_eq",   "demografia", "Adulti equivalenti (scala OCSE modificata)", "numero", function(d, t) wmean(d$adulti_eq_oecd, d$w_fam)),
+  list("bambini",     "demografia", "Membri sotto i 15 anni",                     "% dei membri", function(d, t) 100 * wmean(d$share_child, d$w_fam)),
   list("capo_donna",  "demografia", "Capofamiglia donna",                         "% famiglie", function(d, t) 100 * wmean(d$capo_donna, d$w_fam)),
   list("eta_capo",    "demografia", "Eta' del capofamiglia",                      "anni",   function(d, t) wmean(d$eta_capo, d$w_fam)),
   list("rurale",      "demografia", "Famiglie rurali",                            "% famiglie", function(d, t) 100 * wmean(d$rurale, d$w_fam)),
-  list("tot_media",   "consumo", "Consumo totale per persona (media)",            "$ PPP 2021 al giorno", function(d, t) wmean(d$tot_ppp, d$w_per)),
-  list("tot_mediana", "consumo", "Consumo totale per persona (mediana)",          "$ PPP 2021 al giorno", function(d, t) wmed(d$tot_ppp, d$w_per)),
-  list("cibo_uff",    "consumo", "Consumo di cibo per persona (aggregato ufficiale)", "$ PPP 2021 al giorno", function(d, t) wmean(d$cibo_uff_ppp, d$w_per)),
-  list("cibo_casa",   "consumo", "Cibo consumato a casa per persona (7 giorni, nostra misura)", "$ PPP 2021 al giorno", function(d, t) wmean(d$cibo_casa_ppp, d$w_per)),
+  list("tot_media",   "consumo", "Consumo totale per adulto equivalente (media)",            "$ PPP 2021 al giorno", function(d, t) wmean(d$tot_ppp, d$w_per)),
+  list("tot_mediana", "consumo", "Consumo totale per adulto equivalente (mediana)",          "$ PPP 2021 al giorno", function(d, t) wmed(d$tot_ppp, d$w_per)),
+  list("cibo_uff",    "consumo", "Consumo di cibo per adulto equivalente (aggregato ufficiale)", "$ PPP 2021 al giorno", function(d, t) wmean(d$cibo_uff_ppp, d$w_per)),
+  list("cibo_casa",   "consumo", "Cibo consumato a casa per adulto equivalente (7 giorni, nostra misura)", "$ PPP 2021 al giorno", function(d, t) wmean(d$cibo_casa_ppp, d$w_per)),
   list("quota_cibo",  "consumo", "Quota del cibo sul consumo totale",             "% (media delle famiglie)", function(d, t) 100 * wmean(d$quota_cibo, d$w_fam)),
-  list("poveri",      "consumo", "Persone sotto 3,00 $ PPP al giorno (indicativo)", "% persone", function(d, t) 100 * wmean(d$povero, d$w_per)),
-  list("asf_ppp",     "asf", "Spesa in ASF per persona",                          "$ PPP 2021 al giorno", function(d, t) wmean(d$asf_ppp, d$w_per)),
+  list("poveri",      "consumo", "Persone sotto 3,00 $ PPP al giorno per persona (indicativo)", "% persone", function(d, t) 100 * wmean(d$povero, d$w_per)),
+  list("asf_ppp",     "asf", "Spesa in ASF per adulto equivalente",                          "$ PPP 2021 al giorno", function(d, t) wmean(d$asf_ppp, d$w_per)),
   list("quota_asf",   "asf", "Quota degli ASF nel budget alimentare",             "% (media delle famiglie)", function(d, t) 100 * wmean(d$quota_asf, d$w_fam)),
   list("quota_prot",  "asf", "Quota delle proteine (ASF + vegetali) nel budget alimentare", "% (media delle famiglie)", function(d, t) 100 * wmean(d$quota_prot, d$w_fam)))
 for (k in c("carne", "asf", CAT, "latticini"))
@@ -307,11 +310,11 @@ lunghi$n_nota <- ifelse(lunghi$foglio == "qualita", "n_famiglie = numero di acqu
 ## =============================================================================
 per_round <- fam %>% group_by(Paese = PAESI[paese], Round = round) %>% summarise(
   Famiglie = n(), `Anno dei prezzi (cibo)` = round(wmean(anno_cibo, w_fam), 1),
-  `Consumo totale per persona, valuta locale all'anno (media)` = wmean(spesa_totale_annua / ampiezza, w_per),
-  `Consumo totale per persona, $ PPP al giorno (media)` = wmean(tot_ppp, w_per),
+  `Consumo totale per adulto equivalente, valuta locale all'anno (media)` = wmean(spesa_totale_annua / adulti_eq_oecd, w_per),
+  `Consumo totale per adulto equivalente, $ PPP al giorno (media)` = wmean(tot_ppp, w_per),
   `Quota del cibo sul totale (%)` = 100 * wmean(quota_cibo, w_fam),
   `Persone sotto 3,00 $ al giorno (%)` = 100 * wmean(povero, w_per),
-  `Spesa ASF per persona, $ PPP al giorno` = wmean(asf_ppp, w_per),
+  `Spesa ASF per adulto equivalente, $ PPP al giorno` = wmean(asf_ppp, w_per),
   `Quota ASF nel budget alimentare (%)` = 100 * wmean(quota_asf, w_fam),
   `Famiglie che hanno consumato carne in 7 giorni (%)` = 100 * wmean(cons_carne, w_fam),
   `Famiglie rurali (%)` = 100 * wmean(rurale, w_fam), .groups = "drop")
@@ -340,7 +343,7 @@ TITOLI <- c(demografia = "Chi sono le famiglie", consumo = "Consumo totale, cibo
 for (fg in names(TITOLI)) {
   addWorksheet(wb_out, fg, gridLines = FALSE)
   writeData(wb_out, fg, TITOLI[fg], startRow = 1); addStyle(wb_out, fg, st_tit, rows = 1, cols = 1)
-  writeData(wb_out, fg, "Tutti i round insieme (ogni round pesa uguale). Quintili nazionali di consumo totale per persona. Vedi il foglio leggimi.", startRow = 2)
+  writeData(wb_out, fg, "Tutti i round insieme (ogni round pesa uguale). Quintili nazionali di consumo totale per adulto equivalente. Vedi il foglio leggimi.", startRow = 2)
   addStyle(wb_out, fg, st_sub, rows = 2, cols = 1)
   r <- 4
   for (cod in unique(lunghi$codice[lunghi$foglio == fg])) {
@@ -380,15 +383,16 @@ LEGGIMI <- c(
   "Analisi descrittiva per paese, quintile e area. Script: descrittive_5paesi.R (github.com/paolo-medei/PhD, code/analysis).",
   "Dati: LSMS-ISA. Tanzania NPS 2008-2020 (5 round), Etiopia ESS 2015-2021 (3), Malawi IHS/IHPS 2010-2024 (4), Nigeria GHS-Panel 2010-2023 (5), Uganda UNPS 2010-2019 (6).",
   "Famiglie: quelle dello script LAAIDS_2stadi.R (budget alimentare positivo). Tutti i round insieme: i pesi campionari sono riscalati a somma 1 in ogni round.",
-  "Quintili: nazionali, di consumo totale PER PERSONA (aggregato ufficiale / ampiezza), dentro ogni round, pesati per persona: ogni quintile = 20% delle persone. Q1 = il piu' povero.",
+  "Quintili: nazionali, di consumo totale PER ADULTO EQUIVALENTE (aggregato ufficiale / adulti equivalenti), dentro ogni round, pesati per persona: ogni quintile = 20% delle persone. Q1 = il piu' povero.",
+  "Adulti equivalenti: scala OCSE modificata, uguale per i 5 paesi: 1 per il primo adulto, 0,5 per ogni altro membro di 15 anni o piu', 0,3 per ogni bambino sotto i 15 (dai registri delle famiglie).",
   "Aree: rurale / urbana come nell'indagine. Le celle urbane dei quintili poveri hanno poche famiglie: guardare n_famiglie nel foglio dati_lunghi.",
-  "Medie per PERSONA (peso x ampiezza): consumo per persona e poverta'. Medie per FAMIGLIA (peso): quote, % di famiglie, demografia.",
-  "Dollari PPP 2021 al giorno = valore annuo / ampiezza / 365 x CPI(2021) / CPI(anno dei prezzi) / fattore PPP 2021 (Banca Mondiale, consumo delle famiglie).",
+  "Valori monetari per ADULTO EQUIVALENTE. Medie per PERSONA (peso x ampiezza): consumo e poverta'. Medie per FAMIGLIA (peso): quote, % di famiglie, demografia.",
+  "Dollari PPP 2021 al giorno = valore annuo / adulti equivalenti / 365 x CPI(2021) / CPI(anno dei prezzi) / fattore PPP 2021 (Banca Mondiale, consumo delle famiglie).",
   "  Anno dei prezzi: anno dell'intervista se noto, altrimenti meta' del lavoro sul campo. Malawi: aggregati ufficiali reali (prezzi dell'inizio dell'indagine).",
   "  Uganda 2010-2011: consumo totale ufficiale a prezzi costanti 2005/06. Nigeria 2023: prezzi 2023. Approssimazione: 10-15% nei round a cavallo di due anni con inflazione alta.",
   "Quota del cibo: cibo ufficiale / consumo totale ufficiale. Tanzania foodIN+foodOUT (con bevande e pasti fuori), Etiopia food_cons_ann (cibo a casa), Malawi rexp_cat011 (solo cibo),",
   "  Nigeria cibo a casa + fuori; Uganda nessun aggregato ufficiale: nostro cibo a casa x 52 / totale. Le definizioni non sono identiche fra paesi.",
-  "Poverta': consumo totale per persona < 3,00 $ PPP 2021 al giorno. INDICATIVO: non e' la misura ufficiale (gli aggregati ufficiali di poverta' usano deflatori spaziali propri).",
+  "Poverta': consumo totale PER PERSONA < 3,00 $ PPP 2021 al giorno (la soglia internazionale e' per persona). INDICATIVO: non e' la misura ufficiale (gli aggregati ufficiali di poverta' usano deflatori spaziali propri).",
   "ASF e categorie: nostro budget alimentare (cibo consumato a casa negli ultimi 7 giorni: acquisti + autoproduzione + regali ai prezzi locali), come nel LA/AIDS.",
   "  'Consumato negli ultimi 7 giorni': con il ricordo di 7 giorni uno zero puo' voler dire 'non comprato quella settimana', non 'mai consumato'.",
   "Mercato: quota del VALORE consumato che viene da acquisti, autoproduzione, regali; 'non attribuito' = voci con solo il totale. Nigeria 2012-2015: acquisti = consumo da acquisti.",
@@ -413,15 +417,15 @@ grafico <- function(cod, titolo, asse, file, aree = c("Rurali", "Urbane")) {
   x <- lunghi %>% filter(codice == cod, quintile != "Tutti", area %in% aree) %>% mutate(quintile = factor(quintile, levels = paste0("Q", 1:5)))
   g <- ggplot(x, aes(quintile, valore, colour = paese, group = paese)) + geom_line(linewidth = 0.9) + geom_point(size = 2) +
     facet_wrap(~ area) + scale_colour_manual(values = COLORI, name = NULL) +
-    labs(title = titolo, x = "Quintile di consumo per persona (Q1 = 20% piu' povero)", y = asse,
+    labs(title = titolo, x = "Quintile di consumo per adulto equivalente (Q1 = 20% piu' povero)", y = asse,
          caption = "Dati LSMS-ISA, tutti i round. Elaborazione: descrittive_5paesi.R") +
     theme_minimal(base_size = 11) + theme(legend.position = "bottom", plot.title = element_text(face = "bold"))
   ggsave(file.path(USCITA, "grafici", file), g, width = 9, height = 5, dpi = 200, bg = "white")
 }
 grafico("quota_cibo", "Quota del cibo sul consumo totale", "% del consumo totale", "01_quota_cibo.png")
-grafico("tot_mediana", "Consumo totale per persona (mediana)", "$ PPP 2021 al giorno", "02_consumo_totale.png")
+grafico("tot_mediana", "Consumo totale per adulto equivalente (mediana)", "$ PPP 2021 al giorno", "02_consumo_totale.png")
 grafico("cons_carne", "Famiglie che hanno consumato carne negli ultimi 7 giorni", "% famiglie", "03_consumo_carne.png")
-grafico("asf_ppp", "Spesa in alimenti di origine animale per persona", "$ PPP 2021 al giorno", "04_spesa_asf.png")
+grafico("asf_ppp", "Spesa in alimenti di origine animale per adulto equivalente", "$ PPP 2021 al giorno", "04_spesa_asf.png")
 grafico("quota_asf", "Quota degli ASF nel budget alimentare", "% del budget alimentare", "05_quota_asf.png")
 grafico("acquisti_asf", "Quota degli ASF che viene dal mercato (acquisti)", "% del valore consumato", "06_mercato_asf.png")
 grafico("uv_loc_carne", "Carne: valore unitario rispetto ai vicini (qualita')", "% sopra la mediana del distretto", "07_qualita_carne.png")

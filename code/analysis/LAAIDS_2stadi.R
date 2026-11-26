@@ -99,6 +99,11 @@ FILE   <- file.path(CARTELLA, paste0("analisi_", PAESE),
                       MWI = "MWI_dati_grezzi_LAAIDS_2026-11-25.xlsx", NGA = "NGA_dati_grezzi_LAAIDS_2026-11-25.xlsx",
                       UGA = "UGA_dati_grezzi_LAAIDS_2026-11-25.xlsx")[PAESE])
 USCITA <- file.path(dirname(FILE), paste0("risultati_LAAIDS_2stadi_", PAESE, if (EF_REGIONE) "" else "_senza_EF", "_", Sys.Date()))   # new folder: the input data are never touched
+# Share of members under 15 of every household (for the adult-equivalent scale, 8.7c), built by famiglie_extra_5paesi.py
+EXTRA  <- file.path(CARTELLA, "dataset", "famiglie_extra_5paesi.csv")
+ESCLUDI_ANOMALE   <- TRUE    # TRUE: leave out households whose 7-day food budget x 52 is more than 3 times their total
+                             # annual consumption: impossible values, errors in a quantity or a unit (section 7.1)
+CONTROLLO_BAMBINI <- FALSE   # TRUE: the share of members under 15 is one more demographic control in all equations (8.7c)
 dir.create(USCITA, showWarnings = FALSE)
 
 N_MIN  <- 5     # minimum number of purchases needed to compute a local median price
@@ -414,6 +419,13 @@ dati$flag_budget_zero <- dati$x_food <= 0
 n_budget_zero <- sum(dati$flag_budget_zero)
 cat("\nHouseholds with zero food budget (they only eat away from home; excluded from both stages):", n_budget_zero, "\n")
 dati <- dati %>% filter(!flag_budget_zero)
+# Implausible food budgets: the 7-day food budget x 365/7 is more than 3 times the total annual consumption of the household
+# (official aggregate). Food cannot be more than total consumption, so these are measurement errors (a quantity or a unit
+# far off: e.g. Uganda 2019, 100 million UGX of food in one week). They distort both the shares and the budget.
+dati$flag_anomala <- !is.na(dati$spesa_totale_annua) & dati$x_food * 365 / 7 > 3 * dati$spesa_totale_annua
+n_anomale <- sum(dati$flag_anomala)
+cat("Households with an implausible food budget (> 3 x total consumption):", n_anomale, if (ESCLUDI_ANOMALE) "- excluded\n" else "- kept (ESCLUDI_ANOMALE = FALSE)\n")
+if (ESCLUDI_ANOMALE) dati <- dati %>% filter(!flag_anomala)
 for (g in STAGE1) dati[[paste0("w1_", g)]] <- dati[[paste0("v_", g)]] / dati$x_food
 stopifnot(all(abs(rowSums(dati[, paste0("w1_", STAGE1)]) - 1) < 1e-9))      # check: the 4 shares sum to 1
 dati$quota_imputata <- dati$valore_imputato / dati$x_food
@@ -510,9 +522,21 @@ if (EF_REGIONE) {
   cat("Regional fixed effects:", length(livelli) - 1, "dummies\n")
 }
 
-# 8.7c CONSUMPTION QUINTILES (used for the results by quintile, sections 10.4b and 14, and for the descriptive tables)
-#      Quintile of total consumption PER PERSON (official aggregate / household size), within each round, with
-#      weights = survey weight x household size, so that every quintile holds 20% of the PEOPLE of the country.
+# 8.7c ADULT EQUIVALENTS AND CONSUMPTION QUINTILES (used for the results by quintile, sections 10.4b and 14, and for
+#      the descriptive tables)
+#      Adult equivalents: the OECD-modified scale, the same for the 5 countries (the official scales differ between
+#      countries and are missing for Nigeria and Malawi 2010 and 2024): 1 for the first adult, 0.5 for every other member
+#      aged 15 or more, 0.3 for every child under 15 (OECD uses 14: the rosters give the share under 15).
+#      Children = share of members under 15 x household size. A household without the share (0-3%) gets the round mean.
+extra <- read.csv(EXTRA, colClasses = c(hhid = "character")) %>% filter(country == PAESE) %>% select(round, hhid, share_child)
+dati <- dati %>% left_join(extra, by = c("round", "hhid")) %>% group_by(round) %>%
+  mutate(share_child = ifelse(is.na(share_child), mean(share_child, na.rm = TRUE), share_child)) %>% ungroup() %>% as.data.frame()
+bambini <- round(dati$share_child * dati$ampiezza); adulti <- dati$ampiezza - bambini
+dati$adulti_eq_oecd <- ifelse(adulti >= 1, 1 + 0.5 * (adulti - 1) + 0.3 * bambini, 1 + 0.3 * (bambini - 1))
+cat("Adult equivalents (OECD-modified): mean", round(mean(dati$adulti_eq_oecd, na.rm = TRUE), 2), "for a mean household size of", round(mean(dati$ampiezza, na.rm = TRUE), 2), "\n")
+if (CONTROLLO_BAMBINI) DEMO <- c(DEMO, "share_child")     # optional demographic control (section 0)
+#      Quintile of total consumption PER ADULT EQUIVALENT (official aggregate / adult equivalents), within each round,
+#      with weights = survey weight x household size, so that every quintile holds 20% of the PEOPLE of the country.
 #      Quintile 1 = the poorest 20%. Households without a weight still get the quintile of their consumption.
 quintile_pesato <- function(x, w) {
   ok <- !is.na(x) & !is.na(w) & w > 0
@@ -520,7 +544,7 @@ quintile_pesato <- function(x, w) {
   tagli <- sapply(c(0.2, 0.4, 0.6, 0.8), function(p) x[ok][o][which(cw >= p)[1]])    # the 4 cut-off points
   findInterval(x, tagli, left.open = TRUE) + 1                                        # 1 ... 5 (NA stays NA)
 }
-dati <- dati %>% group_by(round) %>% mutate(quintile = quintile_pesato(spesa_totale_annua / ampiezza, peso * ampiezza)) %>%
+dati <- dati %>% group_by(round) %>% mutate(quintile = quintile_pesato(spesa_totale_annua / adulti_eq_oecd, peso * ampiezza)) %>%
   ungroup() %>% as.data.frame()
 cat("Households by quintile (all rounds):\n"); print(table(dati$quintile, useNA = "ifany"))
 
@@ -1102,7 +1126,8 @@ controlli <- data.frame(check = c(
   "item rows used (household x item)", "households read", "unit values", "outlier unit values (excluded from the medians)",
   "purchases revalued (spending missing or outlier unit value)", "items with an imputed value",
   "mean share of the food budget imputed (%)", "mean share of the protein budget imputed (%)",
-  "households with zero food budget (excluded)", "households with zero protein budget (excluded from stage 2)",
+  "households with zero food budget (excluded)", "households with an implausible food budget (> 3 x total consumption)",
+  "households with zero protein budget (excluded from stage 2)",
   "households in the stage-1 estimation", "households in the stage-2 estimation",
   "stage 1: households NOT consuming the residual group 'other' (%) - zeros not modelled",
   "stage 2: households NOT consuming the residual 'plant_protein' (%) - zeros not modelled",
@@ -1110,7 +1135,7 @@ controlli <- data.frame(check = c(
   "symmetry restrictions stage 1", "symmetry restrictions stage 2", "successful bootstrap replications", "bootstrap clusters"),
   value = c(nrow(voci), nrow(famiglie), sum(!is.na(voci$uv)), sum(voci$flag_uv_anomalo), sum(voci$flag_acq_rivalutato, na.rm = TRUE),
             sum(voci$flag_imputato), round(100 * mean(dati$quota_imputata), 2), round(100 * mean(dati$quota_imputata_prot, na.rm = TRUE), 2),
-            n_budget_zero, n_prot_zero, nrow(stima1), nrow(stima2),
+            n_budget_zero, n_anomale, n_prot_zero, nrow(stima1), nrow(stima2),
             round(100 * mean(stima1[[paste0("w1_", RES1)]] == 0), 2), round(100 * mean(stima2[[paste0("w2_", RES2)]] == 0), 2),
             round(fit1$strumenti$joint_F_cluster[1], 1), round(fit2$strumenti$joint_F_cluster[1], 1),
             length(SPEC1$simm), length(SPEC2$simm), sum(ok), K))

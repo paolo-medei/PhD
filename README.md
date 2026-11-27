@@ -5,7 +5,21 @@ LSMS-ISA della Banca Mondiale: Etiopia, Tanzania, Nigeria, Uganda (panel) e Mala
 
 Paolo Medei — AGRISYSTEM Doctoral School, Università Cattolica del Sacro Cuore.
 
-## Stato
+## Stato al 27 novembre 2026 (da leggere per primo)
+
+- **Modello principale: LA/AIDS a due stadi** (`code/analysis/LAAIDS_2stadi.R`, un paese alla volta, PAESE in testa):
+  stadio 1 budget alimentare su 4 gruppi, stadio 2 budget proteico su 9 categorie; zeri con Shonkwiler-Yen, spesa
+  endogena con control function, SUR con omogeneita' e simmetria, effetti fissi regionali, bootstrap a cluster (200).
+  Deciso con il Professore il 27 novembre. **QUAIDS = controllo di robustezza** (stesso script, `MODELLO <- "QUAIDS"`).
+- Catena dei dati: archivi LSMS-ISA della Banca Mondiale -> `code/dataset/` (vedi `docs/DATASET.md`) ->
+  `<paese>_dati_grezzi_LAAIDS_<data>.xlsx` (`tza_dati_grezzi.R`, `dati_grezzi_LAAIDS.R`) -> `LAAIDS_2stadi.R`.
+  I dati delle famiglie NON sono nel repository (condizioni d'uso della Microdata Library).
+- Tabelle: `confronto_LAAIDS_5paesi.py` (5 paesi), `confronto_LAAIDS_QUAIDS.py` (i due modelli),
+  `elasticita_incrociate.R` (proteine animali contro vegetali), `descrittive_5paesi.R` (statistiche descrittive).
+- Lo script unico `code/ASF_completo.R` (v26, sotto) resta per il modello a due parti con la scomposizione
+  quantita'/qualita' (Deaton 1988) e per gli Step II: non e' quello dei risultati LA/AIDS.
+
+## Stato (storico, fino al 23 novembre)
 
 - **Dal 21 novembre il codice è un file solo: `code/ASF_completo.R`**, diviso in 17 parti (PARTE 0-16),
   con le spiegazioni in italiano: cosa si fa, perché e come. Il codice è identico a quello dei 15 moduli

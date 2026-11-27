@@ -74,7 +74,7 @@ for p, nome in PAESI.items():
 
 R, QT, L, C = pd.DataFrame(righe), pd.DataFrame(quint), pd.DataFrame(lam), pd.DataFrame(conv)
 note = pd.DataFrame({"Nota": [
-    "Confronto QUAIDS (modello principale dal 26/11/2026) e LA/AIDS, stesso script, stessi dati, effetti fissi regionali; errori standard: bootstrap a cluster, 200 repliche.",
+    "Confronto LA/AIDS (modello principale, deciso con il Prof. il 27/11/2026) e QUAIDS (controllo di robustezza): stesso script, stessi dati, effetti fissi regionali; errori standard: bootstrap a cluster, 200 repliche (QUAIDS Tanzania: 198 riuscite).",
     "Elasticita' rispetto alla spesa totale, medie sulle famiglie. 'Differenza in es' = (QUAIDS - LA/AIDS) / errore standard bootstrap del LA/AIDS.",
     "Perche' il test: nel LA/AIDS l'elasticita' e' circa 1 + beta/w, quindi il calo da Q1 a Q5 e' in parte imposto dalla forma funzionale.",
     "Il QUAIDS aggiunge lambda (ln x)^2 / b(p) nelle quote e il quadrato del budget nei probit: l'elasticita' puo' cambiare con il reddito liberamente.",

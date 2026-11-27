@@ -1,12 +1,16 @@
 ###############################################################################
-##  TWO-STAGE QUAIDS (and LA/AIDS), ONE COUNTRY AT A TIME: TANZANIA, ETHIOPIA, MALAWI, NIGERIA, UGANDA
-##  The main model is the QUAIDS (Banks, Blundell and Lewbel 1997; setting MODELLO = "QUAIDS", section 0): the LA/AIDS
-##  share equations plus a squared budget term, so that the expenditure effect can bend with income. The LA/AIDS is
-##  available with MODELLO = "LAAIDS" and, with ALTRO_MODELLO = TRUE, as a robustness check (section 13.4b).
+##  TWO-STAGE LA/AIDS (and QUAIDS), ONE COUNTRY AT A TIME: TANZANIA, ETHIOPIA, MALAWI, NIGERIA, UGANDA
+##  The main model is the LA/AIDS (setting MODELLO = "LAAIDS", section 0; decided with the supervisor on 27 November
+##  2026). The QUAIDS (Banks, Blundell and Lewbel 1997: the same share equations plus a squared budget term, so that
+##  the expenditure effect can bend with income) is the robustness check: run the script again with MODELLO = "QUAIDS"
+##  (results in folders ..._modello_QUAIDS_<date>), or set ALTRO_MODELLO = TRUE (section 13.4b).
+##  What the QUAIDS check gave (27 Nov 2026, cluster bootstrap): the squared term is significant in 34 of 54 share
+##  equations, but the elasticities of the two models are almost the same (animal-source foods: at most 0.07 apart;
+##  the fall from Q1 to Q5 holds in all 73 cases). The LA/AIDS is also the safer model with the unit values used as
+##  prices: when the unit of an item changes between rounds, the jump in its price is the same for every household of
+##  the round and the round dummies absorb it, because the LA/AIDS is linear in log prices; in the QUAIDS it also
+##  enters the squared term and b(p). Without regional fixed effects the QUAIDS does not converge in Tanzania (stage 1).
 ##  QUAIDS price index a(p): Stone index (INDICE_A = "stone"), b(p) exact, estimated by iterations (section 9.5).
-##  Why the QUAIDS is the main model (decision of 26 November 2026): on the 5 countries the squared term is
-##  significant in 34 of 54 share equations, so the data reject the LA/AIDS; the elasticities of the two models are
-##  almost the same (animal-source foods: at most 0.07 apart; the fall from Q1 to Q5 holds in both).
 ##  The approximate (Stone) QUAIDS is used because with the exact translog a(p) the iterations oscillate (note in 13).
 ##  Choose the country in section 0 (PAESE <- "TZA", "ETH", "MWI", "NGA" or "UGA"): it is the only line to change.
 ##  From the harmonised raw data to conditional and unconditional elasticities
@@ -97,7 +101,7 @@ library(tidyr)
 library(openxlsx)
 
 PAESE  <- "TZA"   # <-- the country: "TZA" Tanzania, "ETH" Ethiopia, "MWI" Malawi, "NGA" Nigeria, "UGA" Uganda
-MODELLO <- "QUAIDS"   # "QUAIDS" (main model, Banks, Blundell and Lewbel 1997) or "LAAIDS" (robustness).
+MODELLO <- "LAAIDS"   # "LAAIDS" (main model) or "QUAIDS" (robustness check, Banks, Blundell and Lewbel 1997).
 ALTRO_MODELLO <- FALSE   # TRUE: the other model is also estimated, with its bootstrap, as a robustness check (section 13.4b).
                          # It roughly doubles the time of the robustness bootstrap (QUAIDS iterates the SUR ~15 times).
                          # Test of 26 Nov 2026 (5 countries): QUAIDS and LA/AIDS gave almost the same elasticities.

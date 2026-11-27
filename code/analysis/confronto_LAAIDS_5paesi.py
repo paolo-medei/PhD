@@ -29,6 +29,8 @@ AGG = ["meat", "meat_and_fish", "dairy", "animal_source_foods"]
 SPEC = {"EF": ("con effetti fissi regionali (principale)", ""), "noEF": ("senza effetti fissi regionali", "_senza_EF")}
 
 
+NON_CONVERGENTI = set()
+
 def leggi(p, spec, foglio):
     # the most recent results folder of that country and specification, dated DATA or later (a run can end after midnight)
     cand = sorted(glob.glob(os.path.join(CART, f"analisi_{p}", f"risultati_LAAIDS_2stadi_{p}{SPEC[spec][1]}{SUF}_20??-??-??")))
@@ -36,6 +38,12 @@ def leggi(p, spec, foglio):
     if not cand:
         return None
     f = os.path.join(cand[-1], f"risultati_LAAIDS_2stadi_{p}.xlsx")
+    # QUAIDS: a run whose iterations hit MAX_ITER (500) in a stage did not converge; its estimates are not a solution
+    # of the model and are left out (Tanzania without regional fixed effects, 27 Nov 2026). Listed in NON_CONVERGENTI.
+    if QUAIDS and foglio != "checks":
+        ck = pd.read_excel(f, sheet_name="checks").set_index("check").value
+        if any(int(ck.get(f"QUAIDS iterations stage {st} (1 = LA/AIDS)", 1)) >= 500 for st in (1, 2)):
+            NON_CONVERGENTI.add((p, spec)); return None
     try:
         return pd.read_excel(f, sheet_name=foglio)
     except ValueError:                      # sheet missing (results of an older version)
@@ -114,7 +122,8 @@ for spec in ["EF", "noEF"]:
     ws["A1"] = f"TABELLA PRINCIPALE - elasticita' rispetto alla SPESA TOTALE - {lab}"; ws["A1"].font = TIT
     ws["A2"] = (f"{MOD} a due stadi. Medie sulle famiglie. Spesa totale = elasticita' sul budget alimentare x theta (primo passo della control function). "
                 "Proteine e aggregati: non condizionate. Tra parentesi l'errore standard del bootstrap a cluster (200 repliche)."
-                + (" Blocco senza control function: bootstrap di robustezza, 100 repliche con il QUAIDS (fuori tempo con 200)." if QUAIDS else ""))
+                + (" Blocco senza control function: bootstrap di robustezza, 100 repliche con il QUAIDS (fuori tempo con 200); per la Tanzania questo blocco non ha errori standard (bootstrap di robustezza non eseguito, per tempo)." if QUAIDS and spec == "EF" else "")
+                + (" Senza effetti fissi: Tanzania omessa, lo stadio 1 del QUAIDS non converge (500 iterazioni); Uganda converge solo con lo smorzamento (147 iterazioni)." if QUAIDS and spec == "noEF" else ""))
     ws["A2"].font = SUB
     r = 4
     r = blocco(ws, r, "Con control function (principale)", S2 + AGG + S1, valore(spec, "main_expenditure", "total_expenditure", "se"))

@@ -70,7 +70,7 @@ for p, nome in PAESI.items():
             lam.append({"Paese": nome, "Stadio": st, "Equazione": r.coefficient.split("_")[0], "lambda": r.estimate,
                         "es SUR": r.se_sur, "t": r.estimate / r.se_sur if r.se_sur else None})
     ck = pd.read_excel(qu, "checks").set_index("check").value
-    conv.append({"Paese": nome, **{k: ck[k] for k in ck.index if "QUAIDS" in str(k) or "demand model" in str(k)}})
+    conv.append({"Paese": nome, **{k: ck[k] for k in ck.index if "QUAIDS" in str(k) or "demand model" in str(k) or "successful" in str(k)}})
 
 R, QT, L, C = pd.DataFrame(righe), pd.DataFrame(quint), pd.DataFrame(lam), pd.DataFrame(conv)
 note = pd.DataFrame({"Nota": [
@@ -80,6 +80,7 @@ note = pd.DataFrame({"Nota": [
     "Il QUAIDS aggiunge lambda (ln x)^2 / b(p) nelle quote e il quadrato del budget nei probit: l'elasticita' puo' cambiare con il reddito liberamente.",
     "Foglio quintili: 'Calo Q1-Q5 conservato?' = si se il calo dal quintile piu' povero al piu' ricco c'e' in entrambi i modelli.",
     "Foglio lambda: t calcolato con l'errore standard SUR, che ignora che Phi, phi e v_hat sono stimati: solo indicativo.",
+    "Foglio convergenza: iterazioni del QUAIDS sul campione intero e repliche bootstrap riuscite. Dal 27/11/2026 le iterazioni sono smorzate dopo 100 passi senza convergenza (prima circa 1 replica su 15 non convergeva e veniva scartata); la soluzione non cambia.",
 ]})
 with pd.ExcelWriter(OUT, engine="openpyxl") as w:
     note.to_excel(w, "leggimi", index=False)

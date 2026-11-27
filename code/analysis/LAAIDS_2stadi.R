@@ -129,7 +129,7 @@ SEME   <- 2026  # random seed: with the same seed the bootstrap always gives the
 if (B < 2) stop("B must be at least 2 (use B = 2 for point estimates only; the standard errors are then meaningless)")
 MAX_ITER <- 500   # QUAIDS: maximum number of iterations (section 9.5); in the bootstrap they start from the estimates
 ITER_SMORZA <- 100 # QUAIDS: after this many iterations without convergence the step is halved (damping, section 9.5),
-                   # and halved again every ITER_SMORZA iterations. The whole-sample estimates need 7-76 iterations.
+                   # and halved again every ITER_SMORZA iterations. The main whole-sample estimates need 8-76 iterations.
 TOLL     <- 1e-6  # QUAIDS: the iterations stop when no parameter changes by more than this
 INDICE_A <- "stone" # QUAIDS price index a(p): "stone" (Stone index with the mean shares, as in the LA/AIDS; b(p) exact)
                     # or "translog" (exact a(p) as in Banks et al. 1997). With "translog" the iterations of section 9.5
@@ -881,7 +881,12 @@ stima_laaids <- function(d, S, stampa = FALSE) {
     # with omega = 1 (plain iterations, as before) for the first ITER_SMORZA iterations, then 1/2, then 1/4, then 1/8,
     # halving every ITER_SMORZA iterations. Damping does NOT change the solution: at the solution beta_new = beta_old,
     # whatever omega. It only changes the path to it. The stopping rule is the same (the FULL step beta_new - beta_old
-    # below TOLL), and all the whole-sample estimates converge in less than ITER_SMORZA iterations, so they are unchanged.
+    # below TOLL). The main whole-sample estimates (regional fixed effects, 5 countries) converge in 8-76 iterations,
+    # so damping does not touch them. Bootstrap, 27 Nov 2026: 200 of 200 replications in 4 countries, 198 in Tanzania
+    # (before damping: Ethiopia 188, Tanzania 182; point estimates identical, standard errors within 2%).
+    # Without regional fixed effects: Uganda stage 1 converges only thanks to damping (147 iterations); Tanzania
+    # stage 1 does NOT converge (the largest change stays at 0.2-0.3 for all 500 iterations, also with omega = 1/16):
+    # those Tanzania no-FE estimates are not a solution of the model and must not be reported.
     omega <- 1
     for (it in seq_len(MAX_ITER)) {
       ix <- indici(par)
